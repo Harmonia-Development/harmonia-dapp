@@ -2,6 +2,7 @@
 
 import { cva } from 'class-variance-authority'
 import { Check, Clock } from 'lucide-react'
+import { useState } from 'react'
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -12,9 +13,11 @@ import type {
 	ProposalCategory,
 	ProposalStatus,
 	ProposalVotes,
+	VoteOption,
 } from '@/lib/types/proposals.types'
 
 export interface ProposalCardProps {
+	id: string
 	title: string
 	category: ProposalCategory
 	status: ProposalStatus
@@ -22,6 +25,8 @@ export interface ProposalCardProps {
 	timeLeft: string
 	votes: ProposalVotes
 	creator: Creator
+	onSelect: (proposalId: string) => void
+	onVote: (proposalId: string, vote: VoteOption) => void
 }
 
 // Define variants for category badges
@@ -40,6 +45,7 @@ const categoryVariants = cva('rounded-full', {
 })
 
 export function ProposalCard({
+	id,
 	title,
 	category,
 	status,
@@ -47,14 +53,22 @@ export function ProposalCard({
 	timeLeft,
 	votes,
 	creator,
+	onSelect,
+	onVote,
 }: ProposalCardProps) {
 	// Calculate total votes
 	const totalVotes = votes.for + votes.against + votes.abstain
 
 	// Calculate percentages
-	const forPercentage = totalVotes > 0 ? Math.round((votes.for / totalVotes) * 100) : 0
-	const againstPercentage = totalVotes > 0 ? Math.round((votes.against / totalVotes) * 100) : 0
-	const abstainPercentage = totalVotes > 0 ? Math.round((votes.abstain / totalVotes) * 100) : 0
+	const forPercentage = totalVotes > 0 ? Math.round((votes.for / totalVotes) * 100) : 33
+	const againstPercentage = totalVotes > 0 ? Math.round((votes.against / totalVotes) * 100) : 33
+	const abstainPercentage = totalVotes > 0 ? Math.round((votes.abstain / totalVotes) * 100) : 33
+
+	// Handle vote action
+	const handleVote = (vote: VoteOption) => {
+		onSelect(id)
+		onVote(id, vote)
+	}
 
 	return (
 		<Card className="w-full overflow-hidden hover:bg-muted/50">
@@ -108,13 +122,17 @@ export function ProposalCard({
 			)}
 			{status === 'Active' && (
 				<CardFooter className="grid grid-cols-3 gap-2 p-4 pt-0">
-					<Button variant="outline" className="font-semibold">
+					<Button variant="outline" className="font-semibold" onClick={() => handleVote('against')}>
 						Vote Against
 					</Button>
-					<Button variant="default" className="font-semibold">
+					<Button variant="default" className="font-semibold" onClick={() => handleVote('for')}>
 						Vote For
 					</Button>
-					<Button variant="secondary" className="font-semibold">
+					<Button
+						variant="secondary"
+						className="font-semibold"
+						onClick={() => handleVote('abstain')}
+					>
 						Abstain
 					</Button>
 				</CardFooter>

@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Toaster } from '@/components/ui/toaster'
 import { toast } from '@/hooks/use-toast'
 import { proposals as sampleProposals } from '@/lib/mock-data/mock-proposals'
-import type { CreateProposalFormValues } from '@/lib/types/proposals.types'
+import type { CreateProposalFormValues, VoteOption } from '@/lib/types/proposals.types'
 import { CreateProposalButton } from './create-proposal-button'
 import { CreateProposalForm } from './create-proposal-form'
 import { ProposalsList } from './proposals-list'
@@ -16,6 +16,29 @@ import { ProposalsList } from './proposals-list'
 export function ActiveProposals() {
 	const [proposals, setProposals] = useState(sampleProposals)
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
+	// Handle voting on proposals
+	const handleVote = (proposalId: string, vote: VoteOption) => {
+		setProposals((prevProposals) =>
+			prevProposals.map((proposal) => {
+				if (proposal.id === proposalId) {
+					// Create a new votes object with updated values
+					const updatedVotes = { ...proposal.votes }
+
+					// Increment the selected vote type
+					if (vote === 'for') updatedVotes.for += 1
+					else if (vote === 'against') updatedVotes.against += 1
+					else if (vote === 'abstain') updatedVotes.abstain += 1
+
+					return {
+						...proposal,
+						votes: updatedVotes,
+					}
+				}
+				return proposal
+			}),
+		)
+	}
 
 	// Handle opening the create proposal modal
 	const handleCreateProposal = () => {
@@ -57,7 +80,7 @@ export function ActiveProposals() {
 	}
 
 	return (
-		<main className="space-y-4">
+		<main className="rounded-xl border bg-card text-card-foreground shadow p-6 space-y-4">
 			<div className="flex items-center justify-between">
 				<div>
 					<h1 className="text-2xl">Active Proposals</h1>
@@ -66,9 +89,13 @@ export function ActiveProposals() {
 				<CreateProposalButton onCreate={handleCreateProposal} />
 			</div>
 
-			<ProposalsList data={proposals} />
+			<ProposalsList
+				data={proposals}
+				onVote={handleVote}
+				onSelect={(id) => console.log(`Selected proposal: ${id}`)}
+			/>
 
-			<div className="flex items-center justify-between pt-4">
+			<div className="flex items-center justify-between">
 				<Button variant="ghost" className="font-semibold">
 					View All Proposals
 				</Button>

@@ -9,14 +9,16 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import type { Proposal } from '@/lib/types/proposals.types'
+import type { Proposal, VoteOption } from '@/lib/types/proposals.types'
 import { ProposalCard } from './proposal-card'
 
 interface ProposalsListProps {
 	data: Proposal[]
+	onSelect: (proposalId: string) => void
+	onVote: (proposalId: string, vote: VoteOption) => void
 }
 
-export function ProposalsList({ data }: ProposalsListProps) {
+export function ProposalsList({ data, onSelect, onVote }: ProposalsListProps) {
 	const [statusFilter, setStatusFilter] = useState<string>('all')
 	const [categoryFilter, setCategoryFilter] = useState<string>('all')
 
@@ -69,8 +71,8 @@ export function ProposalsList({ data }: ProposalsListProps) {
 			</div>
 			<div className="max-h-[600px] overflow-y-auto pr-1 scrollbar-thin">
 				<div className="space-y-4">
-					{sortedAndFilteredProposals.map(({ id, ...proposal }) => (
-						<ProposalCard key={id} {...proposal} />
+					{sortedAndFilteredProposals.map((proposal) => (
+						<ProposalCard key={proposal.id} {...proposal} onSelect={onSelect} onVote={onVote} />
 					))}
 					{sortedAndFilteredProposals.length === 0 && (
 						<div className="flex h-40 items-center justify-center rounded-lg border border-dashed">
