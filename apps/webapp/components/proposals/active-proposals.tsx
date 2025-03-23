@@ -9,6 +9,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { toast } from '@/hooks/use-toast'
 import { proposals as sampleProposals } from '@/lib/mock-data/mock-proposals'
 import type { CreateProposalFormValues, VoteOption } from '@/lib/types/proposals.types'
+import { DialogDescription } from '@radix-ui/react-dialog'
 import { CreateProposalButton } from './create-proposal-button'
 import { CreateProposalForm } from './create-proposal-form'
 import { ProposalsList } from './proposals-list'
@@ -109,7 +110,10 @@ export function ActiveProposals() {
 			<Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
 				<DialogContent className="sm:max-w-[550px]">
 					<DialogHeader>
-						<DialogTitle>Create New Proposal</DialogTitle>
+						<DialogTitle className="text-2xl font-medium">Create New Proposal</DialogTitle>
+						<DialogDescription className="text-muted-foreground">
+							Fill out the form below to submit a new proposal.
+						</DialogDescription>
 					</DialogHeader>
 					<CreateProposalForm
 						onSubmit={handleFormSubmit}
