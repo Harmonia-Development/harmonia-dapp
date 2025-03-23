@@ -40,7 +40,7 @@ export function ProposalsList({ data }: ProposalsListProps) {
 	return (
 		<div className="space-y-4">
 			<div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-				<h2 className="text-lg font-semibold">{sortedAndFilteredProposals.length} Proposals</h2>
+				<h2 className="text-lg">{sortedAndFilteredProposals.length} Proposals</h2>
 				<div className="flex items-center space-x-2">
 					<Select value={categoryFilter} onValueChange={setCategoryFilter}>
 						<SelectTrigger className="h-8 w-[130px]">

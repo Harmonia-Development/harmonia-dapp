@@ -1,5 +1,9 @@
+import type { z } from 'zod'
+import type { CreateProposalFormSchema } from '../schemas/proposals.schemas'
+
 export type ProposalStatus = 'Active' | 'Passed' | 'Pending'
 export type ProposalCategory = 'community' | 'technical' | 'treasury' | 'governance'
+export type CreateProposalFormValues = z.infer<typeof CreateProposalFormSchema>
 
 export interface ProposalVotes {
 	for: number
