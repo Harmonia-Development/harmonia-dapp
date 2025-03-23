@@ -82,7 +82,7 @@ export function ActiveProposals() {
 
 	return (
 		<main className="rounded-xl border bg-card text-card-foreground shadow p-6 space-y-4">
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:items-center justify-between">
 				<div>
 					<h1 className="text-2xl">Active Proposals</h1>
 					<p className="text-muted-foreground">Vote on current proposals or create a new one</p>
@@ -96,7 +96,7 @@ export function ActiveProposals() {
 				onSelect={(id) => console.log(`Selected proposal: ${id}`)}
 			/>
 
-			<div className="flex items-center justify-between">
+			<div className="flex flex-col sm:flex-row gap-2 sm:gap-0 items-center justify-between">
 				<Button variant="ghost" className="font-semibold">
 					View All Proposals
 				</Button>

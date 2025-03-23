@@ -72,19 +72,19 @@ export function ProposalCard({
 
 	return (
 		<Card className="w-full overflow-hidden hover:bg-muted/50">
-			<CardHeader className="p-4">
+			<CardHeader className="p-3 sm:p-4">
 				<div className="flex items-start justify-between">
 					<div className="space-y-1">
-						<div className="flex items-center gap-2">
-							<h3 className="text-lg">{title}</h3>
+						<div className="flex flex-wrap items-center gap-1 sm:gap-2">
+							<h3 className="text-base sm:text-lg">{title}</h3>
 							<Badge variant="outline" className={categoryVariants({ category })}>
 								{category}
 							</Badge>
 							<div className="flex items-center gap-1">
 								{status === 'Passed' ? (
-									<Check className="h-4 w-4 text-green-500" />
+									<Check className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
 								) : (
-									<Clock className="h-4 w-4 text-amber-500" />
+									<Clock className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
 								)}
 								<span className="text-xs text-muted-foreground">
 									{status === 'Active'
@@ -95,9 +95,9 @@ export function ProposalCard({
 								</span>
 							</div>
 						</div>
-						<p className="text-muted-foreground">{description}</p>
+						<p className="text-sm text-muted-foreground">{description}</p>
 					</div>
-					<Avatar className="h-8 w-8">
+					<Avatar className="h-7 w-7 sm:h-8 sm:w-8">
 						<AvatarFallback>{creator.initials}</AvatarFallback>
 					</Avatar>
 				</div>
@@ -121,7 +121,7 @@ export function ProposalCard({
 				</CardContent>
 			)}
 			{status === 'Active' && (
-				<CardFooter className="grid grid-cols-3 gap-2 p-4 pt-0">
+				<CardFooter className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 p-3 sm:p-4 pt-0">
 					<Button variant="outline" className="font-semibold" onClick={() => handleVote('against')}>
 						Vote Against
 					</Button>
