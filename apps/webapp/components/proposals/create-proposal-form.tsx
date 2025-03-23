@@ -1,11 +1,16 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-
 import { Button } from '@/components/ui/button'
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
 	Select,
 	SelectContent,
@@ -14,8 +19,11 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+
 import { CreateProposalFormSchema } from '@/lib/schemas/proposals.schemas'
-import type { CreateProposalFormValues, ProposalCategory } from '@/lib/types/proposals.types'
+import type { CreateProposalFormValues } from '@/lib/types/proposals.types'
 
 interface CreateProposalFormProps {
 	onSubmit: (values: CreateProposalFormValues) => void
@@ -23,14 +31,7 @@ interface CreateProposalFormProps {
 }
 
 export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormProps) {
-	// Initialize React Hook Form with Zod resolver
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		setValue,
-		watch,
-	} = useForm<CreateProposalFormValues>({
+	const form = useForm<CreateProposalFormValues>({
 		resolver: zodResolver(CreateProposalFormSchema),
 		defaultValues: {
 			title: '',
@@ -40,105 +41,102 @@ export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormPro
 		},
 	})
 
-	// Watch category value for controlled Select component
-	const categoryValue = watch('category')
-
-	// Handle category change
-	const handleCategoryChange = (value: string) => {
-		setValue('category', value as ProposalCategory, { shouldValidate: true })
-	}
-
-	// Handle form submission
-	const onSubmitForm = (data: CreateProposalFormValues) => {
-		onSubmit(data)
-	}
+	const categoryValue = form.watch('category')
 
 	return (
-		<form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
-			<div className="space-y-2">
-				<Label htmlFor="title" className={errors.title ? 'text-red-500' : ''}>
-					Title
-				</Label>
-				<Input
-					id="title"
-					{...register('title')}
-					placeholder="Enter proposal title"
-					className={errors.title ? 'border-red-500' : ''}
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+				<FormField
+					control={form.control}
+					name="title"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Title</FormLabel>
+							<FormControl>
+								<Input placeholder="Enter proposal title" {...field} />
+							</FormControl>
+							<FormDescription className="text-sm text-muted-foreground">
+								A clear, concise title for your proposal
+							</FormDescription>
+							<FormMessage className="text-sm font-medium" />
+						</FormItem>
+					)}
 				/>
-				{errors.title && <p className="text-sm font-medium text-red-500">{errors.title.message}</p>}
-				<p className="text-sm text-muted-foreground">A clear, concise title for your proposal</p>
-			</div>
 
-			<div className="space-y-2">
-				<Label htmlFor="category" className={errors.category ? 'text-red-500' : ''}>
-					Category
-				</Label>
-				<Select value={categoryValue} onValueChange={handleCategoryChange}>
-					<SelectTrigger id="category" className={errors.category ? 'border-red-500' : ''}>
-						<SelectValue placeholder="Select a category" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="community">Community</SelectItem>
-						<SelectItem value="technical">Technical</SelectItem>
-						<SelectItem value="treasury">Treasury</SelectItem>
-						<SelectItem value="governance">Governance</SelectItem>
-					</SelectContent>
-				</Select>
-				{errors.category && (
-					<p className="text-sm font-medium text-red-500">{errors.category.message}</p>
-				)}
-				<p className="text-sm text-muted-foreground">
-					The category helps members understand the proposal's focus
-				</p>
-			</div>
-
-			<div className="space-y-2">
-				<Label htmlFor="description" className={errors.description ? 'text-red-500' : ''}>
-					Description
-				</Label>
-				<Textarea
-					id="description"
-					{...register('description')}
-					placeholder="Describe your proposal in detail..."
-					className={`min-h-[120px] resize-y ${errors.description ? 'border-red-500' : ''}`}
+				<FormField
+					control={form.control}
+					name="category"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Category</FormLabel>
+							<Select value={categoryValue} onValueChange={field.onChange}>
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue placeholder="Select a category" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="community">Community</SelectItem>
+									<SelectItem value="technical">Technical</SelectItem>
+									<SelectItem value="treasury">Treasury</SelectItem>
+									<SelectItem value="governance">Governance</SelectItem>
+								</SelectContent>
+							</Select>
+							<FormDescription className="text-sm text-muted-foreground">
+								The category helps members understand the proposal's focus
+							</FormDescription>
+							<FormMessage className="text-sm font-medium" />
+						</FormItem>
+					)}
 				/>
-				{errors.description && (
-					<p className="text-sm font-medium text-red-500">{errors.description.message}</p>
-				)}
-				<p className="text-sm text-muted-foreground">
-					Provide a detailed explanation of what you're proposing and why
-				</p>
-			</div>
 
-			<div className="space-y-2">
-				<Label htmlFor="timeLeft" className={errors.timeLeft ? 'text-red-500' : ''}>
-					Voting Duration (days)
-				</Label>
-				<Input
-					id="timeLeft"
-					type="number"
-					min="1"
-					max="90"
-					{...register('timeLeft')}
-					placeholder="7"
-					className={errors.timeLeft ? 'border-red-500' : ''}
+				<FormField
+					control={form.control}
+					name="description"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Description</FormLabel>
+							<FormControl>
+								<Textarea
+									className="min-h-[120px] resize-y"
+									placeholder="Describe your proposal in detail..."
+									{...field}
+								/>
+							</FormControl>
+							<FormDescription className="text-sm text-muted-foreground">
+								Provide a detailed explanation of what you're proposing and why
+							</FormDescription>
+							<FormMessage className="text-sm font-medium" />
+						</FormItem>
+					)}
 				/>
-				{errors.timeLeft && (
-					<p className="text-sm font-medium text-red-500">{errors.timeLeft.message}</p>
-				)}
-				<p className="text-sm text-muted-foreground">
-					How many days the proposal will be open for voting (1-90 days)
-				</p>
-			</div>
 
-			<div className="flex justify-end space-x-2 pt-4">
-				<Button type="button" variant="outline" onClick={onCancel} className="font-semibold">
-					Cancel
-				</Button>
-				<Button type="submit" className="font-semibold">
-					Save
-				</Button>
-			</div>
-		</form>
+				<FormField
+					control={form.control}
+					name="timeLeft"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Voting Duration (days)</FormLabel>
+							<FormControl>
+								<Input type="number" min="1" max="90" placeholder="7" {...field} />
+							</FormControl>
+							<FormDescription className="text-sm text-muted-foreground">
+								How many days the proposal will be open for voting (1-90 days)
+							</FormDescription>
+							<FormMessage className="text-sm font-medium" />
+						</FormItem>
+					)}
+				/>
+
+				<div className="flex justify-end space-x-2 pt-4">
+					<Button type="button" variant="outline" onClick={onCancel} className="font-semibold">
+						Cancel
+					</Button>
+					<Button type="submit" className="font-semibold">
+						Save
+					</Button>
+				</div>
+			</form>
+		</Form>
 	)
 }
