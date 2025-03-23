@@ -108,7 +108,7 @@ export function ActiveProposals() {
 
 			{/* Create Proposal Modal */}
 			<Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-				<DialogContent className="sm:max-w-[550px]">
+				<DialogContent className="sm:max-w-[550px] max-h-[100vh] overflow-y-auto pb-6">
 					<DialogHeader>
 						<DialogTitle className="text-2xl font-medium">Create New Proposal</DialogTitle>
 						<DialogDescription className="text-muted-foreground">
