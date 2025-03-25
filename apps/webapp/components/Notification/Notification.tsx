@@ -2,7 +2,7 @@ import NotificationItem from "./NotificationItem";
 import { FileText, Wallet, Users } from "lucide-react";
 const Notifications: React.FC = () => {
   return (
-    <div className="bg-[#1E1E1E]  border border-[#2C2C2C] w-full">
+    <div className="rounded-lg border border-[#2C2C2C] w-full">
       <div className="border-b border-[#2C2C2C] p-4">
         <div className="flex justify-between items-center  ">
           <div className="flex items-center space-x-2">

@@ -1,7 +1,5 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-
-// Define interfaces for card props
 interface DashboardCardProps {
   title: string;
   label: string;
@@ -21,7 +19,7 @@ interface DashboardCardProps {
   className?: string;
 }
 
-// Dashboard Card Component
+
 const DashboardCard: React.FC<DashboardCardProps> = ({
   title,
   label,
@@ -38,9 +36,9 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
     <div
       className={cn(
         "rounded-lg p-4 md:p-5 lg:p-6 border border-[#2C2C2C] hover:border-[#3A3A3A] transition-all duration-300",
-        "w-full max-w-full", // Ensure full width and max-width
+        "w-full max-w-full", 
         `bg-gradient-to-br ${gradient.from} ${gradient.to}`,
-        "transform hover:scale-[1.02] transition-transform duration-300", // Subtle hover effect
+        "transform hover:scale-[1.02] transition-transform duration-300", 
         className
       )}
     >
@@ -51,7 +49,7 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
             className={cn(
               "p-1.5 sm:p-2 rounded-full",
               iconBackground,
-              "flex items-center justify-center" // Ensure icon is centered
+              "flex items-center justify-center" 
             )}
           >
             <Icon 

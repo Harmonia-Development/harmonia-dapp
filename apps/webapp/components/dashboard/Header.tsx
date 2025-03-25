@@ -43,10 +43,10 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-black text-white px-6 py-3 flex items-center justify-between">
+    <header className="bg-black text-white px-6 py-5 shadow-xl  flex items-center justify-between border-b border-gray-500">
       <div className="flex items-center space-x-6">
         <Link href="/">
-          <span className="text-xl font-bold">
+          <span className="text-2xl font-bold">
             <span className="text-white">H</span>
             <span className="text-purple-500">armonia</span>
           </span>
@@ -129,3 +129,4 @@ const Header: React.FC = () => {
 };
 
 export default Header;
+

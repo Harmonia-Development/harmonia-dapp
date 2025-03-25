@@ -5,9 +5,9 @@ import Notifications from '@/components/Notification/Notification'
 
 const page = () => {
   return (
-    <div className='bg-black'>
+    <div className='bg-black h-full md:h-screen'>
       <Header/>
-      <div className='flex flex-col md:flex-row justify-between'>
+      <div className='flex flex-col md:flex-row justify-between pr-4'>
         <div className='md:w-[78%]'>
         <DAODashboard/>
         </div>

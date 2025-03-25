@@ -1,12 +1,8 @@
 import React from 'react';
-import { 
-  FileText, 
-  Wallet, 
-  Users 
-} from 'lucide-react';
+
 import { cn } from '@/lib/utils';
 
-// Define interfaces for notification props
+
 interface NotificationItemProps {
   icon: React.ElementType;
   title: string;
@@ -15,7 +11,7 @@ interface NotificationItemProps {
   isNew?: boolean;
 }
 
-// Notification Item Component
+
 const NotificationItem: React.FC<NotificationItemProps> = ({
   icon: Icon,
   title,
