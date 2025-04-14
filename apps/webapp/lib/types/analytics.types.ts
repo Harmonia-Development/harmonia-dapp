@@ -18,3 +18,9 @@ export interface PieLabelRenderProps {
 	percent: number
 	index: number
 }
+
+export interface MemberData {
+	day: string
+	activeMembers: number
+	newMembers: number
+}
