@@ -22,7 +22,7 @@ export function VotingDistribution({
 	const renderCustomizedLabel = useCallback(
 		({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: PieLabelRenderProps) => {
 			const RADIAN = Math.PI / 180
-			const radius = innerRadius + (outerRadius - innerRadius) * 1.1
+			const radius = innerRadius + (outerRadius - innerRadius) * 1.4
 			const x = cx + radius * Math.cos(-midAngle * RADIAN)
 			const y = cy + radius * Math.sin(-midAngle * RADIAN)
 
