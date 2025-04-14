@@ -21,17 +21,19 @@ interface TreasuryChartProps {
 }
 
 export function TreasuryChart({ data, title, xLabel, yLabel }: TreasuryChartProps) {
+	// Format Y-axis values (e.g. 1000 => 1k)
 	const formatYAxis = (value: number): string => {
 		return value >= 1000 ? `${(value / 1000).toFixed(0)}k` : `${value}`
 	}
 
+	// Custom tooltip for displaying balance info
 	const renderTooltip = useCallback((props: TooltipProps<number, string>) => {
 		const { active, payload } = props
 
 		if (active && payload && payload.length) {
 			const data = payload[0].payload
 			return (
-				<div className="rounded-lg border border-border/30 bg-white dark:bg-black p-2 shadow-sm">
+				<div className="rounded-lg border border-border/30 bg-background p-2 shadow-sm">
 					<p className="text-sm font-medium">{data.date}</p>
 					<p className="text-sm text-muted-foreground">
 						<span className="text-primary font-medium">
