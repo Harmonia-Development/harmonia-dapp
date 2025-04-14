@@ -24,3 +24,9 @@ export interface MemberData {
 	activeMembers: number
 	newMembers: number
 }
+
+export interface CategoryData {
+	category: string
+	value: number
+	color: string
+}

@@ -1,4 +1,4 @@
-import type { MemberData, TreasuryData, VoteData } from '../types/analytics.types'
+import type { CategoryData, MemberData, TreasuryData, VoteData } from '../types/analytics.types'
 
 export const treasuryData: TreasuryData[] = [
 	{ date: 'Jan', balance: 34000 },
@@ -24,4 +24,11 @@ export const memberData: MemberData[] = [
 	{ day: 'Fri', activeMembers: 386, newMembers: 49 },
 	{ day: 'Sat', activeMembers: 304, newMembers: 38 },
 	{ day: 'Sun', activeMembers: 278, newMembers: 32 },
+]
+
+export const categoryData: CategoryData[] = [
+	{ category: 'Treasury', value: 42, color: '#9333ea' },
+	{ category: 'Governance', value: 28, color: '#3b82f6' },
+	{ category: 'Community', value: 18, color: '#ec4899' },
+	{ category: 'Technical', value: 12, color: '#f59e0b' },
 ]
