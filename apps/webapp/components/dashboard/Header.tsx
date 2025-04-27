@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation'; 
+import { usePathname } from 'next/navigation'; 
 import { 
   LayoutDashboard, 
   FileText, 
@@ -25,7 +25,6 @@ const navItems = [
 
 const Header: React.FC = () => {
   const pathname = usePathname(); // Get the current path
-  const router = useRouter(); // For navigation
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(true);
