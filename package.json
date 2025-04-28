@@ -23,10 +23,18 @@
 		"format-and-lint:fix": "biome check . --write",
 		"clean": "git clean -xdf node_modules",
 		"clean:node_modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-		"prepare": "[ \"$VERCEL\" != \"1\" ] && husky install || echo \"Skipping husky install\""
+		"prepare": "[ \"$VERCEL\" != \"1\" ] && husky install || echo \"Skipping husky install\"",
+		"contracts:build": "cd apps/contracts && PATH=\"$HOME/.cargo/bin:$PATH\" soroban contract build",
+		"contracts:optimize": "cd apps/contracts && PATH=\"$HOME/.cargo/bin:$PATH\" soroban contract optimize",
+		"contracts:deploy": "cd apps/contracts && PATH=\"$HOME/.cargo/bin:$PATH\" soroban contract deploy",
+		"contracts:test": "cd apps/contracts && PATH=\"$HOME/.cargo/bin:$PATH\" cargo test --target wasm32-unknown-unknown"
 	},
 	"workspaces": {
-		"packages": ["apps/*", "services/*", "packages/*"],
+		"packages": [
+			"apps/*",
+			"services/*",
+			"packages/*"
+		],
 		"nohoist": [
 			"**/cbw-sdk",
 			"**/cbw-sdk/**",
