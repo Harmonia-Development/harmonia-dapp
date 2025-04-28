@@ -83,7 +83,7 @@ export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormPro
 								</SelectContent>
 							</Select>
 							<FormDescription className="text-sm text-muted-foreground">
-								The category helps members understand the proposal's focus
+								The category helps members understand the proposal&apos;s focus
 							</FormDescription>
 							<FormMessage className="text-sm font-medium" />
 						</FormItem>
@@ -104,7 +104,7 @@ export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormPro
 								/>
 							</FormControl>
 							<FormDescription className="text-sm text-muted-foreground">
-								Provide a detailed explanation of what you're proposing and why
+								Provide a detailed explanation of what you&apos;re proposing and why
 							</FormDescription>
 							<FormMessage className="text-sm font-medium" />
 						</FormItem>
