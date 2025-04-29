@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { CreateProposalButton } from './CreateProposalButton'
 import { ProposalFilterTabs, type ProposalStatus } from './ProposalFilterTabs'
 import { type Proposal, ProposalItemCard } from './ProposalItemCard'
+import ProposalCategoryChart from './ProposalCategoryChart'
 
-// Mock data for proposals
 const mockProposals: Proposal[] = [
 	{
 		id: '1',
@@ -87,7 +87,6 @@ const mockProposals: Proposal[] = [
 export function ProposalList() {
 	const [activeTab, setActiveTab] = useState<ProposalStatus>('all')
 
-	// Filter proposals based on the active tab
 	const filteredProposals = mockProposals.filter((proposal) => {
 		if (activeTab === 'all') return true
 		return proposal.status === activeTab
@@ -104,17 +103,24 @@ export function ProposalList() {
 				<ProposalFilterTabs activeTab={activeTab} onTabChange={setActiveTab} />
 			</div>
 
-			{filteredProposals.length === 0 ? (
-				<div className="text-center py-12">
-					<p className="text-muted-foreground">No proposals found for this filter.</p>
-				</div>
-			) : (
-				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-					{filteredProposals.map((proposal) => (
-						<ProposalItemCard key={proposal.id} proposal={proposal} />
-					))}
-				</div>
-			)}
+
+			<div>
+				{filteredProposals.length === 0 ? (
+					<div className="text-center py-12">
+						<p className="text-muted-foreground">No proposals found for this filter.</p>
+					</div>
+				) : (
+					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+						{filteredProposals.map((proposal) => (
+							<ProposalItemCard key={proposal.id} proposal={proposal} />
+						))}
+					</div>
+				)}
+			</div>
+			
+			<div className="mb-6">
+				<ProposalCategoryChart />
+			</div>
 		</div>
 	)
 }
