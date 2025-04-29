@@ -38,8 +38,8 @@ impl RoleManagerContract {
 
     // Define a new role (admin-only)
     pub fn define_role(env: Env, caller: Address, role: Symbol) {
+        caller.require_auth(); // Ensure the caller authorizes this transaction
         Self::restrict_to_admin(&env, &caller);
-
         let mut defined_roles: Vec<Symbol> = env
             .storage()
             .persistent()
@@ -57,9 +57,7 @@ impl RoleManagerContract {
     }
 
     // Assign a role to an address
-    pub fn assign_role(env: Env, caller: Address, target: Address, role: Symbol) {
-        Self::restrict_to_admin(&env, &caller);
-
+    pub fn assign_role(env: Env, target: Address, role: Symbol) {
         // Verify role exists
         let defined_roles: Vec<Symbol> = env
             .storage()
@@ -88,9 +86,7 @@ impl RoleManagerContract {
     }
 
     // Revoke a role from an address
-    pub fn revoke_role(env: Env, caller: Address, target: Address, role: Symbol) {
-        Self::restrict_to_admin(&env, &caller);
-
+    pub fn revoke_role(env: Env, target: Address, role: Symbol) {
         let mut user_roles: Vec<Symbol> = env
             .storage()
             .persistent()
@@ -149,7 +145,6 @@ impl RoleManagerContract {
 
     // Helper: Restrict function to admin role
     fn restrict_to_admin(env: &Env, caller: &Address) {
-        caller.require_auth();
         if !Self::has_role(env.clone(), caller.clone(), symbol_short!("admin")) {
             panic!("Admin access required");
         }

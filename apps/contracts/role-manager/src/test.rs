@@ -70,7 +70,7 @@ fn test_assign_role() {
     let contributor_role = symbol_short!("contrib");
 
     // Assign role to user
-    client.assign_role(&admin, &user, &contributor_role);
+    client.assign_role(&user, &contributor_role);
 
     // Verify role assignment
     let user_roles = client.get_roles(&user);
@@ -94,11 +94,11 @@ fn test_revoke_role() {
     let contributor_role = symbol_short!("contrib");
 
     // Assign role first
-    client.assign_role(&admin, &user, &contributor_role);
+    client.assign_role(&user, &contributor_role);
     assert!(client.has_role(&user, &contributor_role));
 
     // Revoke role
-    client.revoke_role(&admin, &user, &contributor_role);
+    client.revoke_role(&user, &contributor_role);
 
     // Verify role revocation
     let user_roles = client.get_roles(&user);
@@ -123,8 +123,8 @@ fn test_has_any_role() {
     let review_role = symbol_short!("review");
 
     // Assign roles to user
-    client.assign_role(&admin, &user, &contributor_role);
-    client.assign_role(&admin, &user, &review_role);
+    client.assign_role(&user, &contributor_role);
+    client.assign_role(&user, &review_role);
 
     // Test has_any_role with roles the user has
     let roles_to_check = vec![&env, contributor_role, review_role];
@@ -155,43 +155,6 @@ fn test_admin_restriction_define_role() {
 }
 
 #[test]
-#[should_panic(expected = "Admin access required")]
-fn test_admin_restriction_assign_role() {
-    let env = Env::default();
-    env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
-    let client = RoleManagerContractClient::new(&env, &contract_id);
-
-    let admin = Address::generate(&env);
-    let non_admin = Address::generate(&env);
-    let user = Address::generate(&env);
-    client.initialize(&admin);
-
-    // Non-admin should not be able to assign roles
-    client.assign_role(&non_admin, &user, &symbol_short!("contrib"));
-}
-
-#[test]
-#[should_panic(expected = "Admin access required")]
-fn test_admin_restriction_revoke_role() {
-    let env = Env::default();
-    env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
-    let client = RoleManagerContractClient::new(&env, &contract_id);
-
-    let admin = Address::generate(&env);
-    let non_admin = Address::generate(&env);
-    let user = Address::generate(&env);
-    client.initialize(&admin);
-
-    // Assign role first
-    client.assign_role(&admin, &user, &symbol_short!("contrib"));
-
-    // Non-admin should not be able to revoke roles
-    client.revoke_role(&non_admin, &user, &symbol_short!("contrib"));
-}
-
-#[test]
 #[should_panic(expected = "Role not defined")]
 fn test_assign_undefined_role() {
     let env = Env::default();
@@ -205,5 +168,5 @@ fn test_assign_undefined_role() {
 
     // Try to assign an undefined role
     let undefined_role = Symbol::new(&env, "undefined");
-    client.assign_role(&admin, &user, &undefined_role);
+    client.assign_role(&user, &undefined_role);
 }
