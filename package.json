@@ -44,5 +44,7 @@
 			"**/pino-pretty/**"
 		]
 	},
-	"dependencies": {}
+	"dependencies": {
+		"@creit.tech/stellar-wallets-kit": "^1.7.3"
+	}
 }

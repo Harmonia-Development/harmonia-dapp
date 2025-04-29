@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
 import { ArrowRight, DiscIcon as Discord, Github, Twitter } from 'lucide-react'
 import { useState } from 'react'
+import { WalletConnectButton } from '@/components/wallet/connect-button'
 
 export default function Home() {
 	const [email, setEmail] = useState('')
@@ -84,6 +85,8 @@ export default function Home() {
 						</div>
 						<p className="text-sm text-gray-500 mt-2">Be the first to know when we launch</p>
 					</div>
+
+
 				</motion.div>
 
 				{/* Social links */}
