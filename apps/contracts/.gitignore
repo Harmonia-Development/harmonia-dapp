@@ -1,0 +1,8 @@
+# Rust's output directory
+target
+role-manager/test_snapshots
+
+
+# Local settings
+.soroban
+.stellar
