@@ -17,7 +17,7 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
 
   const dataWithPercentages = data.map(entry => ({
     ...entry,
-    percentage: ((entry.value / total) * 100).toFixed(0),
+    percentage: total > 0 ? ((entry.value / total) * 100).toFixed(0) : 0, // Handle case where total is 0
   }));
 
   return (
@@ -36,7 +36,7 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
             cy="50%"
             innerRadius={60}
             outerRadius={82}
-            paddingAngle={5}
+            paddingAngle={0} // Set to 0 to remove gaps between segments
             animationDuration={800}
             animationBegin={0}
             label={({ name, percentage }) => `${name}: ${percentage}%`}
@@ -78,14 +78,4 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
   );
 };
 
-// Hardcoded data to match the first image
-const chartData: ProposalCategory[] = [
-  { name: 'Treasury', color: '#3B82F6', value: 42 }, // 42%
-  { name: 'Governance', color: '#8B5CF6', value: 28 }, // 28%
-  { name: 'Community', color: '#10B981', value: 18 }, // 18%
-  { name: 'Technical', color: '#F59E0B', value: 12 }, // 12%
-];
-
-const WrappedProposalCategoryChart = () => <ProposalCategoryChart data={chartData} />;
-
-export default WrappedProposalCategoryChart;
+export default ProposalCategoryChart;
