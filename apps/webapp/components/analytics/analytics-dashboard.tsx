@@ -13,7 +13,7 @@ export function AnalyticsDashboard() {
 		<Card>
 			<CardHeader className="pb-2">
 				<CardTitle className="text-2xl font-bold">Analytics Dashboard</CardTitle>
-				<CardDescription>Comprehensive analytics for your DAO's performance</CardDescription>
+				<CardDescription>Comprehensive analytics for your DAO&apos;s performance</CardDescription>
 			</CardHeader>
 			<CardContent className="p-6 pb-10 pt-0">
 				<Tabs defaultValue="treasury" className="w-full">
