@@ -1,54 +1,49 @@
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import {
-  RebalancePortfolioFormValues,
-  rebalancePortfolioSchema,
-} from "../schema/rebalance-portfolio-modal.schema";
+	type RebalancePortfolioFormValues,
+	rebalancePortfolioSchema,
+} from '../schema/rebalance-portfolio-modal.schema'
 
 interface RebalancePortfolioFormProps {
-  onClose: () => void;
+	onClose: () => void
 }
 
-export const useRebalancePortfolio = ({
-  onClose,
-}: RebalancePortfolioFormProps) => {
-  const [total, setTotal] = useState<number>(100);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+export const useRebalancePortfolio = ({ onClose }: RebalancePortfolioFormProps) => {
+	const [total, setTotal] = useState<number>(100)
+	const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
-  const form = useForm<RebalancePortfolioFormValues>({
-    resolver: zodResolver(rebalancePortfolioSchema),
-    defaultValues: {
-      xlm: 40,
-      usdc: 30,
-      eth: 20,
-      btc: 10,
-    },
-  });
+	const form = useForm<RebalancePortfolioFormValues>({
+		resolver: zodResolver(rebalancePortfolioSchema),
+		defaultValues: {
+			xlm: 40,
+			usdc: 30,
+			eth: 20,
+			btc: 10,
+		},
+	})
 
-  const watchAllFields = form.watch();
+	const watchAllFields = form.watch()
 
-  useEffect(() => {
-    const newTotal = Object.values(watchAllFields).reduce(
-      (sum, value) => sum + (value || 0),
-      0
-    );
-    setTotal(newTotal);
-  }, [watchAllFields]);
+	useEffect(() => {
+		const newTotal = Object.values(watchAllFields).reduce((sum, value) => sum + (value || 0), 0)
+		setTotal(newTotal)
+	}, [watchAllFields])
 
-  const onSubmit = async (data: RebalancePortfolioFormValues) => {
-    setIsSubmitting(true);
+	const onSubmit = async (data: RebalancePortfolioFormValues) => {
+		setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+		// Simulate API call
+		await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    console.log("Form submitted:", data);
+		console.log('Form submitted:', data)
 
-    // Reset form and close modal
-    form.reset();
-    setIsSubmitting(false);
-    onClose();
-  };
+		// Reset form and close modal
+		form.reset()
+		setIsSubmitting(false)
+		onClose()
+	}
 
-  return { form, total, isSubmitting, onSubmit };
-};
+	return { form, total, isSubmitting, onSubmit }
+}

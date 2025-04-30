@@ -37,7 +37,8 @@ export function ProposalCalendar({ events = [], className }: ProposalCalendarPro
 	const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
 
 	// Create an array for the empty cells before the first day of the month
-	const emptyCellsBefore = Array.from({ length: firstDayOfWeek }, (_, i) => null)
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const emptyCellsBefore = Array.from({ length: firstDayOfWeek }, (_, _i) => null)
 
 	// Function to check if a day has events
 	const getEventsForDay = (day: number) => {
