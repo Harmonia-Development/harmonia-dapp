@@ -7,6 +7,7 @@ use soroban_sdk::{
 use crate::{ProposalContract, ProposalContractClient};
 use crate::datatypes::ProposalStatus;
 
+// Macro to simplify event assertion across tests
 macro_rules! assert_event {
     ($env:expr, $contract_id:expr, $topic:expr, $data:expr) => {
         assert_eq!(
@@ -23,7 +24,7 @@ macro_rules! assert_event {
     };
 }
 
-// Helper to compare status with symbol
+// Converts a ProposalStatus into a short Symbol and compares with expected label
 fn status_eq(a: &ProposalStatus, s: &str, env: &Env) -> bool {
     match a {
         ProposalStatus::Open => symbol_short!("open") == Symbol::new(env, s),
@@ -33,14 +34,20 @@ fn status_eq(a: &ProposalStatus, s: &str, env: &Env) -> bool {
     }
 }
 
-#[test]
-fn test_create_and_get_proposal() {
+// Common setup function to initialize Env, Contract, a test user, and client
+fn setup<'a>() -> (Env, Address, Address, ProposalContractClient<'a>) {
     let env = Env::default();
     let contract_id = env.register(ProposalContract, ());
     let client = ProposalContractClient::new(&env, &contract_id);
-
     let user = Address::generate(&env);
     env.mock_all_auths();
+    (env, user, contract_id, client)
+}
+
+// Checks proposal creation and retrieval
+#[test]
+fn test_create_and_get_proposal() {
+    let (env, user, contract_id, client) = setup();
 
     client.create_proposal(
         &user,
@@ -57,15 +64,11 @@ fn test_create_and_get_proposal() {
     assert!(status_eq(&proposal.status, "open", &env));
 }
 
+// Ensures a user cannot vote more than once on the same proposal
 #[test]
 #[should_panic(expected = "Already voted")]
 fn test_prevent_double_vote() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, contract_id, client) = setup();
 
     client.create_proposal(
         &user,
@@ -82,16 +85,12 @@ fn test_prevent_double_vote() {
     client.vote(&user, &1, &symbol_short!("For"));
 }
 
+// Verifies that a proposal is accepted if quorum is met and majority votes are in favor
 #[test]
 fn test_finalize_accepted_when_quorum_met() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user1 = Address::generate(&env);
+    let (env, user1, contract_id, client) = setup();
     let user2 = Address::generate(&env);
     let user3 = Address::generate(&env);
-    env.mock_all_auths();
 
     let now = env.ledger().timestamp();
 
@@ -120,14 +119,10 @@ fn test_finalize_accepted_when_quorum_met() {
     assert!(status_eq(&proposal.status, "accepted", &env));
 }
 
+// Verifies that a proposal is closed if quorum is not met
 #[test]
 fn test_finalize_closed_when_quorum_not_met() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, contract_id, client) = setup();
 
     client.create_proposal(
         &user,
@@ -150,15 +145,11 @@ fn test_finalize_closed_when_quorum_not_met() {
     assert!(status_eq(&proposal.status, "closed", &env));
 }
 
+// Checks rejection when majority of effective votes are against, and no quorum is required
 #[test]
 fn test_finalize_without_quorum_majority_against() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user1 = Address::generate(&env);
+    let (env, user1, contract_id, client) = setup();
     let user2 = Address::generate(&env);
-    env.mock_all_auths();
 
     let deadline = env.ledger().timestamp() + 10;
 
@@ -186,15 +177,11 @@ fn test_finalize_without_quorum_majority_against() {
     assert!(status_eq(&proposal.status, "rejected", &env));
 }
 
+// Validates tie results in rejection (equal For and Against votes)
 #[test]
 fn test_finalize_rejected_on_for_against_tie() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user1 = Address::generate(&env);
+    let (env, user1, contract_id, client) = setup();
     let user2 = Address::generate(&env);
-    env.mock_all_auths();
 
     client.create_proposal(
         &user1,
@@ -220,15 +207,11 @@ fn test_finalize_rejected_on_for_against_tie() {
     assert!(status_eq(&proposal.status, "rejected", &env));
 }
 
+// Ensures that proposals with only Abstain votes are rejected
 #[test]
 fn test_finalize_rejected_when_only_abstain() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user1 = Address::generate(&env);
+    let (env, user1, contract_id, client) = setup();
     let user2 = Address::generate(&env);
-    env.mock_all_auths();
 
     let deadline = env.ledger().timestamp() + 10;
 
@@ -256,15 +239,11 @@ fn test_finalize_rejected_when_only_abstain() {
     assert!(status_eq(&proposal.status, "rejected", &env));
 }
 
+// Confirms panic if trying to finalize before deadline
 #[test]
 #[should_panic(expected = "Deadline not reached")]
 fn test_finalize_panics_before_deadline() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, contract_id, client) = setup();
 
     client.create_proposal(
         &user,
@@ -279,25 +258,19 @@ fn test_finalize_panics_before_deadline() {
     client.finalize(&1);
 }
 
+// Validates panic on voting for nonexistent proposal
 #[test]
 #[should_panic(expected = "Proposal not found")]
 fn test_vote_on_nonexistent_proposal() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (_, user, _, client) = setup();
     client.vote(&user, &99, &symbol_short!("For"));
 }
 
+// Ensures invalid proposal type is rejected
 #[test]
 #[should_panic(expected = "Invalid proposal type")]
 fn test_invalid_proposal_type() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, _, client) = setup();
     client.create_proposal(
         &user,
         &String::from_str(&env, "Invalid Type"),
@@ -308,14 +281,11 @@ fn test_invalid_proposal_type() {
     );
 }
 
+// Ensures voting fails if deadline has passed
 #[test]
 #[should_panic(expected = "Voting closed")]
 fn test_vote_after_deadline() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, contract_id, client) = setup();
     let deadline = env.ledger().timestamp() + 10;
     client.create_proposal(
         &user,
@@ -330,14 +300,11 @@ fn test_vote_after_deadline() {
     client.vote(&user, &1, &symbol_short!("For"));
 }
 
+// Ensures voting fails on a proposal that's already finalized
 #[test]
 #[should_panic(expected = "Proposal not open")]
 fn test_vote_on_closed_proposal() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, contract_id, client) = setup();
     client.create_proposal(
         &user,
         &String::from_str(&env, "Closed Test"),
@@ -353,14 +320,11 @@ fn test_vote_on_closed_proposal() {
     client.vote(&user, &1, &symbol_short!("For"));
 }
 
+// Ensures voting fails with invalid vote choice symbol
 #[test]
 #[should_panic(expected = "Invalid vote choice")]
 fn test_invalid_vote_choice() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, contract_id, client) = setup();
     client.create_proposal(
         &user,
         &String::from_str(&env, "Bad Vote"),
@@ -373,14 +337,10 @@ fn test_invalid_vote_choice() {
     client.vote(&user, &1, &Symbol::new(&env, "Bad"));
 }
 
+// Validates proposal is closed (not accepted) when quorum is required but no votes were cast
 #[test]
 fn test_finalize_closed_with_quorum_and_no_votes() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, contract_id, client) = setup();
 
     let deadline = env.ledger().timestamp() + 10;
 
@@ -402,14 +362,10 @@ fn test_finalize_closed_with_quorum_and_no_votes() {
     assert!(status_eq(&proposal.status, "closed", &env));
 }
 
+// Validates rejection when no quorum is set and no votes are cast
 #[test]
 fn test_finalize_rejected_without_quorum_and_no_votes() {
-    let env = Env::default();
-    let contract_id = env.register(ProposalContract, ());
-    let client = ProposalContractClient::new(&env, &contract_id);
-
-    let user = Address::generate(&env);
-    env.mock_all_auths();
+    let (env, user, contract_id, client) = setup();
 
     let deadline = env.ledger().timestamp() + 10;
 
@@ -431,6 +387,7 @@ fn test_finalize_rejected_without_quorum_and_no_votes() {
     assert!(status_eq(&proposal.status, "rejected", &env));
 }
 
+// Confirms proposals cannot be created without proper authorization
 #[test]
 #[should_panic(expected = "HostError")]
 fn test_create_proposal_without_auth_should_fail() {
