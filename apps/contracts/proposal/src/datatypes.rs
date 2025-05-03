@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, Address, Symbol};
+use soroban_sdk::{contracttype, Address, String};
 
 #[derive(Clone)]
 #[contracttype]
@@ -21,8 +21,8 @@ pub enum ProposalStatus {
 #[contracttype]
 pub struct Proposal {
     pub id: u32,
-    pub title: Symbol,
-    pub description: Symbol,
+    pub title: String,
+    pub description: String,
     pub created_at: u64,
     pub deadline: u64,
     pub proposal_type: ProposalType,

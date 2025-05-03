@@ -1,6 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, Env, Symbol, symbol_short, Address};
+use soroban_sdk::{contract, contractimpl, Env, Symbol, symbol_short, Address, String};
 
 mod datatypes;
 use datatypes::{Proposal, ProposalStatus, ProposalType};
@@ -15,8 +15,8 @@ impl ProposalContract {
     pub fn create_proposal(
         env: Env,
         user: Address,
-        title: Symbol,
-        description: Symbol,
+        title: String,
+        description: String,
         deadline: u64,
         proposal_type_symbol: Symbol,
         quorum: Option<u32>,
@@ -149,7 +149,7 @@ impl ProposalContract {
         env.storage()
             .persistent()
             .get(&symbol_short!("next_id"))
-            .unwrap_or(Some(0))
+            .unwrap_or(Some(1))
             .unwrap()
     }
 

@@ -2,7 +2,7 @@
 
 use soroban_sdk::{
     testutils::{Address as _, Ledger, Events},
-    Address, Env, Symbol, symbol_short, IntoVal, vec,
+    Address, Env, Symbol, symbol_short, String, IntoVal, vec,
 };
 use crate::{ProposalContract, ProposalContractClient};
 use crate::datatypes::ProposalStatus;
@@ -44,16 +44,16 @@ fn test_create_and_get_proposal() {
 
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "Title"),
-        &Symbol::new(&env, "Description"),
+        &String::from_str(&env, "Title"),
+        &String::from_str(&env, "Description"),
         &(env.ledger().timestamp() + 100),
         &Symbol::new(&env, "governance"),
         &Some(3),
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
-    let proposal = client.get_proposal(&0);
-    assert_eq!(proposal.title, Symbol::new(&env, "Title"));
+    let proposal = client.get_proposal(&1);
+    assert_eq!(proposal.title, String::from_str(&env, "Title"));
     assert!(status_eq(&proposal.status, "open", &env));
 }
 
@@ -69,17 +69,17 @@ fn test_prevent_double_vote() {
 
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "Proposal"),
-        &Symbol::new(&env, "Test"),
+        &String::from_str(&env, "Proposal"),
+        &String::from_str(&env, "Test"),
         &(env.ledger().timestamp() + 100),
         &Symbol::new(&env, "governance"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
-    client.vote(&user, &0, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user.clone(), symbol_short!("For")));
-    client.vote(&user, &0, &symbol_short!("For"));
+    client.vote(&user, &1, &symbol_short!("For"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user.clone(), symbol_short!("For")));
+    client.vote(&user, &1, &symbol_short!("For"));
 }
 
 #[test]
@@ -97,26 +97,26 @@ fn test_finalize_accepted_when_quorum_met() {
 
     client.create_proposal(
         &user1,
-        &Symbol::new(&env, "MajorityFor"),
-        &Symbol::new(&env, "Accepted1"),
+        &String::from_str(&env, "Majority For"),
+        &String::from_str(&env, "Accepted 1"),
         &(now + 10),
         &Symbol::new(&env, "system"),
         &Some(3),
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);    
+    assert_event!(env, contract_id, "proposal_created", 1u32);    
 
-    client.vote(&user1, &0, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user1.clone(), symbol_short!("For")));
-    client.vote(&user2, &0, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user2.clone(), symbol_short!("For")));
-    client.vote(&user3, &0, &symbol_short!("Abstain"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user3.clone(), symbol_short!("Abstain")));
+    client.vote(&user1, &1, &symbol_short!("For"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user1.clone(), symbol_short!("For")));
+    client.vote(&user2, &1, &symbol_short!("For"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user2.clone(), symbol_short!("For")));
+    client.vote(&user3, &1, &symbol_short!("Abstain"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user3.clone(), symbol_short!("Abstain")));
 
     env.ledger().set_timestamp(now + 20);
-    client.finalize(&0);
-    assert_event!(env, contract_id, "proposal_finalized", (0u32, symbol_short!("accepted")));
+    client.finalize(&1);
+    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("accepted")));
 
-    let proposal = client.get_proposal(&0);
+    let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "accepted", &env));
 }
 
@@ -131,22 +131,22 @@ fn test_finalize_closed_when_quorum_not_met() {
 
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "LowVotes"),
-        &Symbol::new(&env, "WillClose"),
+        &String::from_str(&env, "Low Votes"),
+        &String::from_str(&env, "Will Close"),
         &(env.ledger().timestamp() + 5),
         &Symbol::new(&env, "governance"),
         &Some(5),
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
-    client.vote(&user, &0, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user.clone(), symbol_short!("For")));
+    client.vote(&user, &1, &symbol_short!("For"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user.clone(), symbol_short!("For")));
 
     env.ledger().set_timestamp(env.ledger().timestamp() + 10);
-    client.finalize(&0);
-    assert_event!(env, contract_id, "proposal_finalized", (0u32, symbol_short!("closed")));
+    client.finalize(&1);
+    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("closed")));
 
-    let proposal = client.get_proposal(&0);
+    let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "closed", &env));
 }
 
@@ -164,25 +164,25 @@ fn test_finalize_without_quorum_majority_against() {
 
     client.create_proposal(
         &user1,
-        &Symbol::new(&env, "NoQuorum"),
-        &Symbol::new(&env, "MajorityAgainst"),
+        &String::from_str(&env, "No Quorum"),
+        &String::from_str(&env, "Majority Against"),
         &deadline,
         &Symbol::new(&env, "treasury"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
-    client.vote(&user1, &0, &symbol_short!("Against"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user1.clone(), symbol_short!("Against")));
+    client.vote(&user1, &1, &symbol_short!("Against"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user1.clone(), symbol_short!("Against")));
 
-    client.vote(&user2, &0, &symbol_short!("Abstain"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user2.clone(), symbol_short!("Abstain")));
+    client.vote(&user2, &1, &symbol_short!("Abstain"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user2.clone(), symbol_short!("Abstain")));
 
     env.ledger().set_timestamp(deadline + 5);
-    client.finalize(&0);
-    assert_event!(env, contract_id, "proposal_finalized", (0u32, symbol_short!("rejected")));
+    client.finalize(&1);
+    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
 
-    let proposal = client.get_proposal(&0);
+    let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "rejected", &env));
 }
 
@@ -198,25 +198,25 @@ fn test_finalize_rejected_on_for_against_tie() {
 
     client.create_proposal(
         &user1,
-        &Symbol::new(&env, "Tie"),
-        &Symbol::new(&env, "TieVotes"),
+        &String::from_str(&env, "Tie"),
+        &String::from_str(&env, "Tie Votes"),
         &(env.ledger().timestamp() + 10),
         &Symbol::new(&env, "system"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
-    client.vote(&user1, &0, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user1.clone(), symbol_short!("For")));
+    client.vote(&user1, &1, &symbol_short!("For"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user1.clone(), symbol_short!("For")));
 
-    client.vote(&user2, &0, &symbol_short!("Against"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user2.clone(), symbol_short!("Against")));
+    client.vote(&user2, &1, &symbol_short!("Against"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user2.clone(), symbol_short!("Against")));
 
     env.ledger().set_timestamp(env.ledger().timestamp() + 20);
-    client.finalize(&0);
-    assert_event!(env, contract_id, "proposal_finalized", (0u32, symbol_short!("rejected")));
+    client.finalize(&1);
+    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
 
-    let proposal = client.get_proposal(&0);
+    let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "rejected", &env));
 }
 
@@ -234,25 +234,25 @@ fn test_finalize_rejected_when_only_abstain() {
 
     client.create_proposal(
         &user1,
-        &Symbol::new(&env, "OnlyAbstain"),
-        &Symbol::new(&env, "NoEffectiveVotes"),
+        &String::from_str(&env, "Only Abstain"),
+        &String::from_str(&env, "No Effective Votes"),
         &deadline,
         &Symbol::new(&env, "treasury"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
-    client.vote(&user1, &0, &symbol_short!("Abstain"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user1.clone(), symbol_short!("Abstain")));
+    client.vote(&user1, &1, &symbol_short!("Abstain"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user1.clone(), symbol_short!("Abstain")));
 
-    client.vote(&user2, &0, &symbol_short!("Abstain"));
-    assert_event!(env, contract_id, "vote_cast", (0u32, user2.clone(), symbol_short!("Abstain")));
+    client.vote(&user2, &1, &symbol_short!("Abstain"));
+    assert_event!(env, contract_id, "vote_cast", (1u32, user2.clone(), symbol_short!("Abstain")));
 
     env.ledger().set_timestamp(deadline + 1);
-    client.finalize(&0);
-    assert_event!(env, contract_id, "proposal_finalized", (0u32, symbol_short!("rejected")));
+    client.finalize(&1);
+    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
 
-    let proposal = client.get_proposal(&0);
+    let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "rejected", &env));
 }
 
@@ -268,15 +268,15 @@ fn test_finalize_panics_before_deadline() {
 
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "TooEarly"),
-        &Symbol::new(&env, "PanicTest"),
+        &String::from_str(&env, "Too Early"),
+        &String::from_str(&env, "Panic Test"),
         &(env.ledger().timestamp() + 100),
         &Symbol::new(&env, "governance"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
-    client.finalize(&0);
+    client.finalize(&1);
 }
 
 #[test]
@@ -300,8 +300,8 @@ fn test_invalid_proposal_type() {
     env.mock_all_auths();
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "InvalidType"),
-        &Symbol::new(&env, "Invalid"),
+        &String::from_str(&env, "Invalid Type"),
+        &String::from_str(&env, "Invalid"),
         &(env.ledger().timestamp() + 50),
         &Symbol::new(&env, "invalid_type"),
         &None,
@@ -319,15 +319,15 @@ fn test_vote_after_deadline() {
     let deadline = env.ledger().timestamp() + 10;
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "LateVote"),
-        &Symbol::new(&env, "Closed"),
+        &String::from_str(&env, "Late Vote"),
+        &String::from_str(&env, "Closed"),
         &deadline,
         &Symbol::new(&env, "treasury"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
     env.ledger().set_timestamp(deadline + 5);
-    client.vote(&user, &0, &symbol_short!("For"));
+    client.vote(&user, &1, &symbol_short!("For"));
 }
 
 #[test]
@@ -340,17 +340,17 @@ fn test_vote_on_closed_proposal() {
     env.mock_all_auths();
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "ClosedTest"),
-        &Symbol::new(&env, "Closed"),
+        &String::from_str(&env, "Closed Test"),
+        &String::from_str(&env, "Closed"),
         &(env.ledger().timestamp() + 10),
         &Symbol::new(&env, "system"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
     env.ledger().set_timestamp(env.ledger().timestamp() + 20);
-    client.finalize(&0);
-    assert_event!(env, contract_id, "proposal_finalized", (0u32, symbol_short!("rejected")));
-    client.vote(&user, &0, &symbol_short!("For"));
+    client.finalize(&1);
+    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
+    client.vote(&user, &1, &symbol_short!("For"));
 }
 
 #[test]
@@ -363,14 +363,14 @@ fn test_invalid_vote_choice() {
     env.mock_all_auths();
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "BadVote"),
-        &Symbol::new(&env, "InvalidChoice"),
+        &String::from_str(&env, "Bad Vote"),
+        &String::from_str(&env, "Invalid Choice"),
         &(env.ledger().timestamp() + 100),
         &Symbol::new(&env, "governance"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
-    client.vote(&user, &0, &Symbol::new(&env, "Bad"));
+    assert_event!(env, contract_id, "proposal_created", 1u32);
+    client.vote(&user, &1, &Symbol::new(&env, "Bad"));
 }
 
 #[test]
@@ -386,19 +386,19 @@ fn test_finalize_closed_with_quorum_and_no_votes() {
 
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "NoVotesWithQuorum"),
-        &Symbol::new(&env, "ShouldBeClosed"),
+        &String::from_str(&env, "No Votes With Quorum"),
+        &String::from_str(&env, "Should Be Closed"),
         &deadline,
         &Symbol::new(&env, "treasury"),
         &Some(3),
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
     env.ledger().set_timestamp(deadline + 1);
-    client.finalize(&0);
-    assert_event!(env, contract_id, "proposal_finalized", (0u32, symbol_short!("closed")));
+    client.finalize(&1);
+    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("closed")));
 
-    let proposal = client.get_proposal(&0);
+    let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "closed", &env));
 }
 
@@ -415,19 +415,19 @@ fn test_finalize_rejected_without_quorum_and_no_votes() {
 
     client.create_proposal(
         &user,
-        &Symbol::new(&env, "NoVotesNoQuorum"),
-        &Symbol::new(&env, "ShouldBeRejected"),
+        &String::from_str(&env, "No Votes No Quorum"),
+        &String::from_str(&env, "Should Be Rejected"),
         &deadline,
         &Symbol::new(&env, "treasury"),
         &None,
     );
-    assert_event!(env, contract_id, "proposal_created", 0u32);
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
     env.ledger().set_timestamp(deadline + 1);
-    client.finalize(&0);
-    assert_event!(env, contract_id, "proposal_finalized", (0u32, symbol_short!("rejected")));
+    client.finalize(&1);
+    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
 
-    let proposal = client.get_proposal(&0);
+    let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "rejected", &env));
 }
 
@@ -442,8 +442,8 @@ fn test_create_proposal_without_auth_should_fail() {
 
     client.create_proposal(
         &unauth_user,
-        &Symbol::new(&env, "Unauthorized"),
-        &Symbol::new(&env, "Fail"),
+        &String::from_str(&env, "Unauthorized"),
+        &String::from_str(&env, "Fail"),
         &(env.ledger().timestamp() + 100),
         &Symbol::new(&env, "governance"),
         &None,
