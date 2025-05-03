@@ -26,7 +26,11 @@
 		"prepare": "[ \"$VERCEL\" != \"1\" ] && husky install || echo \"Skipping husky install\""
 	},
 	"workspaces": {
-		"packages": ["apps/*", "services/*", "packages/*"],
+		"packages": [
+			"apps/*",
+			"services/*",
+			"packages/*"
+		],
 		"nohoist": [
 			"**/cbw-sdk",
 			"**/cbw-sdk/**",
@@ -36,5 +40,9 @@
 			"**/pino-pretty/**"
 		]
 	},
-	"dependencies": {}
+	"dependencies": {
+		"@react-three/drei": "^10.0.7",
+		"@react-three/fiber": "^9.1.2",
+		"three": "^0.176.0"
+	}
 }
