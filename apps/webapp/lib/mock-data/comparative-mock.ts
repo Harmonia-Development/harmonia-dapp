@@ -22,7 +22,7 @@ export const performance: PerformData[] = [
   { name: "Reserve", current: 12, previous: 15 },
 ];
 
-export const doa: doaData[] = [
+export const doa: DoaData[] = [
   { month: "Jan", efficiency: 91 },
   { month: "Feb", efficiency: 93 },
   { month: "Mar", efficiency: 90 },

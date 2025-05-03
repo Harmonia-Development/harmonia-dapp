@@ -2,7 +2,7 @@ export interface PerformanceData {
   name: string;
   value: number;
 }
-export interface PerdormData {
+export interface PerformData {
   name: string;
   current: number;
   previous: number;
