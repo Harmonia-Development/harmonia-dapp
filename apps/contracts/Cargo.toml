@@ -3,7 +3,7 @@ resolver = "2"
 members = [
   "role-manager",
   "referral-contract", 
-  "proposal"
+  "proposal-contract"
 ]
 
 [workspace.dependencies]
