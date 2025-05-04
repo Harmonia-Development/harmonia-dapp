@@ -1,96 +1,109 @@
-use crate::{
-    access::AccessControl,
-    mint::MintingOperations,
-    query::QueryOperations,
-    types::{DataKey, VotingNFT, VotingNFTError},
-};
+#![no_std]
 use soroban_sdk::{contract, contractimpl, Address, Env, Symbol, Vec};
+
+use access::{AccessControl, AccessOperations};
+use datatypes::{Category, VotingNFT, VotingNFTError};
+use mint::{Mint, MintingOperations};
+use query::{Query, QueryOperations};
+
+mod access;
+mod datatypes;
+mod mint;
+mod query;
 
 #[contract]
 pub struct VotingNFTContract;
 
 #[contractimpl]
 impl VotingNFTContract {
-    /// Burns an NFT, removing it from circulation.
+    /// Initializes the contract with an admin and allowed minters.
     ///
-    /// # Parameters
-    /// - `env`: The environment context.
-    /// - `token_id`: The ID of the NFT to burn.
+    /// # Arguments
+    /// * `env` - The environment context.
+    /// * `admin` - The address of the contract administrator.
+    /// * `allowed_minters` - A vector of addresses allowed to mint NFTs.
     ///
     /// # Returns
-    /// Returns Ok(()) if successful or an error if unauthorized or not found.
-    pub fn burn_nft(env: Env, token_id: Symbol) -> Result<(), VotingNFTError> {
-        let nft: VotingNFT = env
-            .storage()
-            .persistent()
-            .get(&DataKey::NFT(token_id.clone()))
-            .ok_or(VotingNFTError::NFTNotFound)?;
-
-        // Only owner or allowed minter can burn
-        let caller = env.invoker();
-        caller.require_auth();
-        let is_minter = Self::require_minter(env.clone()).is_ok();
-        if caller != nft.owner && !is_minter {
-            return Err(VotingNFTError::Unauthorized);
-        }
-
-        // Remove from storage
-        env.storage()
-            .persistent()
-            .remove(&DataKey::NFT(token_id.clone()));
-
-        // Update owner's NFT list
-        let mut owned_nfts: Vec<Symbol> = env
-            .storage()
-            .persistent()
-            .get(&DataKey::OwnedBy(nft.owner.clone()))
-            .unwrap_or_else(|| Vec::new(&env));
-        owned_nfts.retain(|id| id != &token_id);
-        env.storage()
-            .persistent()
-            .set(&DataKey::OwnedBy(nft.owner.clone()), &owned_nfts);
-
-        Ok(())
+    /// Returns Ok(()) if successful or an error if already initialized.
+    pub fn initialize(
+        env: Env,
+        admin: Address,
+        allowed_minters: Vec<Address>,
+    ) -> Result<(), VotingNFTError> {
+        AccessControl::initialize(env, admin, allowed_minters)
     }
 
-    /// Sets an expiration timestamp for an NFT.
+    /// Mints an NFT for a specific governance action.
     ///
-    /// # Parameters
-    /// - `env`: The environment context.
-    /// - `token_id`: The ID of the NFT.
-    /// - `expires_at`: The timestamp when the NFT expires.
+    /// # Arguments
+    /// * `env` - The environment context.
+    /// * `minter` - The address of the DAO contract minting the NFT.
+    /// * `to` - The address of the NFT recipient.
+    /// * `category` - The category of the NFT (e.g., Participation, Referral).
+    /// * `metadata` - The metadata for the NFT (e.g., "multiplier:2").
+    ///
+    /// # Returns
+    /// Returns the token ID of the minted NFT or an error if minting fails.
+    pub fn mint_nft(
+        env: Env,
+        minter: Address,
+        to: Address,
+        category: Category,
+        metadata: Symbol,
+    ) -> Result<VotingNFT, VotingNFTError> {
+        Mint::mint_nft(env, minter, to, category, metadata)
+    }
+
+    /// Retrieves an NFT by its token ID.
+    ///
+    /// # Arguments
+    /// * `env` - The environment context.
+    /// * `token_id` - The ID of the NFT to retrieve.
+    ///
+    /// # Returns
+    /// Returns the VotingNFT or an error if the NFT is not found.
+    pub fn get_nft(env: Env, token_id: u128) -> Result<VotingNFT, VotingNFTError> {
+        Query::get_nft(env, token_id)
+    }
+
+    /// Retrieves all NFTs owned by an address.
+    ///
+    /// # Arguments
+    /// * `env` - The environment context.
+    /// * `owner` - The address of the NFT owner.
+    ///
+    /// # Returns
+    /// Returns a vector of VotingNFTs owned by the address.
+    pub fn get_nfts_by_owner(env: Env, owner: Address) -> Result<Vec<VotingNFT>, VotingNFTError> {
+        Ok(Query::get_nfts_by_owner(env, owner))
+    }
+
+    /// Adds a new minter to the allowed list.
+    ///
+    /// # Arguments
+    /// * `env` - The environment context.
+    /// * `admin` - The admin address authorizing the addition.
+    /// * `minter` - The address to add as an allowed minter.
+    ///
+    /// # Returns
+    /// Returns Ok(()) if successful or an error if unauthorized or already added.
+    pub fn add_minter(env: Env, admin: Address, minter: Address) -> Result<(), VotingNFTError> {
+        AccessControl::add_minter(env, admin, minter)
+    }
+
+    /// Removes a minter from the allowed list.
+    ///
+    /// # Arguments
+    /// * `env` - The environment context.
+    /// * `admin` - The admin address authorizing the removal.
+    /// * `minter` - The address to remove from the allowed minters.
     ///
     /// # Returns
     /// Returns Ok(()) if successful or an error if unauthorized or not found.
-    pub fn set_expiration(
-        env: Env,
-        token_id: Symbol,
-        expires_at: u64,
-    ) -> Result<(), VotingNFTError> {
-        // Only allowed minters can set expiration
-        Self::require_minter(env.clone())?;
-
-        let mut nft: VotingNFT = env
-            .storage()
-            .persistent()
-            .get(&DataKey::NFT(token_id.clone()))
-            .ok_or(VotingNFTError::NFTNotFound)?;
-
-        // Validate expiration timestamp
-        if expires_at <= env.ledger().timestamp() {
-            return Err(VotingNFTError::InvalidMetadata);
-        }
-
-        nft.expires_at = Some(expires_at);
-        env.storage()
-            .persistent()
-            .set(&DataKey::NFT(token_id), &nft);
-
-        Ok(())
+    pub fn remove_minter(env: Env, admin: Address, minter: Address) -> Result<(), VotingNFTError> {
+        AccessControl::remove_minter(env, admin, minter)
     }
 }
 
-// Import traits from other modules
-impl AccessControl for VotingNFTContract {}
-impl MintingOperations for VotingNFTContract {}
-impl QueryOperations for VotingNFTContract {}
+#[cfg(test)]
+mod test;
