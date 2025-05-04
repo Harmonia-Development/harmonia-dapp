@@ -1,7 +1,9 @@
 import Header from '@/components/dashboard/Header'
+import { CreateProposalButton } from '@/components/proposals/CreateProposalButton';
 import { ProposalCalendar } from '@/components/proposals/ProposalCalendar'
 import ProposalCategoryChart from '@/components/proposals/ProposalCategoryChart'
-import { ProposalList } from '@/components/proposals/ProposalList'
+import { ProposalList } from '@/components/proposals/ProposalList';
+import { ProposalStats } from '@/components/proposals/ProposalStats';
 
 const initialDummyData = [
 	{ name: "Governance", color: "#8B5CF6", value: 28 },
@@ -15,9 +17,17 @@ export default function ProposalsPage() {
 		<div className="h-full md:h-screen">
 			<Header />
 			<div className="container mx-auto mt-5">
+				<div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+					<div>
+						<h1 className="text-2xl font-bold">Proposals</h1>
+						<p className='text-gray-400'>Create, vote, and track governance proposals</p>
+					</div>
+					<CreateProposalButton />
+				</div>
 				<div className="flex flex-col md:flex-row justify-between">
 					<div className="w-full grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 						<div className="order-1 md:order-1 md:col-span-1 lg:col-span-2">
+							<ProposalStats />
 							<ProposalList />
 						</div>
 
