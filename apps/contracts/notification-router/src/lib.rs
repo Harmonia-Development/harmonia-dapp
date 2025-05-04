@@ -13,7 +13,7 @@
 //! - Batch processing capability for efficient notification grouping
 //!
 //! ## Modules
-//! 
+//!
 //! - `constants`: Contains severity levels and category constants
 //! - `errors`: Defines custom error types for better error handling
 //! - `types`: Contains event and notification data structures
@@ -21,15 +21,15 @@
 
 // Module declarations
 mod constants;
+mod contract;
 mod errors;
 mod types;
-mod contract;
 
 #[cfg(test)]
 mod test;
 
 // Public exports
-pub use constants::{severity, category};
+pub use constants::{category, severity};
+pub use contract::{NotificationRouterContract, NotificationRouterContractClient};
 pub use errors::NotificationError;
-pub use types::{NotificationEvent, Notification};
-pub use contract::{NotificationRouterContract, NotificationRouterContractClient}; 
+pub use types::{Notification, NotificationEvent};

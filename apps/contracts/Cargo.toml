@@ -2,9 +2,11 @@
 resolver = "2"
 members = [
 
-  "role-manager",
-  "referral-contract", 
+  "notification-router",
   "proposal-contract",
+  "referral-contract", 
+  "role-manager",
+  "treasury",
   "voting-nft-contract",
 
 ]

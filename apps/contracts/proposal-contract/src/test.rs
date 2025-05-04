@@ -1,11 +1,12 @@
 #![cfg(test)]
 
-use soroban_sdk::{
-    testutils::{Address as _, Ledger, Events},
-    Address, Env, Symbol, symbol_short, String, IntoVal, vec,
-};
-use crate::{ProposalContract, ProposalContractClient};
 use crate::datatypes::ProposalStatus;
+use crate::{ProposalContract, ProposalContractClient};
+use soroban_sdk::{
+    symbol_short,
+    testutils::{Address as _, Events, Ledger},
+    vec, Address, Env, IntoVal, String, Symbol,
+};
 
 // Macro to simplify event assertion across tests
 macro_rules! assert_event {
@@ -81,7 +82,12 @@ fn test_prevent_double_vote() {
     assert_event!(env, contract_id, "proposal_created", 1u32);
 
     client.vote(&user, &1, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user.clone(), symbol_short!("For")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user.clone(), symbol_short!("For"))
+    );
     client.vote(&user, &1, &symbol_short!("For"));
 }
 
@@ -102,18 +108,38 @@ fn test_finalize_accepted_when_quorum_met() {
         &Symbol::new(&env, "system"),
         &Some(3),
     );
-    assert_event!(env, contract_id, "proposal_created", 1u32);    
+    assert_event!(env, contract_id, "proposal_created", 1u32);
 
     client.vote(&user1, &1, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user1.clone(), symbol_short!("For")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user1.clone(), symbol_short!("For"))
+    );
     client.vote(&user2, &1, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user2.clone(), symbol_short!("For")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user2.clone(), symbol_short!("For"))
+    );
     client.vote(&user3, &1, &symbol_short!("Abstain"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user3.clone(), symbol_short!("Abstain")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user3.clone(), symbol_short!("Abstain"))
+    );
 
     env.ledger().set_timestamp(now + 20);
     client.finalize(&1);
-    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("accepted")));
+    assert_event!(
+        env,
+        contract_id,
+        "proposal_finalized",
+        (1u32, symbol_short!("accepted"))
+    );
 
     let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "accepted", &env));
@@ -135,11 +161,21 @@ fn test_finalize_closed_when_quorum_not_met() {
     assert_event!(env, contract_id, "proposal_created", 1u32);
 
     client.vote(&user, &1, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user.clone(), symbol_short!("For")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user.clone(), symbol_short!("For"))
+    );
 
     env.ledger().set_timestamp(env.ledger().timestamp() + 10);
     client.finalize(&1);
-    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("closed")));
+    assert_event!(
+        env,
+        contract_id,
+        "proposal_finalized",
+        (1u32, symbol_short!("closed"))
+    );
 
     let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "closed", &env));
@@ -164,14 +200,29 @@ fn test_finalize_without_quorum_majority_against() {
     assert_event!(env, contract_id, "proposal_created", 1u32);
 
     client.vote(&user1, &1, &symbol_short!("Against"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user1.clone(), symbol_short!("Against")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user1.clone(), symbol_short!("Against"))
+    );
 
     client.vote(&user2, &1, &symbol_short!("Abstain"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user2.clone(), symbol_short!("Abstain")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user2.clone(), symbol_short!("Abstain"))
+    );
 
     env.ledger().set_timestamp(deadline + 5);
     client.finalize(&1);
-    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
+    assert_event!(
+        env,
+        contract_id,
+        "proposal_finalized",
+        (1u32, symbol_short!("rejected"))
+    );
 
     let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "rejected", &env));
@@ -194,14 +245,29 @@ fn test_finalize_rejected_on_for_against_tie() {
     assert_event!(env, contract_id, "proposal_created", 1u32);
 
     client.vote(&user1, &1, &symbol_short!("For"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user1.clone(), symbol_short!("For")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user1.clone(), symbol_short!("For"))
+    );
 
     client.vote(&user2, &1, &symbol_short!("Against"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user2.clone(), symbol_short!("Against")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user2.clone(), symbol_short!("Against"))
+    );
 
     env.ledger().set_timestamp(env.ledger().timestamp() + 20);
     client.finalize(&1);
-    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
+    assert_event!(
+        env,
+        contract_id,
+        "proposal_finalized",
+        (1u32, symbol_short!("rejected"))
+    );
 
     let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "rejected", &env));
@@ -226,14 +292,29 @@ fn test_finalize_rejected_when_only_abstain() {
     assert_event!(env, contract_id, "proposal_created", 1u32);
 
     client.vote(&user1, &1, &symbol_short!("Abstain"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user1.clone(), symbol_short!("Abstain")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user1.clone(), symbol_short!("Abstain"))
+    );
 
     client.vote(&user2, &1, &symbol_short!("Abstain"));
-    assert_event!(env, contract_id, "vote_cast", (1u32, user2.clone(), symbol_short!("Abstain")));
+    assert_event!(
+        env,
+        contract_id,
+        "vote_cast",
+        (1u32, user2.clone(), symbol_short!("Abstain"))
+    );
 
     env.ledger().set_timestamp(deadline + 1);
     client.finalize(&1);
-    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
+    assert_event!(
+        env,
+        contract_id,
+        "proposal_finalized",
+        (1u32, symbol_short!("rejected"))
+    );
 
     let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "rejected", &env));
@@ -316,7 +397,12 @@ fn test_vote_on_closed_proposal() {
     assert_event!(env, contract_id, "proposal_created", 1u32);
     env.ledger().set_timestamp(env.ledger().timestamp() + 20);
     client.finalize(&1);
-    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
+    assert_event!(
+        env,
+        contract_id,
+        "proposal_finalized",
+        (1u32, symbol_short!("rejected"))
+    );
     client.vote(&user, &1, &symbol_short!("For"));
 }
 
@@ -356,7 +442,12 @@ fn test_finalize_closed_with_quorum_and_no_votes() {
 
     env.ledger().set_timestamp(deadline + 1);
     client.finalize(&1);
-    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("closed")));
+    assert_event!(
+        env,
+        contract_id,
+        "proposal_finalized",
+        (1u32, symbol_short!("closed"))
+    );
 
     let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "closed", &env));
@@ -381,7 +472,12 @@ fn test_finalize_rejected_without_quorum_and_no_votes() {
 
     env.ledger().set_timestamp(deadline + 1);
     client.finalize(&1);
-    assert_event!(env, contract_id, "proposal_finalized", (1u32, symbol_short!("rejected")));
+    assert_event!(
+        env,
+        contract_id,
+        "proposal_finalized",
+        (1u32, symbol_short!("rejected"))
+    );
 
     let proposal = client.get_proposal(&1);
     assert!(status_eq(&proposal.status, "rejected", &env));

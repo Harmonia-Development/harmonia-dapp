@@ -1,6 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, Env, Symbol, symbol_short, Address, String};
+use soroban_sdk::{contract, contractimpl, symbol_short, Address, Env, String, Symbol};
 
 mod datatypes;
 use datatypes::{Proposal, ProposalStatus, ProposalType};
@@ -64,9 +64,12 @@ impl ProposalContract {
             quorum,
         };
 
-        env.storage().persistent().set(&Self::proposal_key(id), &proposal);
+        env.storage()
+            .persistent()
+            .set(&Self::proposal_key(id), &proposal);
         Self::increment_id(&env);
-        env.events().publish((Symbol::new(&env, "proposal_created"),), id);
+        env.events()
+            .publish((Symbol::new(&env, "proposal_created"),), id);
 
         Ok(())
     }
@@ -111,9 +114,16 @@ impl ProposalContract {
             _ => return Err(ProposalError::InvalidVoteChoice.into()),
         }
 
-        env.storage().persistent().set(&Self::proposal_key(proposal_id), &proposal);
-        env.storage().persistent().set(&vote_key, &vote_choice_clone);
-        env.events().publish((Symbol::new(&env, "vote_cast"),), (proposal_id, user, vote_choice_clone));
+        env.storage()
+            .persistent()
+            .set(&Self::proposal_key(proposal_id), &proposal);
+        env.storage()
+            .persistent()
+            .set(&vote_key, &vote_choice_clone);
+        env.events().publish(
+            (Symbol::new(&env, "vote_cast"),),
+            (proposal_id, user, vote_choice_clone),
+        );
 
         Ok(())
     }
@@ -157,8 +167,13 @@ impl ProposalContract {
             }
         };
 
-        env.storage().persistent().set(&Self::proposal_key(proposal_id), &proposal);
-        env.events().publish((Symbol::new(&env, "proposal_finalized"),), (proposal_id, Self::status_to_symbol(&proposal.status)));
+        env.storage()
+            .persistent()
+            .set(&Self::proposal_key(proposal_id), &proposal);
+        env.events().publish(
+            (Symbol::new(&env, "proposal_finalized"),),
+            (proposal_id, Self::status_to_symbol(&proposal.status)),
+        );
 
         Ok(())
     }
@@ -171,7 +186,11 @@ impl ProposalContract {
             .persistent()
             .get(&Self::proposal_key(proposal_id))
             .unwrap_or_else(|| panic!("Proposal not found"));
-        (proposal.for_votes, proposal.against_votes, proposal.abstain_votes)
+        (
+            proposal.for_votes,
+            proposal.against_votes,
+            proposal.abstain_votes,
+        )
     }
 
     /// Retrieves the full proposal object for the given ID.
@@ -194,7 +213,9 @@ impl ProposalContract {
     /// Increments the proposal ID counter in persistent storage.
     fn increment_id(env: &Env) {
         let id = Self::next_id(env) + 1;
-        env.storage().persistent().set(&symbol_short!("next_id"), &id);
+        env.storage()
+            .persistent()
+            .set(&symbol_short!("next_id"), &id);
     }
 
     /// Internal helper to create the key used to store/retrieve a proposal.
