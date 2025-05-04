@@ -1,3 +1,4 @@
+import Header from '@/components/dashboard/Header'
 import { ProposalCalendar } from '@/components/proposals/ProposalCalendar'
 import { ProposalList } from '@/components/proposals/ProposalList'
 import { ProposalStats } from '@/components/proposals/ProposalStats'
