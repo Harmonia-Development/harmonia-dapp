@@ -1,10 +1,9 @@
-use crate::{
-    types::{Config, DataKey, VotingNFTError},
-    VotingNFTContract,
-};
-use soroban_sdk::{contractimpl, symbol_short, Address, Env, Vec};
+use crate::datatypes::{Config, DataKey, VotingNFTError};
+use soroban_sdk::{Address, Env, Symbol, Vec};
 
-pub trait AccessControl {
+pub struct AccessControl;
+
+pub trait AccessOperations {
     /// Initializes the contract with a list of allowed minters.
     ///
     /// # Parameters
@@ -20,38 +19,40 @@ pub trait AccessControl {
         allowed_minters: Vec<Address>,
     ) -> Result<(), VotingNFTError>;
 
-    /// Checks if the caller is an allowed minter.
+    /// Checks if the provided address is an allowed minter.
     ///
     /// # Parameters
     /// - `env`: The environment context.
+    /// - `minter`: The address to check.
     ///
     /// # Returns
-    /// Returns Ok(()) if the caller is allowed, or an error if unauthorized.
-    fn require_minter(env: Env) -> Result<(), VotingNFTError>;
+    /// Returns Ok(()) if the minter is allowed, or an error if unauthorized.
+    fn require_minter(env: Env, minter: Address) -> Result<(), VotingNFTError>;
 
     /// Adds a new minter to the allowed list.
     ///
     /// # Parameters
     /// - `env`: The environment context.
+    /// - `admin`: The admin address authorizing the addition.
     /// - `minter`: The address to add as an allowed minter.
     ///
     /// # Returns
     /// Returns Ok(()) if successful or an error if unauthorized or already added.
-    fn add_minter(env: Env, minter: Address) -> Result<(), VotingNFTError>;
+    fn add_minter(env: Env, admin: Address, minter: Address) -> Result<(), VotingNFTError>;
 
     /// Removes a minter from the allowed list.
     ///
     /// # Parameters
     /// - `env`: The environment context.
+    /// - `admin`: The admin address authorizing the removal.
     /// - `minter`: The address to remove from the allowed minters.
     ///
     /// # Returns
     /// Returns Ok(()) if successful or an error if unauthorized or not found.
-    fn remove_minter(env: Env, minter: Address) -> Result<(), VotingNFTError>;
+    fn remove_minter(env: Env, admin: Address, minter: Address) -> Result<(), VotingNFTError>;
 }
 
-#[contractimpl]
-impl AccessControl for VotingNFTContract {
+impl AccessOperations for AccessControl {
     fn initialize(
         env: Env,
         admin: Address,
@@ -64,48 +65,50 @@ impl AccessControl for VotingNFTContract {
 
         // Store config with admin and allowed minters
         let config = Config {
-            admin,
+            admin: admin.clone(),
             allowed_minters,
         };
         env.storage().persistent().set(&DataKey::Config, &config);
 
         // Emit initialization event
-        env.events()
-            .publish((symbol_short!("initialized"), admin), allowed_minters.len());
+        env.events().publish(
+            (Symbol::new(&env, "initialized"), admin),
+            config.allowed_minters.len(),
+        );
 
         Ok(())
     }
 
-    fn require_minter(env: Env) -> Result<(), VotingNFTError> {
-        let caller = env.invoker();
+    fn require_minter(env: Env, minter: Address) -> Result<(), VotingNFTError> {
+        minter.require_auth();
         let config: Config = env
             .storage()
             .persistent()
             .get(&DataKey::Config)
-            .ok_or(VotingNFTError::Unauthorized)?;
+            .ok_or(VotingNFTError::NotInitialized)?;
 
-        if !config.allowed_minters.contains(&caller) {
-            return Err(VotingNFTError::Unauthorized);
+        if !config.allowed_minters.contains(&minter) {
+            return Err(VotingNFTError::NotAllowedMinter);
         }
         Ok(())
     }
 
-    fn add_minter(env: Env, minter: Address) -> Result<(), VotingNFTError> {
-        let caller = env.invoker();
+    fn add_minter(env: Env, admin: Address, minter: Address) -> Result<(), VotingNFTError> {
+        admin.require_auth();
         let mut config: Config = env
             .storage()
             .persistent()
             .get(&DataKey::Config)
-            .ok_or(VotingNFTError::Unauthorized)?;
+            .ok_or(VotingNFTError::NotInitialized)?;
 
         // Only admin can add minters
-        if caller != config.admin {
+        if admin != config.admin {
             return Err(VotingNFTError::Unauthorized);
         }
 
         // Prevent adding duplicates
         if config.allowed_minters.contains(&minter) {
-            return Err(VotingNFTError::DuplicateNFT);
+            return Err(VotingNFTError::DuplicateMinter);
         }
 
         config.allowed_minters.push_back(minter.clone());
@@ -113,21 +116,21 @@ impl AccessControl for VotingNFTContract {
 
         // Emit event
         env.events()
-            .publish((symbol_short!("minter_added"), minter), ());
+            .publish((Symbol::new(&env, "minter_added"), admin, minter), ());
 
         Ok(())
     }
 
-    fn remove_minter(env: Env, minter: Address) -> Result<(), VotingNFTError> {
-        let caller = env.invoker();
+    fn remove_minter(env: Env, admin: Address, minter: Address) -> Result<(), VotingNFTError> {
+        admin.require_auth();
         let mut config: Config = env
             .storage()
             .persistent()
             .get(&DataKey::Config)
-            .ok_or(VotingNFTError::Unauthorized)?;
+            .ok_or(VotingNFTError::NotInitialized)?;
 
         // Only admin can remove minters
-        if caller != config.admin {
+        if admin != config.admin {
             return Err(VotingNFTError::Unauthorized);
         }
 
@@ -139,11 +142,11 @@ impl AccessControl for VotingNFTContract {
 
             // Emit event
             env.events()
-                .publish((symbol_short!("minter_removed"), minter), ());
+                .publish((Symbol::new(&env, "minter_removed"), admin, minter), ());
 
             Ok(())
         } else {
-            Err(VotingNFTError::Unauthorized)
+            Err(VotingNFTError::MinterNotFound)
         }
     }
 }
