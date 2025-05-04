@@ -66,7 +66,7 @@ fn test_create_and_get_proposal() {
 
 // Ensures a user cannot vote more than once on the same proposal
 #[test]
-#[should_panic(expected = "Already voted")]
+#[should_panic(expected = "HostError: Error(Contract, #4)")]
 fn test_prevent_double_vote() {
     let (env, user, contract_id, client) = setup();
 
@@ -241,7 +241,7 @@ fn test_finalize_rejected_when_only_abstain() {
 
 // Confirms panic if trying to finalize before deadline
 #[test]
-#[should_panic(expected = "Deadline not reached")]
+#[should_panic(expected = "HostError: Error(Contract, #10)")]
 fn test_finalize_panics_before_deadline() {
     let (env, user, contract_id, client) = setup();
 
@@ -260,7 +260,7 @@ fn test_finalize_panics_before_deadline() {
 
 // Validates panic on voting for nonexistent proposal
 #[test]
-#[should_panic(expected = "Proposal not found")]
+#[should_panic(expected = "HostError: Error(Contract, #5)")]
 fn test_vote_on_nonexistent_proposal() {
     let (_, user, _, client) = setup();
     client.vote(&user, &99, &symbol_short!("For"));
@@ -268,7 +268,7 @@ fn test_vote_on_nonexistent_proposal() {
 
 // Ensures invalid proposal type is rejected
 #[test]
-#[should_panic(expected = "Invalid proposal type")]
+#[should_panic(expected = "HostError: Error(Contract, #3)")]
 fn test_invalid_proposal_type() {
     let (env, user, _, client) = setup();
     client.create_proposal(
@@ -283,7 +283,7 @@ fn test_invalid_proposal_type() {
 
 // Ensures voting fails if deadline has passed
 #[test]
-#[should_panic(expected = "Voting closed")]
+#[should_panic(expected = "HostError: Error(Contract, #7)")]
 fn test_vote_after_deadline() {
     let (env, user, contract_id, client) = setup();
     let deadline = env.ledger().timestamp() + 10;
@@ -302,7 +302,7 @@ fn test_vote_after_deadline() {
 
 // Ensures voting fails on a proposal that's already finalized
 #[test]
-#[should_panic(expected = "Proposal not open")]
+#[should_panic(expected = "HostError: Error(Contract, #6)")]
 fn test_vote_on_closed_proposal() {
     let (env, user, contract_id, client) = setup();
     client.create_proposal(
@@ -322,7 +322,7 @@ fn test_vote_on_closed_proposal() {
 
 // Ensures voting fails with invalid vote choice symbol
 #[test]
-#[should_panic(expected = "Invalid vote choice")]
+#[should_panic(expected = "HostError: Error(Contract, #8)")]
 fn test_invalid_vote_choice() {
     let (env, user, contract_id, client) = setup();
     client.create_proposal(

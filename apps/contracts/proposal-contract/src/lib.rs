@@ -5,6 +5,9 @@ use soroban_sdk::{contract, contractimpl, Env, Symbol, symbol_short, Address, St
 mod datatypes;
 use datatypes::{Proposal, ProposalStatus, ProposalType};
 
+mod errors;
+use errors::ProposalError;
+
 mod test;
 
 #[contract]
@@ -24,24 +27,24 @@ impl ProposalContract {
         deadline: u64,
         proposal_type_symbol: Symbol,
         quorum: Option<u32>,
-    ) {
+    ) -> Result<(), ProposalError> {
         user.require_auth();
 
         let now = env.ledger().timestamp();
 
         if deadline <= now {
-            panic!("Invalid deadline");
+            return Err(ProposalError::InvalidDeadline.into());
         }
 
         if title.len() == 0 || title.len() > 100 {
-            panic!("Title length invalid");
+            return Err(ProposalError::InvalidTitleLength.into());
         }
 
         let proposal_type = match proposal_type_symbol {
             s if s == Symbol::new(&env, "treasury") => ProposalType::Treasury,
             s if s == Symbol::new(&env, "governance") => ProposalType::Governance,
             s if s == Symbol::new(&env, "system") => ProposalType::System,
-            _ => panic!("Invalid proposal type"),
+            _ => return Err(ProposalError::InvalidProposalType.into()),
         };
 
         let id = Self::next_id(&env);
@@ -64,32 +67,39 @@ impl ProposalContract {
         env.storage().persistent().set(&Self::proposal_key(id), &proposal);
         Self::increment_id(&env);
         env.events().publish((Symbol::new(&env, "proposal_created"),), id);
+
+        Ok(())
     }
 
     /// Allows a user to vote on a given proposal.
     /// Prevents double voting and ensures the proposal is open and not expired.
     /// Increments the appropriate vote count and stores the vote.
     /// Emits a `vote_cast` event with the proposal ID, user, and vote type.
-    pub fn vote(env: Env, user: Address, proposal_id: u32, vote_choice: Symbol) {
+    pub fn vote(
+        env: Env,
+        user: Address,
+        proposal_id: u32,
+        vote_choice: Symbol,
+    ) -> Result<(), ProposalError> {
         user.require_auth();
 
         let vote_key = (symbol_short!("vote"), proposal_id, user.clone());
         if env.storage().persistent().has(&vote_key) {
-            panic!("Already voted");
+            return Err(ProposalError::AlreadyVoted.into());
         }
 
         let mut proposal: Proposal = env
             .storage()
             .persistent()
             .get(&Self::proposal_key(proposal_id))
-            .unwrap_or_else(|| panic!("Proposal not found"));
+            .ok_or(ProposalError::ProposalNotFound)?;
 
         if proposal.status != ProposalStatus::Open {
-            panic!("Proposal not open");
+            return Err(ProposalError::ProposalNotOpen.into());
         }
 
         if env.ledger().timestamp() > proposal.deadline {
-            panic!("Voting closed");
+            return Err(ProposalError::VotingClosed.into());
         }
 
         let vote_choice_clone = vote_choice.clone();
@@ -98,30 +108,32 @@ impl ProposalContract {
             s if s == symbol_short!("For") => proposal.for_votes += 1,
             s if s == symbol_short!("Against") => proposal.against_votes += 1,
             s if s == symbol_short!("Abstain") => proposal.abstain_votes += 1,
-            _ => panic!("Invalid vote choice"),
+            _ => return Err(ProposalError::InvalidVoteChoice.into()),
         }
 
         env.storage().persistent().set(&Self::proposal_key(proposal_id), &proposal);
         env.storage().persistent().set(&vote_key, &vote_choice_clone);
         env.events().publish((Symbol::new(&env, "vote_cast"),), (proposal_id, user, vote_choice_clone));
+
+        Ok(())
     }
 
     /// Finalizes a proposal by setting its status based on vote results and quorum (if defined).
     /// Can only be called after the proposal deadline.
     /// Emits a `proposal_finalized` event with the resulting status.
-    pub fn finalize(env: Env, proposal_id: u32) {
+    pub fn finalize(env: Env, proposal_id: u32) -> Result<(), ProposalError> {
         let mut proposal: Proposal = env
             .storage()
             .persistent()
             .get(&Self::proposal_key(proposal_id))
-            .unwrap_or_else(|| panic!("Proposal not found"));
+            .ok_or(ProposalError::ProposalNotFound)?;
 
         if proposal.status != ProposalStatus::Open {
-            panic!("Already finalized");
+            return Err(ProposalError::AlreadyFinalized.into());
         }
 
         if env.ledger().timestamp() < proposal.deadline {
-            panic!("Deadline not reached");
+            return Err(ProposalError::DeadlineNotReached.into());
         }
 
         let total_votes = proposal.for_votes + proposal.against_votes + proposal.abstain_votes;
@@ -147,6 +159,8 @@ impl ProposalContract {
 
         env.storage().persistent().set(&Self::proposal_key(proposal_id), &proposal);
         env.events().publish((Symbol::new(&env, "proposal_finalized"),), (proposal_id, Self::status_to_symbol(&proposal.status)));
+
+        Ok(())
     }
 
     /// Retrieves the vote counts for a given proposal.
