@@ -3,11 +3,12 @@ use soroban_sdk::{contracterror, contracttype, Address, Symbol, Vec};
 #[derive(Clone, Debug)]
 #[contracttype]
 pub struct VotingNFT {
-    pub token_id: Symbol,
+    pub token_id: u128,
     pub category: Category,
     pub metadata: Symbol, // Stores additional info, e.g., "multiplier:2"
     pub owner: Address,
     pub issued_at: u64,
+    
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -21,9 +22,10 @@ pub enum Category {
 
 #[contracttype]
 pub enum DataKey {
-    NFT(Symbol),      // Stores VotingNFT by token_id
+    NFT(u128),        // Stores VotingNFT by token_id
     OwnedBy(Address), // Stores Vec<Symbol> of token_ids for an owner
     Config,           // Stores contract configuration
+    TokenCounter,     // Stores the current token ID counter
 }
 
 #[contracterror]
@@ -36,6 +38,10 @@ pub enum VotingNFTError {
     NFTExpired = 4,         // NFT has expired
     AlreadyInitialized = 5, // Contract already initialized
     InvalidMetadata = 6,    // Invalid metadata format
+    NotInitialized = 7,     // Contract not initialized
+    DuplicateMinter = 8,    // Minter already exists
+    MinterNotFound = 9,     // Minter not found in allowed list
+    NotAllowedMinter = 10,  // Address not in allowed minters
 }
 
 #[derive(Clone, Debug)]
