@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { CreateProposalButton } from './CreateProposalButton'
+import ProposalCategoryChart from './ProposalCategoryChart'
 import { ProposalFilterTabs, type ProposalStatus } from './ProposalFilterTabs'
 import { type Proposal, ProposalItemCard } from './ProposalItemCard'
 
-// Mock data for proposals
 const mockProposals: Proposal[] = [
 	{
 		id: '1',
@@ -84,14 +84,36 @@ const mockProposals: Proposal[] = [
 	},
 ]
 
+const categoryColors: { [key: string]: string } = {
+	Treasury: '#3B82F6',
+	Governance: '#8B5CF6',
+	Community: '#10B981',
+	Technical: '#F59E0B',
+}
+
 export function ProposalList() {
 	const [activeTab, setActiveTab] = useState<ProposalStatus>('all')
 
-	// Filter proposals based on the active tab
 	const filteredProposals = mockProposals.filter((proposal) => {
 		if (activeTab === 'all') return true
 		return proposal.status === activeTab
 	})
+
+	// Aggregate data for the chart based on filtered proposals
+	const categoryCounts = filteredProposals.reduce(
+		(acc, proposal) => {
+			const category = proposal.category
+			acc[category] = (acc[category] || 0) + 1
+			return acc
+		},
+		{} as { [key: string]: number },
+	)
+
+	const chartData = Object.entries(categoryCounts).map(([name, value]) => ({
+		name,
+		value,
+		color: categoryColors[name] || '#000000', // Fallback color if not defined
+	}))
 
 	return (
 		<div className="container mx-auto py-6">
@@ -104,17 +126,22 @@ export function ProposalList() {
 				<ProposalFilterTabs activeTab={activeTab} onTabChange={setActiveTab} />
 			</div>
 
-			{filteredProposals.length === 0 ? (
-				<div className="text-center py-12">
-					<p className="text-muted-foreground">No proposals found for this filter.</p>
-				</div>
-			) : (
-				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-					{filteredProposals.map((proposal) => (
-						<ProposalItemCard key={proposal.id} proposal={proposal} />
-					))}
-				</div>
-			)}
+			<div>
+				{filteredProposals.length === 0 ? (
+					<div className="text-center py-12">
+						<p className="text-muted-foreground">No proposals found for this filter.</p>
+					</div>
+				) : (
+					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+						{filteredProposals.map((proposal) => (
+							<ProposalItemCard key={proposal.id} proposal={proposal} />
+						))}
+					</div>
+				)}
+			</div>
+			<div className="mb-6">
+				<ProposalCategoryChart data={chartData} />
+			</div>
 		</div>
 	)
 }

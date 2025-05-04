@@ -51,7 +51,6 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
 							'flex items-center justify-center',
 						)}
 					>
-						<Icon className="text-white w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
 					</div>
 				)}
 			</div>

@@ -1,7 +1,12 @@
 [workspace]
 resolver = "2"
 members = [
-  "role-manager","voting-nft-contract",
+
+  "role-manager",
+  "referral-contract", 
+  "proposal-contract",
+  "voting-nft-contract",
+
 ]
 
 [workspace.dependencies]

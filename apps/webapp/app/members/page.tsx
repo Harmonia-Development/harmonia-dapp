@@ -1,8 +1,6 @@
 'use client'
 import Header from '@/components/dashboard/Header'
 import MembersDashboard from '@/components/members/MembersDashboard'
-import React from 'react'
-// import DAODashboard from '@/components/dashboard/DAODashboard'
 
 const page = () => {
 	return (
