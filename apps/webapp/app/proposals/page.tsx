@@ -1,6 +1,8 @@
-import Header from '@/components/dashboard/Header'
+import { ProposalCalendar } from '@/components/proposals/ProposalCalendar'
 import { ProposalList } from '@/components/proposals/ProposalList'
 import { ProposalStats } from '@/components/proposals/ProposalStats'
+
+
 
 export default function ProposalsPage() {
 	return (
@@ -18,6 +20,9 @@ export default function ProposalsPage() {
 						<ProposalStats />
 					</div>
 					<ProposalList />
+				</div>
+        	<div>
+					<ProposalCalendar events={[]} />
 				</div>
 			</main>
 		</>
