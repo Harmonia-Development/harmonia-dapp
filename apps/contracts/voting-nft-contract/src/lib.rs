@@ -20,7 +20,9 @@ impl VotingNFTContract {
     /// # Returns
     /// Returns Ok(()) if successful or an error if unauthorized or not found.
     pub fn burn_nft(env: Env, token_id: Symbol) -> Result<(), VotingNFTError> {
-        let nft: VotingNFT = env.storage().persistent()
+        let nft: VotingNFT = env
+            .storage()
+            .persistent()
             .get(&DataKey::NFT(token_id.clone()))
             .ok_or(VotingNFTError::NFTNotFound)?;
 
@@ -33,14 +35,20 @@ impl VotingNFTContract {
         }
 
         // Remove from storage
-        env.storage().persistent().remove(&DataKey::NFT(token_id.clone()));
+        env.storage()
+            .persistent()
+            .remove(&DataKey::NFT(token_id.clone()));
 
         // Update owner's NFT list
-        let mut owned_nfts: Vec<Symbol> = env.storage().persistent()
+        let mut owned_nfts: Vec<Symbol> = env
+            .storage()
+            .persistent()
             .get(&DataKey::OwnedBy(nft.owner.clone()))
             .unwrap_or_else(|| Vec::new(&env));
         owned_nfts.retain(|id| id != &token_id);
-        env.storage().persistent().set(&DataKey::OwnedBy(nft.owner.clone()), &owned_nfts);
+        env.storage()
+            .persistent()
+            .set(&DataKey::OwnedBy(nft.owner.clone()), &owned_nfts);
 
         Ok(())
     }
@@ -54,11 +62,17 @@ impl VotingNFTContract {
     ///
     /// # Returns
     /// Returns Ok(()) if successful or an error if unauthorized or not found.
-    pub fn set_expiration(env: Env, token_id: Symbol, expires_at: u64) -> Result<(), VotingNFTError> {
+    pub fn set_expiration(
+        env: Env,
+        token_id: Symbol,
+        expires_at: u64,
+    ) -> Result<(), VotingNFTError> {
         // Only allowed minters can set expiration
         Self::require_minter(env.clone())?;
 
-        let mut nft: VotingNFT = env.storage().persistent()
+        let mut nft: VotingNFT = env
+            .storage()
+            .persistent()
             .get(&DataKey::NFT(token_id.clone()))
             .ok_or(VotingNFTError::NFTNotFound)?;
 
@@ -68,7 +82,9 @@ impl VotingNFTContract {
         }
 
         nft.expires_at = Some(expires_at);
-        env.storage().persistent().set(&DataKey::NFT(token_id), &nft);
+        env.storage()
+            .persistent()
+            .set(&DataKey::NFT(token_id), &nft);
 
         Ok(())
     }

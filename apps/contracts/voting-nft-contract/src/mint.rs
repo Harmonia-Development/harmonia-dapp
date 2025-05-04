@@ -3,7 +3,7 @@ use crate::{
     types::{Category, DataKey, VotingNFT, VotingNFTError},
     VotingNFTContract,
 };
-use soroban_sdk::{contractimpl, Address, Env, Symbol, Vec, symbol_short};
+use soroban_sdk::{contractimpl, symbol_short, Address, Env, Symbol, Vec};
 
 pub trait MintingOperations {
     /// Mints an NFT for a specific governance action.
@@ -16,12 +16,22 @@ pub trait MintingOperations {
     ///
     /// # Returns
     /// Returns the token ID of the minted NFT or an error if minting fails.
-    fn mint_nft(env: Env, to: Address, category: Category, metadata: Symbol) -> Result<Symbol, VotingNFTError>;
+    fn mint_nft(
+        env: Env,
+        to: Address,
+        category: Category,
+        metadata: Symbol,
+    ) -> Result<Symbol, VotingNFTError>;
 }
 
 #[contractimpl]
 impl MintingOperations for VotingNFTContract {
-    fn mint_nft(env: Env, to: Address, category: Category, metadata: Symbol) -> Result<Symbol, VotingNFTError> {
+    fn mint_nft(
+        env: Env,
+        to: Address,
+        category: Category,
+        metadata: Symbol,
+    ) -> Result<Symbol, VotingNFTError> {
         // Require auth from the caller (DAO contract)
         let caller = env.invoker();
         caller.require_auth();
@@ -33,14 +43,19 @@ impl MintingOperations for VotingNFTContract {
         let token_id = Self::generate_token_id(&env, &to, &category);
 
         // Prevent duplicate mints for the same category
-        if env.storage().persistent().has(&DataKey::NFT(token_id.clone())) {
+        if env
+            .storage()
+            .persistent()
+            .has(&DataKey::NFT(token_id.clone()))
+        {
             return Err(VotingNFTError::DuplicateNFT);
         }
 
         // Validate metadata (e.g., ensure valid multiplier format if provided)
         if metadata.to_string().starts_with("multiplier:") {
             let multiplier_str = metadata.to_string()[11..].to_string();
-            if multiplier_str.parse::<u32>().is_err() || multiplier_str.parse::<u32>().unwrap() == 0 {
+            if multiplier_str.parse::<u32>().is_err() || multiplier_str.parse::<u32>().unwrap() == 0
+            {
                 return Err(VotingNFTError::InvalidMetadata);
             }
         }
@@ -57,14 +72,20 @@ impl MintingOperations for VotingNFTContract {
         };
 
         // Store NFT
-        env.storage().persistent().set(&DataKey::NFT(token_id.clone()), &nft);
+        env.storage()
+            .persistent()
+            .set(&DataKey::NFT(token_id.clone()), &nft);
 
         // Update owner's NFT list
-        let mut owned_nfts: Vec<Symbol> = env.storage().persistent()
+        let mut owned_nfts: Vec<Symbol> = env
+            .storage()
+            .persistent()
             .get(&DataKey::OwnedBy(to.clone()))
             .unwrap_or_else(|| Vec::new(&env));
         owned_nfts.push_back(token_id.clone());
-        env.storage().persistent().set(&DataKey::OwnedBy(to.clone()), &owned_nfts);
+        env.storage()
+            .persistent()
+            .set(&DataKey::OwnedBy(to.clone()), &owned_nfts);
 
         // Emit nft_minted event
         env.events().publish(

@@ -2,7 +2,7 @@ use crate::{
     types::{Config, DataKey, VotingNFTError},
     VotingNFTContract,
 };
-use soroban_sdk::{contractimpl, Address, Env, Vec, symbol_short};
+use soroban_sdk::{contractimpl, symbol_short, Address, Env, Vec};
 
 pub trait AccessControl {
     /// Initializes the contract with a list of allowed minters.
@@ -14,7 +14,11 @@ pub trait AccessControl {
     ///
     /// # Returns
     /// Returns Ok(()) if successful or an error if already initialized.
-    fn initialize(env: Env, admin: Address, allowed_minters: Vec<Address>) -> Result<(), VotingNFTError>;
+    fn initialize(
+        env: Env,
+        admin: Address,
+        allowed_minters: Vec<Address>,
+    ) -> Result<(), VotingNFTError>;
 
     /// Checks if the caller is an allowed minter.
     ///
@@ -48,7 +52,11 @@ pub trait AccessControl {
 
 #[contractimpl]
 impl AccessControl for VotingNFTContract {
-    fn initialize(env: Env, admin: Address, allowed_minters: Vec<Address>) -> Result<(), VotingNFTError> {
+    fn initialize(
+        env: Env,
+        admin: Address,
+        allowed_minters: Vec<Address>,
+    ) -> Result<(), VotingNFTError> {
         // Prevent re-initialization
         if env.storage().persistent().has(&DataKey::Config) {
             return Err(VotingNFTError::AlreadyInitialized);
@@ -62,17 +70,20 @@ impl AccessControl for VotingNFTContract {
         env.storage().persistent().set(&DataKey::Config, &config);
 
         // Emit initialization event
-        env.events().publish((symbol_short!("initialized"), admin), allowed_minters.len());
+        env.events()
+            .publish((symbol_short!("initialized"), admin), allowed_minters.len());
 
         Ok(())
     }
 
     fn require_minter(env: Env) -> Result<(), VotingNFTError> {
         let caller = env.invoker();
-        let config: Config = env.storage().persistent()
+        let config: Config = env
+            .storage()
+            .persistent()
             .get(&DataKey::Config)
             .ok_or(VotingNFTError::Unauthorized)?;
-        
+
         if !config.allowed_minters.contains(&caller) {
             return Err(VotingNFTError::Unauthorized);
         }
@@ -81,7 +92,9 @@ impl AccessControl for VotingNFTContract {
 
     fn add_minter(env: Env, minter: Address) -> Result<(), VotingNFTError> {
         let caller = env.invoker();
-        let mut config: Config = env.storage().persistent()
+        let mut config: Config = env
+            .storage()
+            .persistent()
             .get(&DataKey::Config)
             .ok_or(VotingNFTError::Unauthorized)?;
 
@@ -99,14 +112,17 @@ impl AccessControl for VotingNFTContract {
         env.storage().persistent().set(&DataKey::Config, &config);
 
         // Emit event
-        env.events().publish((symbol_short!("minter_added"), minter), ());
+        env.events()
+            .publish((symbol_short!("minter_added"), minter), ());
 
         Ok(())
     }
 
     fn remove_minter(env: Env, minter: Address) -> Result<(), VotingNFTError> {
         let caller = env.invoker();
-        let mut config: Config = env.storage().persistent()
+        let mut config: Config = env
+            .storage()
+            .persistent()
             .get(&DataKey::Config)
             .ok_or(VotingNFTError::Unauthorized)?;
 
@@ -122,7 +138,8 @@ impl AccessControl for VotingNFTContract {
             env.storage().persistent().set(&DataKey::Config, &config);
 
             // Emit event
-            env.events().publish((symbol_short!("minter_removed"), minter), ());
+            env.events()
+                .publish((symbol_short!("minter_removed"), minter), ());
 
             Ok(())
         } else {
