@@ -8,7 +8,6 @@ import { ProposalStats } from '@/components/proposals/ProposalStats'
 export default function ProposalsPage() {
 	return (
 		<>
-			<Header />
 			<main className="min-h-screen bg-background">
 				<div className="max-w-7xl mx-auto">
 					<div className="container mx-auto py-6">
