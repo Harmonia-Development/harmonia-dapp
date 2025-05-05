@@ -4,6 +4,7 @@ import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { WalletProvider } from '@/lib/wallet/context'
 import Header from '@/components/dashboard/Header'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -34,6 +35,7 @@ export default function RootLayout({
 					{children}
 					<Toaster />
 				</WalletProvider>
+				<GoogleAnalytics gaId="G-YHNFJFWVCG" />
 			</body>
 		</html>
 	)

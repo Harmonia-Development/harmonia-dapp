@@ -45,12 +45,10 @@
 		]
 	},
 	"dependencies": {
-
+		"@creit.tech/stellar-wallets-kit": "^1.7.3",
+		"@next/third-parties": "^15.3.1",
 		"@react-three/drei": "^10.0.7",
 		"@react-three/fiber": "^9.1.2",
-		"three": "^0.176.0",
-
-		"@creit.tech/stellar-wallets-kit": "^1.7.3"
-
+		"three": "^0.176.0"
 	}
 }
