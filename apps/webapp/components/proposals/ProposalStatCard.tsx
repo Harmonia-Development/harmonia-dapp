@@ -4,6 +4,7 @@ import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
 import React from 'react'
+import type { ReactElement } from 'react'
 
 export interface StatCardProps {
 	title: string
@@ -62,6 +63,34 @@ const cardVariants = cva('rounded-lg p-4 md:p-5 relative', {
 	},
 })
 
+// Función auxiliar para renderizar el icono con la clase correcta
+const renderIcon = (
+	icon: React.ReactNode, 
+	variant: 'default' | 'success' | 'error' | 'info'
+) => {
+	// Si no es un elemento React válido, no renderizamos nada
+	if (!React.isValidElement(icon)) return null;
+	
+	// Extraer la clase actual si existe
+	const element = icon as ReactElement<{ className?: string }>;
+	const currentClassName = element.props.className || '';
+	
+	// Crear un nuevo elemento con la clase combinada
+	return (
+		<div className={iconContainerVariants({ variant })}>
+			<span 
+				className={clsx(
+					currentClassName,
+					iconVariants({ variant }),
+					'w-4 h-4'
+				)}
+			>
+				{icon}
+			</span>
+		</div>
+	);
+};
+
 export const ProposalStatCard: React.FC<StatCardProps> = ({
 	title,
 	value,
@@ -83,17 +112,7 @@ export const ProposalStatCard: React.FC<StatCardProps> = ({
 		>
 			<div className="flex justify-between items-start mb-2">
 				<span className="text-gray-400 text-sm font-medium">{title}</span>
-				{icon && (
-					<div className={iconContainerVariants({ variant })}>
-						{React.cloneElement(icon as React.ReactElement, {
-							className: clsx(
-								(icon as React.ReactElement).props.className,
-								iconVariants({ variant }),
-								'w-4 h-4',
-							),
-						})}
-					</div>
-				)}
+				{icon && renderIcon(icon, variant)}
 			</div>
 
 			<div className="space-y-1">

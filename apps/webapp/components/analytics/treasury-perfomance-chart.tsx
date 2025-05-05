@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import type React from "react";
 import {
   Card,
   CardContent,
@@ -22,12 +22,12 @@ import {
   RadarChart,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  type TooltipProps,
   XAxis,
   YAxis,
 } from "recharts";
 import { data, allocation, efficiency } from "@/lib/mock-data/treasure-mock";
-import {
+import type {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
@@ -37,7 +37,11 @@ const CustomTooltip = ({
   payload,
 }: TooltipProps<ValueType, NameType>) => {
   if (active && payload && payload.length > 0) {
-    const item = payload[0].payload as any; // Cast to any to access custom properties
+    const item = payload[0].payload as {
+      name: string;
+      score: number;
+      color: string;
+    };
     return (
       <div className="bg-gray-800 text-white text-sm p-2 rounded shadow">
         <p className="font-semibold">{item.name}</p>
@@ -159,7 +163,8 @@ export function TreasuryDashboard() {
                   />
                   <Bar dataKey="score" radius={[0, 4, 4, 0]}>
                     {efficiency.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell key={`cell-${// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+index}`} fill={entry.color} />
                     ))}
                   </Bar>
                 </BarChart>

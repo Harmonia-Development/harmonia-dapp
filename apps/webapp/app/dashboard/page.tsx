@@ -1,6 +1,5 @@
 import DAODashboard from '@/components/dashboard/DAODashboard'
 import DashBoardMain from '@/components/dashboard/DashBoardMain'
-import Header from '@/components/dashboard/Header'
 import React from 'react'
 
 const page = () => {

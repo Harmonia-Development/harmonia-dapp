@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Tabs from "@radix-ui/react-tabs";
 import * as Switch from "@radix-ui/react-switch";
-import { X, Calendar, Clock, PlusIcon } from "lucide-react";
+import { X, Calendar, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const AddToTreasuryModal: React.FC = () => {

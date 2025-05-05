@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import type React from "react";
 import {
   Card,
   CardContent,
@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
+import type {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
@@ -21,7 +21,7 @@ import {
   LineChart,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  type TooltipProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -38,7 +38,8 @@ const CustomTooltip: React.FC<TooltipProps<ValueType, NameType>> = ({
     <div className="bg-gray-800 text-white p-2 rounded shadow-lg">
       <p className="text-sm">{label}</p>
       {payload.map((entry, index) => (
-        <p key={index} className="text-sm">
+        // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+<p key={index} className="text-sm">
           {`${entry.name}: ${entry.value}%`}
         </p>
       ))}
@@ -56,7 +57,8 @@ const CustomAlocationTooltip: React.FC<TooltipProps<ValueType, NameType>> = ({
       <div className="bg-gray-800 text-white p-3 rounded shadow-md">
         <p className="text-sm font-semibold">{label}</p>
         {payload.map((entry, index) => (
-          <p key={index} className="text-sm text-purple-300">
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+<p key={index} className="text-sm text-purple-300">
             {`Allocation : ${entry.value}%`}
           </p>
         ))}
@@ -71,7 +73,12 @@ const CustomEfficiencyTooltip = ({
   label,
 }: {
   active?: boolean;
-  payload?: any;
+  payload?: {
+    value: number;
+    dataKey: string;
+    name: string;
+    color: string;
+  }[];
   label?: string;
 }) => {
   if (active && payload && payload.length) {

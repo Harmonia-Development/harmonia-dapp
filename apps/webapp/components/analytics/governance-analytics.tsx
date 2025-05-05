@@ -31,7 +31,17 @@ const CustomTooltip = ({
   label,
 }: {
   active?: boolean;
-  payload?: any;
+  payload?: {
+    value: number;
+    dataKey: string;
+    name: string;
+    color: string;
+    payload: {
+      rate1: number;
+      rate2: number;
+      name: string;
+    };
+  }[];
   label?: string;
 }) => {
   if (active && payload && payload.length) {

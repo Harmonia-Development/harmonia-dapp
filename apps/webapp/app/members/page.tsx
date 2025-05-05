@@ -1,5 +1,4 @@
 'use client'
-import Header from '@/components/dashboard/Header'
 import MembersDashboard from '@/components/members/MembersDashboard'
 
 const page = () => {

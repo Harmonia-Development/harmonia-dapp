@@ -12,7 +12,6 @@ import {
   ChevronDownIcon,
   DownloadIcon,
   FilterIcon,
-  PlusIcon,
   SearchIcon,
 } from "lucide-react";
 import { useTransactionHistory } from "../../hooks/useTransactionHistory.hook";
