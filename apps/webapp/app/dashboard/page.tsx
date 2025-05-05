@@ -6,7 +6,6 @@ import React from 'react'
 const page = () => {
 	return (
 		<div className="bg-black h-full md:h-screen">
-			<Header />
 			<div className="">
 				<div className="px-7 py-4">
 					<div className="flex justify-between items-center  ">
