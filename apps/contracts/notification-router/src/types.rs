@@ -22,4 +22,4 @@ pub struct Notification {
     pub message: Symbol,
     /// Timestamp of when the notification was created
     pub timestamp: u64,
-} 
+}

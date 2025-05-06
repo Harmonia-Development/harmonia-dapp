@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, Address, Env, Symbol, BytesN};
+use soroban_sdk::{contracttype, Address, BytesN, Env, Symbol};
 
 #[contracttype]
 pub struct TransactionLog {

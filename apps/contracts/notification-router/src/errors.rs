@@ -21,4 +21,4 @@ impl From<NotificationError> for Error {
             NotificationError::InvalidInput => Error::from_contract_error(3),
         }
     }
-} 
+}

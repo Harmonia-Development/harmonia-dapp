@@ -1,7 +1,9 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, vec, xdr::{FromXdr, ToXdr, WriteXdr}, Address, Bytes, BytesN, Env, Map, String, Symbol, Vec
+    contract, contractimpl, contracttype, symbol_short, vec,
+    xdr::{FromXdr, ToXdr, WriteXdr},
+    Address, Bytes, BytesN, Env, Map, String, Symbol, Vec,
 };
 
 const CODES: Symbol = symbol_short!("codes");

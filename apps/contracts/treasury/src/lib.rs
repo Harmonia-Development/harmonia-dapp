@@ -1,17 +1,16 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, 
-    Address, Env, Symbol, Vec, vec, Map, log
+    contract, contractimpl, contracttype, log, symbol_short, vec, Address, Env, Map, Symbol, Vec,
 };
 
+mod constants;
+mod errors;
 mod test;
 mod types;
-mod errors;
-mod constants;
 
-use types::TransactionLog;
-use errors::TreasuryError;
 use constants::*;
+use errors::TreasuryError;
+use types::TransactionLog;
 
 #[contract]
 pub struct TreasuryContract;
@@ -31,7 +30,9 @@ impl TreasuryContract {
         // Update the balance
         let current_balance = Self::get_balance(env.clone(), asset.clone());
         let new_balance = current_balance + amount;
-        env.storage().persistent().set(&balance_key(&asset), &new_balance);
+        env.storage()
+            .persistent()
+            .set(&balance_key(&asset), &new_balance);
 
         // Record the transaction
         let tx_id = Self::generate_tx_id(&env);
@@ -44,9 +45,11 @@ impl TreasuryContract {
             status: symbol_short!("released"),
             triggered_by: from.clone(),
         };
-        
+
         let tx_count = Self::get_tx_count(&env);
-        env.storage().persistent().set(&tx_log_key(tx_count), &tx_log);
+        env.storage()
+            .persistent()
+            .set(&tx_log_key(tx_count), &tx_log);
         env.storage().persistent().set(&TX_COUNT, &(tx_count + 1));
 
         // Emit event
@@ -87,14 +90,18 @@ impl TreasuryContract {
             status: symbol_short!("pending"),
             triggered_by: env.invoker().clone(),
         };
-        
+
         let tx_count = Self::get_tx_count(&env);
-        env.storage().persistent().set(&tx_log_key(tx_count), &tx_log);
+        env.storage()
+            .persistent()
+            .set(&tx_log_key(tx_count), &tx_log);
         env.storage().persistent().set(&TX_COUNT, &(tx_count + 1));
 
         // Reserve the funds
         let reserved_amount = Self::get_reserved(&env, &asset) + amount;
-        env.storage().persistent().set(&reserved_key(&asset), &reserved_amount);
+        env.storage()
+            .persistent()
+            .set(&reserved_key(&asset), &reserved_amount);
 
         // Emit event
         env.events().publish(
@@ -115,14 +122,16 @@ impl TreasuryContract {
 
         let current_balance = Self::get_balance(env.clone(), asset.clone());
         let available_balance = current_balance - Self::get_reserved(&env, &asset);
-        
+
         if available_balance < amount {
             panic!("{}", TreasuryError::InsufficientFunds);
         }
 
         // Update the balance
         let new_balance = current_balance - amount;
-        env.storage().persistent().set(&balance_key(&asset), &new_balance);
+        env.storage()
+            .persistent()
+            .set(&balance_key(&asset), &new_balance);
 
         // Record the transaction
         let tx_id = Self::generate_tx_id(&env);
@@ -135,16 +144,16 @@ impl TreasuryContract {
             status: symbol_short!("released"),
             triggered_by: env.invoker().clone(),
         };
-        
+
         let tx_count = Self::get_tx_count(&env);
-        env.storage().persistent().set(&tx_log_key(tx_count), &tx_log);
+        env.storage()
+            .persistent()
+            .set(&tx_log_key(tx_count), &tx_log);
         env.storage().persistent().set(&TX_COUNT, &(tx_count + 1));
 
         // Emit event
-        env.events().publish(
-            (FUNDS_RELEASED, asset.clone(), to.clone()),
-            (tx_id, amount),
-        );
+        env.events()
+            .publish((FUNDS_RELEASED, asset.clone(), to.clone()), (tx_id, amount));
     }
 
     // Process a scheduled release
@@ -169,7 +178,8 @@ impl TreasuryContract {
             }
         }
 
-        let (index, tx) = found_tx.unwrap_or_else(|| panic!("{}", TreasuryError::TransactionNotFound));
+        let (index, tx) =
+            found_tx.unwrap_or_else(|| panic!("{}", TreasuryError::TransactionNotFound));
 
         // Check if the unlock time has passed
         let current_time = env.ledger().timestamp();
@@ -182,17 +192,23 @@ impl TreasuryContract {
             status: symbol_short!("released"),
             ..tx.clone()
         };
-        env.storage().persistent().set(&tx_log_key(index), &updated_tx);
+        env.storage()
+            .persistent()
+            .set(&tx_log_key(index), &updated_tx);
 
         // Update the reserved amount
         let asset = tx.asset.clone();
         let reserved_amount = Self::get_reserved(&env, &asset) - tx.amount;
-        env.storage().persistent().set(&reserved_key(&asset), &reserved_amount);
+        env.storage()
+            .persistent()
+            .set(&reserved_key(&asset), &reserved_amount);
 
         // Update the balance
         let current_balance = Self::get_balance(env.clone(), asset.clone());
         let new_balance = current_balance - tx.amount;
-        env.storage().persistent().set(&balance_key(&asset), &new_balance);
+        env.storage()
+            .persistent()
+            .set(&balance_key(&asset), &new_balance);
 
         // Emit event
         env.events().publish(
@@ -255,12 +271,8 @@ impl TreasuryContract {
 
     // Get all assets in the treasury
     pub fn get_assets(env: Env) -> Vec<Address> {
-        let assets_count: u32 = env
-            .storage()
-            .persistent()
-            .get(&ASSETS_COUNT)
-            .unwrap_or(0);
-        
+        let assets_count: u32 = env.storage().persistent().get(&ASSETS_COUNT).unwrap_or(0);
+
         let mut assets = vec![&env];
         for i in 0..assets_count {
             let asset: Address = env
@@ -276,10 +288,7 @@ impl TreasuryContract {
 
     // Helper: Get transaction count
     fn get_tx_count(env: &Env) -> u32 {
-        env.storage()
-            .persistent()
-            .get(&TX_COUNT)
-            .unwrap_or(0)
+        env.storage().persistent().get(&TX_COUNT).unwrap_or(0)
     }
 
     // Helper: Generate transaction ID
