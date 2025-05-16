@@ -15,7 +15,7 @@ pub struct TransactionLog {
 }
 
 // This implementation is used by unwrap_or_default() in the contract
-// It's just a placeholder for when no transaction is found
+// It's a placeholder for when no transaction is found
 impl Default for TransactionLog {
     fn default() -> Self {
         Self {
