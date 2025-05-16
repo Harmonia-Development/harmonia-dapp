@@ -314,3 +314,142 @@ fn test_get_assets() {
     assert!(assets.contains(&asset1));
     assert!(assets.contains(&asset2));
 }
+
+#[test]
+fn test_rate_limit_set_and_get() {
+    let env = Env::default();
+    env.mock_all_auths(); // Mock authentication for all transactions
+
+    let contract_id = env.register(TreasuryContract, ());
+    let client = TreasuryContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let asset = Address::generate(&env);
+    
+    // Set rate limit
+    let max_amount = 1000_i128;
+    let time_window = 3600_u64; // 1 hour
+    client.set_rate_limit(&admin, &asset, &max_amount, &time_window);
+    
+    // Verify rate limit settings
+    let (stored_max, stored_window) = client.get_rate_limit(&asset);
+    assert_eq!(stored_max, max_amount);
+    assert_eq!(stored_window, time_window);
+    
+    // Verify used amount starts at 0
+    assert_eq!(client.get_rate_limit_used(&asset), 0);
+}
+
+#[test]
+fn test_rate_limit_exceeded() {
+    let env = Env::default();
+    env.mock_all_auths(); // Mock authentication for all transactions
+
+    let contract_id = env.register(TreasuryContract, ());
+    let client = TreasuryContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let user = Address::generate(&env);
+    let recipient = Address::generate(&env);
+    let asset = Address::generate(&env);
+    
+    // Configure ledger for testing
+    env.ledger().with_mut(|li| {
+        li.timestamp = 12345;
+    });
+    
+    // Set rate limit to 1000 in a 1 hour window
+    let max_amount = 1000_i128;
+    let time_window = 3600_u64; // 1 hour
+    client.set_rate_limit(&admin, &asset, &max_amount, &time_window);
+    
+    // Deposit funds
+    client.deposit(&asset, &user, &2000);
+    
+    // First transfer - should succeed
+    let _tx_id = client.release(&asset, &recipient, &600);
+    
+    // Second transfer within limit - should succeed
+    let _tx_id = client.release(&asset, &recipient, &300);
+    
+    // Verify used amount
+    assert_eq!(client.get_rate_limit_used(&asset), 900);
+    
+    // Third transfer that exceeds rate limit - should fail
+    let result = client.try_release(&asset, &recipient, &200);
+    assert_eq!(result, Err(Ok(TreasuryError::RateLimitExceeded)));
+    
+    // Verify used amount hasn't changed
+    assert_eq!(client.get_rate_limit_used(&asset), 900);
+}
+
+#[test]
+fn test_rate_limit_reset() {
+    let env = Env::default();
+    env.mock_all_auths(); // Mock authentication for all transactions
+
+    let contract_id = env.register(TreasuryContract, ());
+    let client = TreasuryContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let user = Address::generate(&env);
+    let recipient = Address::generate(&env);
+    let asset = Address::generate(&env);
+    
+    // Configure ledger for testing
+    let start_time = 12345_u64;
+    env.ledger().with_mut(|li| {
+        li.timestamp = start_time;
+    });
+    
+    // Set rate limit to 1000 in a 1 hour window
+    let max_amount = 1000_i128;
+    let time_window = 3600_u64; // 1 hour
+    client.set_rate_limit(&admin, &asset, &max_amount, &time_window);
+    
+    // Deposit funds
+    client.deposit(&asset, &user, &3000);
+    
+    // First transfer - should succeed
+    let _tx_id = client.release(&asset, &recipient, &800);
+    
+    // Verify used amount
+    assert_eq!(client.get_rate_limit_used(&asset), 800);
+    
+    // Advance time past the window
+    env.ledger().with_mut(|li| {
+        li.timestamp = start_time + time_window + 10;
+    });
+    
+    // New transfer should succeed since window has reset
+    let _tx_id = client.release(&asset, &recipient, &800);
+    
+    // Verify used amount (should be only the new transfer)
+    assert_eq!(client.get_rate_limit_used(&asset), 800);
+    
+    // Another transfer within the new window's limit should succeed
+    let _tx_id = client.release(&asset, &recipient, &100);
+    
+    // Verify cumulative used amount
+    assert_eq!(client.get_rate_limit_used(&asset), 900);
+}
+
+#[test]
+fn test_rate_limit_validation() {
+    let env = Env::default();
+    env.mock_all_auths(); // Mock authentication for all transactions
+
+    let contract_id = env.register(TreasuryContract, ());
+    let client = TreasuryContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let asset = Address::generate(&env);
+    
+    // Test setting invalid amount
+    let result = client.try_set_rate_limit(&admin, &asset, &0, &3600);
+    assert_eq!(result, Err(Ok(TreasuryError::InvalidAmount)));
+    
+    // Test setting invalid time window
+    let result = client.try_set_rate_limit(&admin, &asset, &1000, &0);
+    assert_eq!(result, Err(Ok(TreasuryError::InvalidTimeWindow)));
+}
