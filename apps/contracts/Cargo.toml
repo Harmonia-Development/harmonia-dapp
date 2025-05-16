@@ -1,7 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
+  "notification-router",
   "role-manager",
+  "treasury",
 ]
 
 [workspace.dependencies]
