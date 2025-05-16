@@ -136,6 +136,9 @@ impl TreasuryContract {
             return Err(TreasuryError::InsufficientFunds);
         }
 
+        // Check rate limits
+        Self::check_and_update_rate_limit(env.clone(), asset.clone(), amount)?;
+
         // Update the balance
         let new_balance = current_balance - amount;
         env.storage().persistent().set(&balance_key(&asset), &new_balance);
@@ -195,6 +198,9 @@ impl TreasuryContract {
             return Err(TreasuryError::UnlockTimeNotReached);
         }
 
+        // Check rate limits
+        Self::check_and_update_rate_limit(env.clone(), tx.asset.clone(), tx.amount)?;
+
         // Update the transaction status
         let updated_tx = TransactionLog {
             status: symbol_short!("released"),
@@ -218,6 +224,102 @@ impl TreasuryContract {
             (tx_id, tx.amount),
         );
 
+        Ok(())
+    }
+
+    // Set rate limit for an asset
+    pub fn set_rate_limit(
+        env: Env, 
+        admin: Address, 
+        asset: Address, 
+        max_amount: i128, 
+        time_window_in_seconds: u64
+    ) -> Result<(), TreasuryError> {
+        // Require authorization from admin
+        admin.require_auth();
+
+        // Validate input
+        if max_amount <= 0 {
+            return Err(TreasuryError::InvalidAmount);
+        }
+
+        if time_window_in_seconds == 0 {
+            return Err(TreasuryError::InvalidTimeWindow);
+        }
+
+        // Reset rate limit data when changing the limits
+        env.storage().persistent().set(&rate_limit_amount_key(&asset), &max_amount);
+        env.storage().persistent().set(&rate_limit_window_key(&asset), &time_window_in_seconds);
+        env.storage().persistent().set(&rate_limit_used_key(&asset), &0i128);
+        env.storage().persistent().set(&rate_limit_timestamp_key(&asset), &env.ledger().timestamp());
+
+        // Emit event
+        env.events().publish(
+            (RATE_LIMIT_SET, asset.clone()),
+            (max_amount, time_window_in_seconds),
+        );
+
+        Ok(())
+    }
+
+    // Get the current rate limit for an asset
+    pub fn get_rate_limit(env: Env, asset: Address) -> (i128, u64) {
+        let max_amount = env.storage()
+            .persistent()
+            .get(&rate_limit_amount_key(&asset))
+            .unwrap_or(i128::MAX);
+        
+        let time_window = env.storage()
+            .persistent()
+            .get(&rate_limit_window_key(&asset))
+            .unwrap_or(0);
+        
+        (max_amount, time_window)
+    }
+
+    // Get the amount used in the current rate limit window
+    pub fn get_rate_limit_used(env: Env, asset: Address) -> i128 {
+        env.storage()
+            .persistent()
+            .get(&rate_limit_used_key(&asset))
+            .unwrap_or(0)
+    }
+
+    // Internal function to check and update rate limits
+    fn check_and_update_rate_limit(env: Env, asset: Address, amount: i128) -> Result<(), TreasuryError> {
+        // Get current rate limit settings
+        let (max_amount, time_window) = Self::get_rate_limit(env.clone(), asset.clone());
+        
+        // If no rate limit set, allow the transaction
+        if max_amount == i128::MAX || time_window == 0 {
+            return Ok(());
+        }
+        
+        let current_time = env.ledger().timestamp();
+        let last_update_time: u64 = env.storage()
+            .persistent()
+            .get(&rate_limit_timestamp_key(&asset))
+            .unwrap_or(current_time);
+        
+        // Check if we're in a new time window
+        let mut amount_used = 0i128;
+        if current_time >= last_update_time + time_window {
+            // New time window - reset counter
+            env.storage().persistent().set(&rate_limit_timestamp_key(&asset), &current_time);
+        } else {
+            // Still in current window - get used amount
+            amount_used = Self::get_rate_limit_used(env.clone(), asset.clone());
+        }
+        
+        // Check if the new withdrawal would exceed the limit
+        if amount_used + amount > max_amount {
+            return Err(TreasuryError::RateLimitExceeded);
+        }
+        
+        // Update the used amount
+        let new_amount_used = amount_used + amount;
+        env.storage().persistent().set(&rate_limit_used_key(&asset), &new_amount_used);
+        
         Ok(())
     }
 
@@ -384,4 +486,24 @@ fn tx_log_key(index: u32) -> (Symbol, u32) {
 // Helper: Generate storage key for assets
 fn asset_key(index: u32) -> (Symbol, u32) {
     (ASSET, index)
+}
+
+// Helper: Generate storage key for rate limit amount
+fn rate_limit_amount_key(asset: &Address) -> (Symbol, Address) {
+    (RATE_LIMIT_AMOUNT, asset.clone())
+}
+
+// Helper: Generate storage key for rate limit time window
+fn rate_limit_window_key(asset: &Address) -> (Symbol, Address) {
+    (RATE_LIMIT_WINDOW, asset.clone())
+}
+
+// Helper: Generate storage key for rate limit used amount
+fn rate_limit_used_key(asset: &Address) -> (Symbol, Address) {
+    (RATE_LIMIT_USED, asset.clone())
+}
+
+// Helper: Generate storage key for rate limit timestamp
+fn rate_limit_timestamp_key(asset: &Address) -> (Symbol, Address) {
+    (RATE_LIMIT_TIMESTAMP, asset.clone())
 }

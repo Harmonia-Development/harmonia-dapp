@@ -8,7 +8,14 @@ pub const TX_COUNT: Symbol = symbol_short!("tx_count");
 pub const ASSET: Symbol = symbol_short!("asset");
 pub const ASSETS_COUNT: Symbol = symbol_short!("asset_idx");
 
+// Rate limit related keys
+pub const RATE_LIMIT_AMOUNT: Symbol = symbol_short!("rl_amount");
+pub const RATE_LIMIT_WINDOW: Symbol = symbol_short!("rl_window");
+pub const RATE_LIMIT_USED: Symbol = symbol_short!("rl_used");
+pub const RATE_LIMIT_TIMESTAMP: Symbol = symbol_short!("rl_time");
+
 // Event types
 pub const FUNDS_DEPOSITED: Symbol = symbol_short!("deposited");
 pub const FUNDS_SCHEDULED: Symbol = symbol_short!("scheduled");
 pub const FUNDS_RELEASED: Symbol = symbol_short!("released");
+pub const RATE_LIMIT_SET: Symbol = symbol_short!("rate_set");
