@@ -387,6 +387,14 @@
                     },
                     {
                       "key": {
+                        "symbol": "milestone_id"
+                      },
+                      "val": {
+                        "symbol": "none"
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "status"
                       },
                       "val": {
@@ -488,6 +496,14 @@
                       },
                       "val": {
                         "symbol": "in"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "milestone_id"
+                      },
+                      "val": {
+                        "symbol": "none"
                       }
                     },
                     {
