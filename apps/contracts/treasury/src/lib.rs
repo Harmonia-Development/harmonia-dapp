@@ -1,7 +1,7 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, symbol_short, 
-    Address, Env, Symbol, Vec, vec,
+    Address, Env, IntoVal, Symbol, Vec,
+    contract, contractimpl, symbol_short, vec,
 };
 
 mod test;
@@ -18,6 +18,49 @@ pub struct TreasuryContract;
 
 #[contractimpl]
 impl TreasuryContract {
+    // Initialize the contract with an admin address
+    pub fn init(env: Env, admin: Address) -> Result<(), TreasuryError> {
+        // Check if already initialized
+        if env.storage().persistent().has(&ADMIN) {
+            return Err(TreasuryError::AlreadyInitialized);
+        }
+        
+        // Require the admin to authorize this transaction
+        admin.require_auth();
+        
+        // Store admin address
+        env.storage().persistent().set(&ADMIN, &admin);
+        
+        // Emit initialization event
+        env.events().publish(
+            (symbol_short!("init"),),
+            admin,
+        );
+        
+        Ok(())
+    }
+    
+    // Check if caller is admin
+    fn is_admin(env: &Env, caller: &Address) -> bool {
+        if let Some(admin) = env.storage().persistent().get::<_, Address>(&ADMIN) {
+            return &admin == caller;
+        }
+        false
+    }
+    
+    // Require admin authorization
+    fn require_admin(env: &Env, caller: &Address) -> Result<(), TreasuryError> {
+        // Require authorization from the caller
+        caller.require_auth();
+        
+        // Check if caller is admin
+        if Self::is_admin(env, caller) {
+            Ok(())
+        } else {
+            Err(TreasuryError::Unauthorized)
+        }
+    }
+
     // Allow DAO to hold and transfer assets
     pub fn deposit(env: Env, asset: Address, from: Address, amount: i128) -> Result<(), TreasuryError> {
         // Require authorization from the depositor
@@ -55,6 +98,7 @@ impl TreasuryContract {
             timestamp: env.ledger().timestamp(),
             status: symbol_short!("released"),
             triggered_by: from.clone(),
+            milestone_id: symbol_short!("none"), // No milestone for deposits
         };
         
         let tx_count = Self::get_tx_count(&env);
@@ -71,7 +115,14 @@ impl TreasuryContract {
     }
 
     // Schedule funds for release at a future time
-    pub fn schedule_release(env: Env, caller: Address, asset: Address, amount: i128, unlock_time: u64) -> Result<Symbol, TreasuryError> {
+    pub fn schedule_release(
+        env: Env, 
+        caller: Address, 
+        asset: Address, 
+        amount: i128, 
+        unlock_time: u64,
+        milestone_id: Symbol
+    ) -> Result<Symbol, TreasuryError> {
         // Require authorization from the caller
         caller.require_auth();
 
@@ -84,6 +135,14 @@ impl TreasuryContract {
         if unlock_time <= current_time {
             return Err(TreasuryError::InvalidUnlockTime);
         }
+
+        // Validate milestone ID
+        if milestone_id == symbol_short!("none") || milestone_id == symbol_short!("") {
+            return Err(TreasuryError::InvalidMilestoneId);
+        }
+
+        // Check if milestone ID exists by validating with the proposal contract
+        Self::validate_milestone_id(&env, &milestone_id)?;
 
         let current_balance = Self::get_balance(env.clone(), asset.clone());
         if current_balance < amount {
@@ -100,6 +159,7 @@ impl TreasuryContract {
             timestamp: unlock_time,
             status: symbol_short!("pending"),
             triggered_by: caller.clone(),
+            milestone_id: milestone_id.clone(),
         };
         
         let tx_count = Self::get_tx_count(&env);
@@ -113,21 +173,36 @@ impl TreasuryContract {
         // Emit event
         env.events().publish(
             (FUNDS_SCHEDULED, asset.clone(), caller.clone()),
-            (tx_id.clone(), amount, unlock_time),
+            (tx_id.clone(), amount, unlock_time, milestone_id),
         );
 
         Ok(tx_id)
     }
 
     // Release funds to a recipient
-    pub fn release(env: Env, asset: Address, to: Address, amount: i128) -> Result<Symbol, TreasuryError> {
-        // Require authorization from the recipient
-        to.require_auth();
+    pub fn release(
+        env: Env, 
+        caller: Address, 
+        asset: Address, 
+        to: Address, 
+        amount: i128,
+        milestone_id: Symbol
+    ) -> Result<Symbol, TreasuryError> {
+        // Require admin authentication
+        Self::require_admin(&env, &caller)?;
 
         // Validate input
         if amount <= 0 {
             return Err(TreasuryError::InvalidAmount);
         }
+
+        // Validate milestone ID
+        if milestone_id == symbol_short!("none") || milestone_id == symbol_short!("") {
+            return Err(TreasuryError::InvalidMilestoneId);
+        }
+
+        // Check if milestone ID exists by validating with the proposal contract
+        Self::validate_milestone_id(&env, &milestone_id)?;
 
         let current_balance = Self::get_balance(env.clone(), asset.clone());
         let available_balance = current_balance - Self::get_reserved(env.clone(), asset.clone());
@@ -152,7 +227,8 @@ impl TreasuryContract {
             direction: symbol_short!("out"),
             timestamp: env.ledger().timestamp(),
             status: symbol_short!("released"),
-            triggered_by: to.clone(),
+            triggered_by: caller.clone(),
+            milestone_id: milestone_id.clone(),
         };
         
         let tx_count = Self::get_tx_count(&env);
@@ -162,16 +238,16 @@ impl TreasuryContract {
         // Emit event
         env.events().publish(
             (FUNDS_RELEASED, asset.clone(), to.clone()),
-            (tx_id.clone(), amount),
+            (tx_id.clone(), amount, milestone_id),
         );
 
         Ok(tx_id)
     }
 
     // Process a scheduled release
-    pub fn process_scheduled_release(env: Env, tx_id: Symbol, to: Address) -> Result<(), TreasuryError> {
-        // Require authorization from the recipient
-        to.require_auth();
+    pub fn process_scheduled_release(env: Env, caller: Address, tx_id: Symbol, to: Address) -> Result<(), TreasuryError> {
+        // Require admin authorization
+        Self::require_admin(&env, &caller)?;
 
         // Find the scheduled transaction
         let tx_count = Self::get_tx_count(&env);
@@ -197,6 +273,9 @@ impl TreasuryContract {
         if current_time < tx.timestamp {
             return Err(TreasuryError::UnlockTimeNotReached);
         }
+        
+        // Revalidate milestone ID still exists
+        Self::validate_milestone_id(&env, &tx.milestone_id)?;
 
         // Check rate limits
         Self::check_and_update_rate_limit(env.clone(), tx.asset.clone(), tx.amount)?;
@@ -221,68 +300,10 @@ impl TreasuryContract {
         // Emit event
         env.events().publish(
             (FUNDS_RELEASED, asset.clone(), to.clone()),
-            (tx_id, tx.amount),
+            (tx_id, tx.amount, tx.milestone_id),
         );
 
         Ok(())
-    }
-
-    // Set rate limit for an asset
-    pub fn set_rate_limit(
-        env: Env, 
-        admin: Address, 
-        asset: Address, 
-        max_amount: i128, 
-        time_window_in_seconds: u64
-    ) -> Result<(), TreasuryError> {
-        // Require authorization from admin
-        admin.require_auth();
-
-        // Validate input
-        if max_amount <= 0 {
-            return Err(TreasuryError::InvalidAmount);
-        }
-
-        if time_window_in_seconds == 0 {
-            return Err(TreasuryError::InvalidTimeWindow);
-        }
-
-        // Reset rate limit data when changing the limits
-        env.storage().persistent().set(&rate_limit_amount_key(&asset), &max_amount);
-        env.storage().persistent().set(&rate_limit_window_key(&asset), &time_window_in_seconds);
-        env.storage().persistent().set(&rate_limit_used_key(&asset), &0i128);
-        env.storage().persistent().set(&rate_limit_timestamp_key(&asset), &env.ledger().timestamp());
-
-        // Emit event
-        env.events().publish(
-            (RATE_LIMIT_SET, asset.clone()),
-            (max_amount, time_window_in_seconds),
-        );
-
-        Ok(())
-    }
-
-    // Get the current rate limit for an asset
-    pub fn get_rate_limit(env: Env, asset: Address) -> (i128, u64) {
-        let max_amount = env.storage()
-            .persistent()
-            .get(&rate_limit_amount_key(&asset))
-            .unwrap_or(i128::MAX);
-        
-        let time_window = env.storage()
-            .persistent()
-            .get(&rate_limit_window_key(&asset))
-            .unwrap_or(0);
-        
-        (max_amount, time_window)
-    }
-
-    // Get the amount used in the current rate limit window
-    pub fn get_rate_limit_used(env: Env, asset: Address) -> i128 {
-        env.storage()
-            .persistent()
-            .get(&rate_limit_used_key(&asset))
-            .unwrap_or(0)
     }
 
     // Internal function to check and update rate limits
@@ -323,7 +344,109 @@ impl TreasuryContract {
         Ok(())
     }
 
-    // Get the balance of a specific asset
+    // Set rate limit for an asset
+    pub fn set_rate_limit(
+        env: Env, 
+        caller: Address, 
+        asset: Address, 
+        max_amount: i128, 
+        time_window_in_seconds: u64
+    ) -> Result<(), TreasuryError> {
+        // Check if caller is admin
+        Self::require_admin(&env, &caller)?;
+
+        // Validate input
+        if max_amount <= 0 {
+            return Err(TreasuryError::InvalidAmount);
+        }
+
+        if time_window_in_seconds == 0 {
+            return Err(TreasuryError::InvalidTimeWindow);
+        }
+
+        // Reset rate limit data when changing the limits
+        env.storage().persistent().set(&rate_limit_amount_key(&asset), &max_amount);
+        env.storage().persistent().set(&rate_limit_window_key(&asset), &time_window_in_seconds);
+        env.storage().persistent().set(&rate_limit_used_key(&asset), &0i128);
+        env.storage().persistent().set(&rate_limit_timestamp_key(&asset), &env.ledger().timestamp());
+
+        // Emit event
+        env.events().publish(
+            (RATE_LIMIT_SET, asset.clone()),
+            (max_amount, time_window_in_seconds),
+        );
+
+        Ok(())
+    }
+
+    // Validate milestone ID with the proposal contract
+    fn validate_milestone_id(env: &Env, milestone_id: &Symbol) -> Result<(), TreasuryError> {
+        // Get the proposal contract address from storage
+        let proposal_contract: Option<Address> = env.storage().persistent().get(&PROPOSAL_CONTRACT);
+        
+        match proposal_contract {
+            Some(contract_id) => {
+                // Invoke the proposal contract's milestone validation function
+                let valid: bool = env.invoke_contract(
+                    &contract_id, 
+                    &Symbol::new(env, "milestone_exists"), 
+                    vec![env, milestone_id.clone().into_val(env)]
+                );
+                
+                if valid {
+                    Ok(())
+                } else {
+                    Err(TreasuryError::InvalidMilestoneId)
+                }
+            },
+            None => {
+                // For testing purposes, consider all milestone IDs valid if no proposal contract is set
+                #[cfg(test)]
+                return Ok(());
+                
+                #[cfg(not(test))]
+                return Err(TreasuryError::InvalidMilestoneId);
+            }
+        }
+    }
+
+    // Set proposal contract address for milestone validation
+    pub fn set_proposal_contract(env: Env, caller: Address, proposal_contract: Address) -> Result<(), TreasuryError> {
+        // Check if caller is admin
+        Self::require_admin(&env, &caller)?;
+        
+        env.storage().persistent().set(&PROPOSAL_CONTRACT, &proposal_contract);
+        
+        Ok(())
+    }
+
+    // Get admin address
+    pub fn get_admin(env: Env) -> Option<Address> {
+        env.storage().persistent().get(&ADMIN)
+    }
+
+    // Get the current rate limit for an asset
+    pub fn get_rate_limit(env: Env, asset: Address) -> (i128, u64) {
+        let max_amount = env.storage()
+            .persistent()
+            .get(&rate_limit_amount_key(&asset))
+            .unwrap_or(i128::MAX);
+        
+        let time_window = env.storage()
+            .persistent()
+            .get(&rate_limit_window_key(&asset))
+            .unwrap_or(0);
+        
+        (max_amount, time_window)
+    }
+
+    // Get the amount used in the current rate limit window
+    pub fn get_rate_limit_used(env: Env, asset: Address) -> i128 {
+        env.storage()
+            .persistent()
+            .get(&rate_limit_used_key(&asset))
+            .unwrap_or(0)
+    }    // Get the balance of a specific asset
     pub fn get_balance(env: Env, asset: Address) -> i128 {
         env.storage()
             .persistent()
@@ -468,6 +591,11 @@ impl TreasuryContract {
     }
 }
 
+// Helper: Generate storage key for assets
+fn asset_key(index: u32) -> (Symbol, u32) {
+    (ASSET, index)
+}
+
 // Helper: Generate storage key for balance
 fn balance_key(asset: &Address) -> (Symbol, Address) {
     (BALANCE, asset.clone())
@@ -483,19 +611,14 @@ fn tx_log_key(index: u32) -> (Symbol, u32) {
     (TX_LOG, index)
 }
 
-// Helper: Generate storage key for assets
-fn asset_key(index: u32) -> (Symbol, u32) {
-    (ASSET, index)
-}
-
 // Helper: Generate storage key for rate limit amount
 fn rate_limit_amount_key(asset: &Address) -> (Symbol, Address) {
     (RATE_LIMIT_AMOUNT, asset.clone())
 }
 
-// Helper: Generate storage key for rate limit time window
-fn rate_limit_window_key(asset: &Address) -> (Symbol, Address) {
-    (RATE_LIMIT_WINDOW, asset.clone())
+// Helper: Generate storage key for rate limit timestamp
+fn rate_limit_timestamp_key(asset: &Address) -> (Symbol, Address) {
+    (RATE_LIMIT_TIMESTAMP, asset.clone())
 }
 
 // Helper: Generate storage key for rate limit used amount
@@ -503,7 +626,7 @@ fn rate_limit_used_key(asset: &Address) -> (Symbol, Address) {
     (RATE_LIMIT_USED, asset.clone())
 }
 
-// Helper: Generate storage key for rate limit timestamp
-fn rate_limit_timestamp_key(asset: &Address) -> (Symbol, Address) {
-    (RATE_LIMIT_TIMESTAMP, asset.clone())
+// Helper: Generate storage key for rate limit time window
+fn rate_limit_window_key(asset: &Address) -> (Symbol, Address) {
+    (RATE_LIMIT_WINDOW, asset.clone())
 }

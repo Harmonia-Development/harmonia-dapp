@@ -1,12 +1,14 @@
 use soroban_sdk::{Symbol, symbol_short};
 
 // Storage keys
+pub const ADMIN: Symbol = symbol_short!("admin");
 pub const BALANCE: Symbol = symbol_short!("balance");
 pub const RESERVED: Symbol = symbol_short!("reserved");
 pub const TX_LOG: Symbol = symbol_short!("tx_log");
 pub const TX_COUNT: Symbol = symbol_short!("tx_count");
 pub const ASSET: Symbol = symbol_short!("asset");
 pub const ASSETS_COUNT: Symbol = symbol_short!("asset_idx");
+pub const PROPOSAL_CONTRACT: Symbol = symbol_short!("prpcntrct");
 
 // Rate limit related keys
 pub const RATE_LIMIT_AMOUNT: Symbol = symbol_short!("rl_amount");

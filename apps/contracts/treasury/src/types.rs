@@ -12,6 +12,7 @@ pub struct TransactionLog {
     pub timestamp: u64,
     pub status: Symbol, // "pending" or "released"
     pub triggered_by: Address,
+    pub milestone_id: Symbol, // Identifier for the related milestone
 }
 
 // This implementation is used by unwrap_or_default() in the contract
@@ -28,6 +29,7 @@ impl Default for TransactionLog {
             status: symbol_short!("none"),
             // Using same zero address for triggered_by
             triggered_by: Address::from_str(&Env::default(), "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"),
+            milestone_id: symbol_short!("none"),
         }
     }
 }
