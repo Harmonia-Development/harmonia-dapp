@@ -1,51 +1,29 @@
 import { ProposalCalendar } from '@/components/proposals/ProposalCalendar'
-import { ProposalFilterTabs } from '@/components/proposals/ProposalFilterTabs'
 import { ProposalList } from '@/components/proposals/ProposalList'
+import { ProposalStats } from '@/components/proposals/ProposalStats'
 
-// Sample proposal events data
-const proposalEvents = [
-	{
-		date: '2025-04-15',
-		label: 'Treasury Allocation',
-		type: 'start',
-	},
-	{
-		date: '2025-04-18',
-		label: 'New Member Onboarding',
-		type: 'voting',
-	},
-	{
-		date: '2025-04-22',
-		label: 'Protocol Upgrade',
-		type: 'live',
-	},
-	{
-		date: '2025-04-25',
-		label: 'Governance Update',
-		type: 'end',
-	},
-	{
-		date: '2025-04-25',
-		label: 'Community Fund',
-		type: 'start',
-	},
-]
+
 
 export default function ProposalsPage() {
 	return (
-		<div className="container py-6 space-y-6">
-			<h1 className="text-3xl font-bold">Proposals</h1>
-
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-				<div className="md:col-span-2">
-					<ProposalFilterTabs />
+		<>
+			<main className="min-h-screen bg-background">
+				<div className="max-w-7xl mx-auto">
+					<div className="container mx-auto py-6">
+						<h1 className="text-3xl font-bold tracking-tight text-foreground">Proposals</h1>
+						<p className="text-muted-foreground text-lg">
+							Create, vote, and track governance proposals
+						</p>
+					</div>
+					<div className="container mx-auto py-3">
+						<ProposalStats />
+					</div>
 					<ProposalList />
 				</div>
-
-				<div>
-					<ProposalCalendar events={proposalEvents} />
+        	<div>
+					<ProposalCalendar events={[]} />
 				</div>
-			</div>
-		</div>
+			</main>
+		</>
 	)
 }

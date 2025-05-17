@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { CreateProposalButton } from './CreateProposalButton'
+import ProposalCategoryChart from './ProposalCategoryChart'
 import { ProposalFilterTabs, type ProposalStatus } from './ProposalFilterTabs'
 import { type Proposal, ProposalItemCard } from './ProposalItemCard'
-import ProposalCategoryChart from './ProposalCategoryChart'
 
 const mockProposals: Proposal[] = [
 	{
@@ -85,10 +85,10 @@ const mockProposals: Proposal[] = [
 ]
 
 const categoryColors: { [key: string]: string } = {
-	Treasury: '#3B82F6', 
-	Governance: '#8B5CF6', 
-	Community: '#10B981', 
-	Technical: '#F59E0B', 
+	Treasury: '#3B82F6',
+	Governance: '#8B5CF6',
+	Community: '#10B981',
+	Technical: '#F59E0B',
 }
 
 export function ProposalList() {
@@ -100,11 +100,14 @@ export function ProposalList() {
 	})
 
 	// Aggregate data for the chart based on filtered proposals
-	const categoryCounts = filteredProposals.reduce((acc, proposal) => {
-		const category = proposal.category
-		acc[category] = (acc[category] || 0) + 1
-		return acc
-	}, {} as { [key: string]: number })
+	const categoryCounts = filteredProposals.reduce(
+		(acc, proposal) => {
+			const category = proposal.category
+			acc[category] = (acc[category] || 0) + 1
+			return acc
+		},
+		{} as { [key: string]: number },
+	)
 
 	const chartData = Object.entries(categoryCounts).map(([name, value]) => ({
 		name,
@@ -122,7 +125,6 @@ export function ProposalList() {
 			<div className="mb-6">
 				<ProposalFilterTabs activeTab={activeTab} onTabChange={setActiveTab} />
 			</div>
-
 
 			<div>
 				{filteredProposals.length === 0 ? (
