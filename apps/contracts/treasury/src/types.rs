@@ -1,6 +1,4 @@
-extern crate alloc;
-
-use soroban_sdk::{contracttype, Address, Symbol, symbol_short, Env};
+use soroban_sdk::{contracttype, symbol_short, Address, Env, Symbol};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -21,14 +19,20 @@ impl Default for TransactionLog {
     fn default() -> Self {
         Self {
             tx_id: symbol_short!("default"),
-            // Using simple zero address as placeholder
-            asset: Address::from_str(&Env::default(), "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"),
+            // Using simple default address as placeholder
+            asset: Address::from_str(
+                &Env::default(),
+                "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+            ),
             amount: 0,
             direction: symbol_short!("none"),
             timestamp: 0,
             status: symbol_short!("none"),
-            // Using same zero address for triggered_by
-            triggered_by: Address::from_str(&Env::default(), "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"),
+            // Using same default address for triggered_by
+            triggered_by: Address::from_str(
+                &Env::default(),
+                "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+            ),
             milestone_id: symbol_short!("none"),
         }
     }

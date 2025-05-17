@@ -1,4 +1,4 @@
-use soroban_sdk::{Symbol, symbol_short};
+use soroban_sdk::{symbol_short, Symbol};
 
 // Storage keys
 pub const ADMIN: Symbol = symbol_short!("admin");
