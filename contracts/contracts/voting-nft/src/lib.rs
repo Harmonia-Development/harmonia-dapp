@@ -2,10 +2,10 @@
 use soroban_sdk::{contract, contractimpl, vec, Env, String, Vec};
 
 #[contract]
-pub struct Contract;
+pub struct VotingNft;
 
 #[contractimpl]
-impl Contract {
+impl VotingNft {
     pub fn hello(env: Env, to: String) -> Vec<String> {
         vec![&env, String::from_str(&env, "Hello"), to]
     }
