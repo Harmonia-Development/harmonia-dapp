@@ -1273,7 +1273,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "stellar-access-control"
 version = "0.3.0"
-source = "git+https://github.com/OpenZeppelin/stellar-contracts#a9174c3cf0d3c3634feb7c8ea8c37d2f442be2cc"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#23fb1cf2ba0d5508fefa9e3fdd909baec9f32c78"
 dependencies = [
  "soroban-sdk",
  "stellar-constants",
@@ -1283,7 +1283,7 @@ dependencies = [
 [[package]]
 name = "stellar-access-control-macros"
 version = "0.3.0"
-source = "git+https://github.com/OpenZeppelin/stellar-contracts#a9174c3cf0d3c3634feb7c8ea8c37d2f442be2cc"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#23fb1cf2ba0d5508fefa9e3fdd909baec9f32c78"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1294,7 +1294,7 @@ dependencies = [
 [[package]]
 name = "stellar-constants"
 version = "0.3.0"
-source = "git+https://github.com/OpenZeppelin/stellar-contracts#a9174c3cf0d3c3634feb7c8ea8c37d2f442be2cc"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#23fb1cf2ba0d5508fefa9e3fdd909baec9f32c78"
 dependencies = [
  "soroban-sdk",
 ]
@@ -1302,7 +1302,7 @@ dependencies = [
 [[package]]
 name = "stellar-default-impl-macro"
 version = "0.3.0"
-source = "git+https://github.com/OpenZeppelin/stellar-contracts#a9174c3cf0d3c3634feb7c8ea8c37d2f442be2cc"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#23fb1cf2ba0d5508fefa9e3fdd909baec9f32c78"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1312,7 +1312,7 @@ dependencies = [
 [[package]]
 name = "stellar-macro-helpers"
 version = "0.3.0"
-source = "git+https://github.com/OpenZeppelin/stellar-contracts#a9174c3cf0d3c3634feb7c8ea8c37d2f442be2cc"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#23fb1cf2ba0d5508fefa9e3fdd909baec9f32c78"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1322,7 +1322,7 @@ dependencies = [
 [[package]]
 name = "stellar-non-fungible"
 version = "0.3.0"
-source = "git+https://github.com/OpenZeppelin/stellar-contracts#a9174c3cf0d3c3634feb7c8ea8c37d2f442be2cc"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#23fb1cf2ba0d5508fefa9e3fdd909baec9f32c78"
 dependencies = [
  "soroban-sdk",
  "stellar-constants",
@@ -1331,7 +1331,7 @@ dependencies = [
 [[package]]
 name = "stellar-role-transfer"
 version = "0.3.0"
-source = "git+https://github.com/OpenZeppelin/stellar-contracts#a9174c3cf0d3c3634feb7c8ea8c37d2f442be2cc"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#23fb1cf2ba0d5508fefa9e3fdd909baec9f32c78"
 dependencies = [
  "soroban-sdk",
 ]
