@@ -2,10 +2,11 @@
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, Address, Env, String, Symbol, Vec,
 };
-use stellar_access_control::{set_admin, AccessControl};
-use stellar_access_control_macros::only_admin;
+use stellar_access_control::{grant_role, revoke_role, set_admin, AccessControl};
+use stellar_access_control_macros::has_role;
 use stellar_default_impl_macro::default_impl;
 use stellar_non_fungible::{Base, NonFungibleToken};
+mod test;
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -48,10 +49,10 @@ impl VotingNFTContract {
         set_admin(e, &admin);
     }
 
-    #[only_admin]
+    #[has_role(caller, "minter")]
     pub fn mint_nft(
         e: Env,
-
+        caller: Address,
         to: Address,
         category: Symbol,
         metadata: Symbol,
@@ -93,6 +94,9 @@ impl VotingNFTContract {
 
         e.storage().persistent().set(&nft_key, &nft);
 
+        e.events()
+            .publish((Symbol::new(&e, "nft_minted"), &to), nft.clone());
+
         Ok(nft)
     }
 
@@ -120,6 +124,14 @@ impl VotingNFTContract {
         }
 
         nfts
+    }
+
+    pub fn add_minter(e: &Env, caller: Address, minter: Address) {
+        grant_role(&e, &caller, &minter, &Symbol::new(&e, "minter"));
+    }
+
+    pub fn remove_minter(e: &Env, caller: Address, account: Address) {
+        revoke_role(&e, &caller, &account, &Symbol::new(&e, "minter"));
     }
 }
 
