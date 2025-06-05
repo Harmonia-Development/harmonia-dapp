@@ -10,4 +10,9 @@ pub enum TreasuryError {
     TransactionNotFound = 4,
     UnlockTimeNotReached = 5,
     AssetNotFound = 6,
+    RateLimitExceeded = 7,
+    InvalidTimeWindow = 8,
+    InvalidMilestoneId = 9,
+    Unauthorized = 10,
+    AlreadyInitialized = 11,
 }
