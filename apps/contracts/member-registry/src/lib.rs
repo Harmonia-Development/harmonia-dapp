@@ -158,3 +158,6 @@ impl MemberRegistryContract {
             .has(&DataKey::Member(address.clone()))
     }
 }
+
+#[cfg(test)]
+mod test;

@@ -1,16 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-  "notification-router",
-  "referral-contract", 
-  "role-manager",
-  "treasury",
-  "member-registry",
-  "proposal-contract"
+  "contracts/*",
 ]
 
 [workspace.dependencies]
-soroban-sdk = "22.0.0"
+soroban-sdk = "22"
 
 [profile.release]
 opt-level = "z"
