@@ -1,13 +1,13 @@
 #![cfg(test)]
 
 use super::{RoleManagerContract, RoleManagerContractClient};
-use soroban_sdk::{log, symbol_short, testutils::Address as _, vec, Address, Env, Symbol, Vec};
+use soroban_sdk::{log, symbol_short, testutils::Address as _, vec, Address, Env, Symbol};
 
 #[test]
 fn test_initialization() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
+    let contract_id = env.register(RoleManagerContract, ());
     let client = RoleManagerContractClient::new(&env, &contract_id);
 
     // Initialize with admin
@@ -34,7 +34,7 @@ fn test_initialization() {
 fn test_define_role() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
+    let contract_id = env.register(RoleManagerContract, ());
     let client = RoleManagerContractClient::new(&env, &contract_id);
 
     // Initialize with admin
@@ -59,7 +59,7 @@ fn test_define_role() {
 fn test_assign_role() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
+    let contract_id = env.register(RoleManagerContract, ());
     let client = RoleManagerContractClient::new(&env, &contract_id);
 
     // Initialize with admin
@@ -83,7 +83,7 @@ fn test_assign_role() {
 fn test_revoke_role() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
+    let contract_id = env.register(RoleManagerContract, ());
     let client = RoleManagerContractClient::new(&env, &contract_id);
 
     // Initialize with admin
@@ -111,7 +111,7 @@ fn test_revoke_role() {
 fn test_has_any_role() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
+    let contract_id = env.register(RoleManagerContract, ());
     let client = RoleManagerContractClient::new(&env, &contract_id);
 
     // Initialize with admin
@@ -142,7 +142,7 @@ fn test_has_any_role() {
 fn test_admin_restriction_define_role() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
+    let contract_id = env.register(RoleManagerContract, ());
     let client = RoleManagerContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
@@ -159,7 +159,7 @@ fn test_admin_restriction_define_role() {
 fn test_assign_undefined_role() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register_contract(None, RoleManagerContract);
+    let contract_id = env.register(RoleManagerContract, ());
     let client = RoleManagerContractClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);

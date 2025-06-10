@@ -1,25 +1,58 @@
 #![no_std]
 
+extern crate alloc;
+
+#[cfg(target_arch = "wasm32")]
+use alloc::alloc::{GlobalAlloc, Layout};
+
+#[cfg(target_arch = "wasm32")]
+struct SorobanAllocator;
+
+#[cfg(target_arch = "wasm32")]
+unsafe impl GlobalAlloc for SorobanAllocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        alloc::alloc::alloc(layout)
+    }
+
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        alloc::alloc::dealloc(ptr, layout)
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+#[global_allocator]
+static ALLOCATOR: SorobanAllocator = SorobanAllocator;
+
+use alloc::format;
+
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, vec, xdr::{FromXdr, ToXdr, WriteXdr}, Address, Bytes, BytesN, Env, Map, String, Symbol, Vec
+    contract, contractimpl, contracttype, symbol_short, xdr::{ToXdr}, Address, Bytes, Env, Map, Symbol, Vec
 };
 
 const CODES: Symbol = symbol_short!("codes");
+// Will be used in future implementation for tracking inviter-invitee relationships
+#[allow(dead_code)]
 const INVITERS: Symbol = symbol_short!("inviters");
 const CODE_LENGTH: usize = 8;
 
 fn hash_to_code(env: &Env, input: &Bytes) -> Symbol {
     let hash: Bytes = env.crypto().sha256(input).into();
-
-    String::from_xdr(env, hash);
-    let mut code = String::from_str(env, "");
+    
+    // Start with an empty string and build hex representation
+    let mut hex_code = alloc::string::String::new();
+    
+    // Convert each byte to hex and append to our Rust string
     for byte in hash.iter().take(CODE_LENGTH) {
-        let hex = format!("{:02X}", byte.unwrap());
-        let hex_part = String::from_slice(env, &hex);
-        code.append(&hex_part);
+        let hex = format!("{:02X}", byte);
+        hex_code.push_str(&hex);
     }
-
-    Symbol::new(env, &code.to_string()[..CODE_LENGTH.min(10)])
+    
+    // Limit the length
+    let limit = CODE_LENGTH.min(hex_code.len()).min(10);
+    let final_code = &hex_code[..limit];
+    
+    // Create a symbol from the final code
+    Symbol::new(env, final_code)
 }
 
 #[contracttype]
@@ -40,7 +73,7 @@ pub struct ReferralContract;
 
 #[contractimpl]
 impl ReferralContract {
-    fn generate_code(env: Env, inviter: Address) -> Symbol {
+    pub fn generate_code(env: Env, inviter: Address) -> Symbol {
         inviter.require_auth();
         let mut codes: Map<Address, Symbol> = env
             .storage()
@@ -48,26 +81,52 @@ impl ReferralContract {
             .get(&CODES)
             .unwrap_or(Map::new(&env));
         if let Some(existing_code) = codes.get(inviter.clone()) {
-            return Ok(existing_code);
+            return existing_code;
         }
 
         let nonce = env.ledger().timestamp();
         let mut input = Bytes::new(&env);
-        input.append(&inviter.to_xdr(&env));
+        input.append(&inviter.clone().to_xdr(&env));
         input.append(&nonce.to_xdr(&env));
-        let code_string = String::from_xdr(&env, &input).unwrap();
-        let code_string = code_string.into();
-
-        Ok(Symbol::new("test"))
+        
+        // Generate a unique code based on the inviter address and nonce
+        let code = hash_to_code(&env, &input);
+        
+        // Store the code in the map
+        codes.set(inviter.clone(), code.clone());
+        env.storage().persistent().set(&CODES, &codes);
+        
+        code
     }
 
-    fn use_code(env: Env, code: Symbol, new_user: Address) {}
+    pub fn use_code(_env: Env, _code: Symbol, new_user: Address) {
+        // Placeholder implementation
+        new_user.require_auth();
+        
+        // Here you would:
+        // 1. Find the inviter associated with this code
+        // 2. Record that new_user used this code
+        // 3. Update referral stats
+    }
 
-    fn mark_converted(env: Env, address: Address) {}
+    pub fn mark_converted(_env: Env, _address: Address) {
+        // Placeholder implementation
+        // Here you would mark a user as converted and update stats
+    }
 
-    fn get_referral_stats(env: Env, inviter: Address) -> ReferralStats {}
+    pub fn get_referral_stats(_env: Env, _inviter: Address) -> ReferralStats {
+        // Placeholder implementation
+        ReferralStats {
+            total_invites: 0,
+            converted: 0,
+            pending: 0,
+        }
+    }
 
-    fn get_leaderboard(env: Env) -> Vec<ReferralLeaderboardEntry> {}
+    pub fn get_leaderboard(env: Env) -> Vec<ReferralLeaderboardEntry> {
+        // Placeholder implementation
+        Vec::new(&env)
+    }
 }
 
 mod test;
