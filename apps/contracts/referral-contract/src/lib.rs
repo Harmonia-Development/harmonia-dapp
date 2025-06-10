@@ -1,11 +1,30 @@
 #![no_std]
 
 extern crate alloc;
-use alloc::string::ToString;
+
+use alloc::alloc::Layout;
+use core::alloc::GlobalAlloc;
+
+// Define a simple global allocator that delegates to the system allocator
+struct SorobanAllocator;
+
+unsafe impl GlobalAlloc for SorobanAllocator {
+    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
+        alloc::alloc::alloc(layout)
+    }
+
+    unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
+        alloc::alloc::dealloc(ptr, layout)
+    }
+}
+
+#[global_allocator]
+static ALLOCATOR: SorobanAllocator = SorobanAllocator;
+
 use alloc::format;
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, xdr::{ToXdr}, Address, Bytes, Env, Map, String, Symbol, Vec
+    contract, contractimpl, contracttype, symbol_short, xdr::{ToXdr}, Address, Bytes, Env, Map, Symbol, Vec
 };
 
 const CODES: Symbol = symbol_short!("codes");
@@ -17,18 +36,21 @@ const CODE_LENGTH: usize = 8;
 fn hash_to_code(env: &Env, input: &Bytes) -> Symbol {
     let hash: Bytes = env.crypto().sha256(input).into();
     
-    let mut code = String::from_str(env, "");
+    // Start with an empty string and build hex representation
+    let mut hex_code = alloc::string::String::new();
+    
+    // Convert each byte to hex and append to our Rust string
     for byte in hash.iter().take(CODE_LENGTH) {
         let hex = format!("{:02X}", byte);
-        let hex_part = String::from_str(env, &hex);
-        // Concatenate strings by creating a new one
-        code = String::from_str(env, &format!("{}{}", code.to_string(), hex_part.to_string()));
+        hex_code.push_str(&hex);
     }
     
-    // Create a symbol with the code string, limited to CODE_LENGTH
-    let code_str = code.to_string();
-    let limit = CODE_LENGTH.min(code_str.len()).min(10);
-    Symbol::new(env, &code_str[..limit])
+    // Limit the length
+    let limit = CODE_LENGTH.min(hex_code.len()).min(10);
+    let final_code = &hex_code[..limit];
+    
+    // Create a symbol from the final code
+    Symbol::new(env, final_code)
 }
 
 #[contracttype]
