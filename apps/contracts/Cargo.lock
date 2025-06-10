@@ -1306,6 +1306,72 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
+name = "stellar-access-control"
+version = "0.3.0"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#cf05a5d522f323274939a8bfbcea706fe21eeb52"
+dependencies = [
+ "soroban-sdk",
+ "stellar-constants",
+ "stellar-role-transfer",
+]
+
+[[package]]
+name = "stellar-access-control-macros"
+version = "0.3.0"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#cf05a5d522f323274939a8bfbcea706fe21eeb52"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "stellar-macro-helpers",
+ "syn 2.0.101",
+]
+
+[[package]]
+name = "stellar-constants"
+version = "0.3.0"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#cf05a5d522f323274939a8bfbcea706fe21eeb52"
+dependencies = [
+ "soroban-sdk",
+]
+
+[[package]]
+name = "stellar-default-impl-macro"
+version = "0.3.0"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#cf05a5d522f323274939a8bfbcea706fe21eeb52"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.101",
+]
+
+[[package]]
+name = "stellar-macro-helpers"
+version = "0.3.0"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#cf05a5d522f323274939a8bfbcea706fe21eeb52"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.101",
+]
+
+[[package]]
+name = "stellar-non-fungible"
+version = "0.3.0"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#cf05a5d522f323274939a8bfbcea706fe21eeb52"
+dependencies = [
+ "soroban-sdk",
+ "stellar-constants",
+]
+
+[[package]]
+name = "stellar-role-transfer"
+version = "0.3.0"
+source = "git+https://github.com/OpenZeppelin/stellar-contracts#cf05a5d522f323274939a8bfbcea706fe21eeb52"
+dependencies = [
+ "soroban-sdk",
+]
+
+[[package]]
 name = "stellar-strkey"
 version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1441,6 +1507,17 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "voting-nft"
+version = "0.0.0"
+dependencies = [
+ "soroban-sdk",
+ "stellar-access-control",
+ "stellar-access-control-macros",
+ "stellar-default-impl-macro",
+ "stellar-non-fungible",
+]
 
 [[package]]
 name = "wasi"

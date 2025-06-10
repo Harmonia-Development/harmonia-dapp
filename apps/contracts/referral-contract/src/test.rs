@@ -1,7 +1,6 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, testutils::MockAuth, Address, Env, IntoVal, Map, Symbol};
 
 #[test]
 fn test_referral_stats_struct() {
