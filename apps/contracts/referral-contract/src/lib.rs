@@ -2,12 +2,13 @@
 
 extern crate alloc;
 
-use alloc::alloc::Layout;
-use core::alloc::GlobalAlloc;
+#[cfg(target_arch = "wasm32")]
+use alloc::alloc::{GlobalAlloc, Layout};
 
-// Define a simple global allocator that delegates to the system allocator
+#[cfg(target_arch = "wasm32")]
 struct SorobanAllocator;
 
+#[cfg(target_arch = "wasm32")]
 unsafe impl GlobalAlloc for SorobanAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         alloc::alloc::alloc(layout)
@@ -18,6 +19,7 @@ unsafe impl GlobalAlloc for SorobanAllocator {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
 #[global_allocator]
 static ALLOCATOR: SorobanAllocator = SorobanAllocator;
 
