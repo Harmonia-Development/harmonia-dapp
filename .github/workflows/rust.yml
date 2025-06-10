@@ -24,7 +24,7 @@ jobs:
       run: |
         source $HOME/.cargo/env
         rustup target add wasm32v1-none
-    - name: Install Stellar CLI with Homebrew
+    - name: Install Stellar CLI
       run: |
         brew update
         brew install stellar-cli
@@ -35,7 +35,7 @@ jobs:
         cargo build --verbose
       working-directory: apps/contracts
 
-    - name: Build Soroban contract
+    - name: Build Stellar contract
       run: |
         source $HOME/.cargo/env
         stellar contract build --verbose
