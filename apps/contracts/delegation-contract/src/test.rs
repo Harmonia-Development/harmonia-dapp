@@ -142,3 +142,56 @@ fn test_redelegation() {
     assert_eq!(client.get_delegators(&member_2).len(), 0);
     assert_eq!(client.get_delegators(&member_3).len(), 1);
 }
+
+
+#[test]
+fn test_zero_base_power() {
+    let (env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
+    
+    // member_1 has no base power set (defaults to 1)
+    // member_2 has explicit base power
+    client.set_base_power(&member_2, &10);
+    
+    // member_1 delegates to member_2
+    client.delegate_votes(&member_1, &member_2);
+    
+    // member_2 should have: 10 (base) + 1 (member_1's default) = 11
+    assert_eq!(client.get_voting_power(&member_1), 0);
+    assert_eq!(client.get_voting_power(&member_2), 11);
+}
+
+#[test]
+fn test_has_delegation_check() {
+    let (env, client, member_1, member_2, member_3, _member_4) = create_test_env();
+    
+    // Initially, no one has delegations
+    assert_eq!(client.has_delegation(&member_1), false);
+    assert_eq!(client.has_delegation(&member_2), false);
+    
+    // member_1 delegates to member_2
+    client.delegate_votes(&member_1, &member_2);
+    
+    // Now both member_1 (as delegator) and member_2 (as delegate) have delegations
+    assert_eq!(client.has_delegation(&member_1), true);
+    assert_eq!(client.has_delegation(&member_2), true);
+    assert_eq!(client.has_delegation(&member_3), false);
+    
+    // After undelegation, neither should have delegations
+    client.undelegate(&member_1);
+    assert_eq!(client.has_delegation(&member_1), false);
+    assert_eq!(client.has_delegation(&member_2), false);
+}
+
+#[test]
+fn test_voting_power_details() {
+    let (env, client, member_1, member_2, _member_3, _member_4) = create_test_env();
+    
+    client.set_base_power(&member_1, &10);
+    client.set_base_power(&member_2, &5);
+    
+    client.delegate_votes(&member_1, &member_2);
+    
+    let member_2_details = client.get_voting_power_details(&member_2);
+    assert_eq!(member_2_details.member, member_2);
+    assert_eq!(member_2_details.total_power, 15);
+}
