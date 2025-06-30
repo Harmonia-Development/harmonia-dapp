@@ -1,5 +1,5 @@
 #![no_std]
-use soroban_sdk::{Address, Env, Symbol, Vec, contract, contractimpl, contracttype, symbol_short};
+use soroban_sdk::{Address, Env, Symbol, Vec, contract, contractimpl, contracttype, symbol_short, contracterror};
 
 pub mod delegation;
 pub mod power;
@@ -29,7 +29,7 @@ pub struct VotingPower {
     pub total_power: i128,
 }
 
-#[contracttype]
+#[contracterror]
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
 pub enum DelegationError {
@@ -39,9 +39,13 @@ pub enum DelegationError {
     InsufficientPower = 4,
 }
 
+/// The main delegation contract
+#[contract]
+pub struct DelegationContract;
+
 #[contractimpl]
 impl DelegationContract {
-    pub fn __constructor(e: Env, admin: Address) {
+    pub fn __constructor(e: Env, admin: Address, base_power: i128) {
         // Initialize the contract with the admin address
         e.storage().persistent().set(&ADMIN, &admin);
     }
@@ -156,3 +160,5 @@ impl DelegationContract {
         delegation::has_delegation(env, address)
     }
 }
+
+pub mod test;
