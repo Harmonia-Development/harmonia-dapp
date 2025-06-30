@@ -2,29 +2,26 @@ import { ProposalCalendar } from "@/components/proposals/ProposalCalendar";
 import { ProposalList } from "@/components/proposals/ProposalList";
 import { ProposalStats } from "@/components/proposals/ProposalStats";
 import { LayoutWrapper } from "@/components/ui/layout-wrapper";
+import { ThemeWrapper } from "@/components/ui/theme-wrapper";
 
 export default function ProposalsPage() {
   return (
-    <>
-      <main className="min-h-screen bg-background">
-        <LayoutWrapper>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Proposals
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Create, vote, and track governance proposals
-            </p>
-          </div>
-          <div>
-            <ProposalStats />
-          </div>
-          <ProposalList />
-        </LayoutWrapper>
+    <ThemeWrapper>
+      <LayoutWrapper>
         <div>
-          <ProposalCalendar events={[]} />
+          <h1 className="text-3xl font-bold tracking-tight">Proposals</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
+            Create, vote, and track governance proposals
+          </p>
         </div>
-      </main>
-    </>
+        <div>
+          <ProposalStats />
+        </div>
+        <ProposalList />
+      </LayoutWrapper>
+      <div>
+        <ProposalCalendar events={[]} />
+      </div>
+    </ThemeWrapper>
   );
 }

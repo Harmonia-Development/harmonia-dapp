@@ -2,6 +2,7 @@ import AssetManagementPanel from "@/components/treasury/ui/pages/AssetManagement
 import BudgetAllocation from "@/components/treasury/ui/pages/BudgetAllocation";
 import TransactionHistory from "@/components/treasury/ui/pages/TransactionHistory";
 import { LayoutWrapper } from "@/components/ui/layout-wrapper";
+import { ThemeWrapper } from "@/components/ui/theme-wrapper";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function TreasuryPage() {
   return (
-    <div className="h-full md:h-screen">
+    <ThemeWrapper className="h-full md:h-screen">
       <LayoutWrapper>
         <div className="flex flex-col md:flex-row justify-between">
           <div className="w-full grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -28,6 +29,6 @@ export default function TreasuryPage() {
           </div>
         </div>
       </LayoutWrapper>
-    </div>
+    </ThemeWrapper>
   );
 }

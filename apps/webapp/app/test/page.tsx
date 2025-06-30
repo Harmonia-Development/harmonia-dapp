@@ -5,6 +5,7 @@ import RecentActivity, {
 } from "@/components/activity/recent-activity";
 import { Card, CardContent } from "@/components/ui/card";
 import { LayoutWrapper } from "@/components/ui/layout-wrapper";
+import { ThemeWrapper } from "@/components/ui/theme-wrapper";
 import { useState } from "react";
 
 // Sample activity data
@@ -134,7 +135,7 @@ export default function Test() {
     }
   });
   return (
-    <main className="min-h-screen relative overflow-hidden bg-[#070B1D]">
+    <ThemeWrapper className="relative overflow-hidden">
       <LayoutWrapper>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Activity Component */}
@@ -159,6 +160,6 @@ export default function Test() {
           </div>
         </div>
       </LayoutWrapper>
-    </main>
+    </ThemeWrapper>
   );
 }
