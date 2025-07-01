@@ -77,8 +77,8 @@ Ensure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/harmonia.git
-   cd harmonia
+   git clone https://github.com/your-username/harmonia-dapp.git
+   cd harmonia-dapp
    ```
 
 2. Install dependencies:
