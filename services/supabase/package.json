@@ -18,12 +18,19 @@
 		"stop": "supabase stop",
 		"reset": "supabase db reset",
 		"migrate": "supabase migration up",
-		"status": "supabase status"
+		"status": "supabase status",
+		"gen:drizzle": "drizzle-kit generate --name"
 	},
 	"author": "harmonia",
 	"license": "MIT",
 	"devDependencies": {
-		"supabase-to-zod": "^1.0.7",
-		"supabase": "^2.0.0"
+		"drizzle-kit": "^0.31.4",
+		"supabase": "^2.0.0",
+		"supabase-to-zod": "^1.0.7"
+	},
+	"dependencies": {
+		"dotenv": "^17.0.1",
+		"drizzle-orm": "^0.44.2",
+		"postgres": "^3.4.7"
 	}
 }
