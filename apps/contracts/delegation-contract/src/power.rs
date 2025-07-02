@@ -27,7 +27,7 @@ pub fn get_voting_power(env: Env, member: Address) -> i128 {
     for delegator in delegators.iter() {
         // Get the effective power of each delegator
         // This handles nested delegation chains
-        let delegator_power = get_effective_delegator_power(env.clone(), delegator);
+        let delegator_power = get_voting_power(env.clone(), delegator);
         delegated_power += delegator_power;
     }
 
@@ -45,43 +45,6 @@ pub fn get_voting_power(env: Env, member: Address) -> i128 {
 ///
 /// # Returns
 /// * `i128` - The effective power contributed by the delegator
-fn get_effective_delegator_power(env: Env, delegator: Address) -> i128 {
-    // Get the delegator's base power
-    let base_power = get_base_power(env.clone(), delegator.clone());
-
-    // If this delegator has delegated their power, they contribute 0
-    // (their power is already counted through their delegate)
-    if delegation::get_delegate(env.clone(), delegator.clone()).is_some() {
-        return 0;
-    }
-
-    // Get power delegated to this delegator from others
-    let delegators_to_this = delegation::get_delegators(env.clone(), delegator.clone());
-    let mut delegated_to_this = 0i128;
-
-    for sub_delegator in delegators_to_this.iter() {
-        // Recursive calculation for nested delegations
-        let sub_power = get_effective_delegator_power(env.clone(), sub_delegator);
-        delegated_to_this += sub_power;
-    }
-
-    base_power + delegated_to_this
-}
-
-/// Get the base voting power for a member
-///
-/// # Arguments
-/// * `env` - The contract environment
-/// * `member` - The address to get base power for
-///
-/// # Returns
-/// * `i128` - The base voting power (defaults to 1 if not set)
-pub fn get_base_power(env: Env, member: Address) -> i128 {
-    env.storage()
-        .persistent()
-        .get(&base_power_key(&member))
-        .unwrap_or(1i128) // Default base power is 1
-}
 
 /// Set the base voting power for a member
 ///
@@ -98,6 +61,21 @@ pub fn set_base_power(env: Env, member: Address, power: i128) {
             .persistent()
             .set(&base_power_key(&member), &power);
     }
+}
+
+/// Get the base voting power for a member
+///
+/// # Arguments
+/// * `env` - The contract environment
+/// * `member` - The address to get base power for
+///
+/// # Returns
+/// * `i128` - The base voting power (defaults to 1 if not set)
+pub fn get_base_power(env: Env, member: Address) -> i128 {
+    env.storage()
+        .persistent()
+        .get(&base_power_key(&member))
+        .unwrap_or(1i128) // Default base power is 1
 }
 
 /// Generate storage key for base power mapping

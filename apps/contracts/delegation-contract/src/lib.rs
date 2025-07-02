@@ -1,5 +1,7 @@
 #![no_std]
-use soroban_sdk::{Address, Env, Symbol, Vec, contract, contractimpl, contracttype, symbol_short, contracterror};
+use soroban_sdk::{
+    Address, Env, Symbol, Vec, contract, contracterror, contractimpl, contracttype, symbol_short,
+};
 
 pub mod delegation;
 pub mod power;
