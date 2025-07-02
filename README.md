@@ -50,6 +50,8 @@ Harmonia/
 │   │   └── README.md       # Webapp documentation
 ├── docs/                   # Documentation
 ├── node_modules/           # Dependencies
+├── packages/               # Shared Utilities
+│   └── lib                 # Shared logic, clients, hooks, and utilities across apps
 ├── services/               # Backend services
 │   ├── supabase/           # API services
 │   └── README.md           # Services documentation

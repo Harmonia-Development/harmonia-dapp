@@ -115,7 +115,7 @@ These commands will:
 
 ---
 
-## 📦 Project Layout
+## 📦 Service Structure
 
 ```
 services/supabase
