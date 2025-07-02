@@ -63,13 +63,13 @@ This will start the full local Supabase stack (PostgreSQL, Auth, Storage, Studio
 To create a new migration using Drizzle ORM:
 
 ```sh
-bun run gen:drizzle --name create-users-table
+bun run gen:drizzle create-users-table
 ```
 
 To create a new migration using Supabase CLI:
 
 ```sh
-bun run gen:supabase --name enable-rls-users
+bun run gen:supabase enable-rls-users
 ```
 
 To apply new migrations:
@@ -151,8 +151,8 @@ You can define initial data for local development in `seed.sql`. This file is au
 | `bun stop`         | Stop Supabase services                                  |
 | `bun reset`        | Reset database and apply all migrations + seed          |
 | `bun migrate`      | Apply new migrations without resetting the DB           |
-| `bun gen:drizzle`  | Create a new Drizzle migration (requires `--name`)      |
-| `bun gen:supabase` | Create a new Supabase migration (requires `--name`)     |
+| `bun gen:drizzle`  | Create a new Drizzle migration                          |
+| `bun gen:supabase` | Create a new Supabase migration                         |
 | `bun gen`          | Generate types and Zod schemas from local DB            |
 | `bun gen:remote`   | Generate types and schemas from linked Supabase project |
 

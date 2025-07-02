@@ -6,6 +6,3 @@
 .env.keys
 .env.local
 .env.*.local
-
-# Drizzle ORM metadata
-migrations/meta/

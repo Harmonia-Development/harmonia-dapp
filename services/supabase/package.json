@@ -19,7 +19,8 @@
 		"reset": "supabase db reset",
 		"migrate": "supabase migration up",
 		"status": "supabase status",
-		"gen:drizzle": "drizzle-kit generate --name"
+		"gen:drizzle": "drizzle-kit generate --name",
+		"gen:supabase": "supabase migration new"
 	},
 	"author": "harmonia",
 	"license": "MIT",
