@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { WalletProvider } from '@/lib/wallet/context'
 import Header from '@/components/dashboard/Header'
 import { GoogleAnalytics } from '@next/third-parties/google'
+import { ReactQueryClientProvider } from '@packages/lib/providers';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -30,13 +31,15 @@ export default function RootLayout({
 	return (
 		<html lang="en" className="dark">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<WalletProvider>
-					<Header />
-					{children}
-					<Toaster />
-				</WalletProvider>
+				<ReactQueryClientProvider>
+					<WalletProvider>
+						<Header />
+						{children}
+						<Toaster />
+					</WalletProvider>
+				</ReactQueryClientProvider>
 				<GoogleAnalytics gaId="G-YHNFJFWVCG" />
 			</body>
-		</html>
+		</html >
 	)
 }
