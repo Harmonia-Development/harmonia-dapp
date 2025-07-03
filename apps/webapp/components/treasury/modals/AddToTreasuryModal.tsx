@@ -36,13 +36,11 @@ const AddToTreasuryModal: React.FC = () => {
     destinationAddress: "",
   });
 
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+	const handleInputChange = (
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+	) => {
+		const { name, value } = e.target
+		setFormData((prev) => ({ ...prev, [name]: value }))
 
     // Clear error when field is edited
     if (name in errors) {
