@@ -1,6 +1,8 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChartSkeleton } from '@/components/ui/loading-skeletons'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { categoryData, memberData, treasuryData, votingData } from '@/lib/mock-data/analytics.mock'
 import { MemberActivity } from './member-activity'
@@ -8,7 +10,26 @@ import { ProposalCategories } from './proposal-categories'
 import { TreasuryChart } from './treasury-chart'
 import { VotingDistribution } from './voting-distribution'
 
-export function AnalyticsDashboard() {
+interface AnalyticsDashboardProps {
+	isLoading?: boolean
+}
+
+export function AnalyticsDashboard({ isLoading = false }: AnalyticsDashboardProps) {
+	if (isLoading) {
+		return (
+			<Card>
+				<CardHeader className="pb-2">
+					<Skeleton className="h-8 w-48 mb-2" />
+					<Skeleton className="h-4 w-80" />
+				</CardHeader>
+				<CardContent className="p-6 pb-10 pt-0">
+					<Skeleton className="h-10 w-full mb-4" />
+					<ChartSkeleton />
+				</CardContent>
+			</Card>
+		)
+	}
+
 	return (
 		<Card>
 			<CardHeader className="pb-2">
