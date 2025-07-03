@@ -65,7 +65,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 					address,
 					isConnected: true,
 				}))
-			} catch (error) {
+			} catch (_error) {
 				// Not connected, which is fine
 				setState((prev: WalletState) => ({
 					...prev,
@@ -78,7 +78,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 	}, [])
 
 	const connect = async () => {
-		setState((prev: WalletState) => ({ ...prev, isLoading: true, error: null }))
+		setState((prev: WalletState) => ({
+			...prev,
+			isLoading: true,
+			error: null,
+		}))
 
 		try {
 			await kit.openModal({
@@ -104,7 +108,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 	}
 
 	const disconnect = async () => {
-		setState((prev: WalletState) => ({ ...prev, isLoading: true, error: null }))
+		setState((prev: WalletState) => ({
+			...prev,
+			isLoading: true,
+			error: null,
+		}))
 
 		try {
 			await kit.disconnect()
@@ -125,7 +133,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 	}
 
 	const signTransaction = async (xdr: string) => {
-		setState((prev: WalletState) => ({ ...prev, isLoading: true, error: null }))
+		setState((prev: WalletState) => ({
+			...prev,
+			isLoading: true,
+			error: null,
+		}))
 
 		try {
 			const result = await kit.signTransaction(xdr)

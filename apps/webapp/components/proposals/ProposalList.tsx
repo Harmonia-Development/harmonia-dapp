@@ -1,5 +1,7 @@
 'use client'
 
+import { ChartSkeleton, ProposalCardSkeleton } from '@/components/ui/loading-skeletons'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useState } from 'react'
 import { CreateProposalButton } from './CreateProposalButton'
 import ProposalCategoryChart from './ProposalCategoryChart'
@@ -91,7 +93,11 @@ const categoryColors: { [key: string]: string } = {
 	Technical: '#F59E0B',
 }
 
-export function ProposalList() {
+interface ProposalListProps {
+	isLoading?: boolean
+}
+
+export function ProposalList({ isLoading = false }: ProposalListProps) {
 	const [activeTab, setActiveTab] = useState<ProposalStatus>('all')
 
 	const filteredProposals = mockProposals.filter((proposal) => {
@@ -114,6 +120,31 @@ export function ProposalList() {
 		value,
 		color: categoryColors[name] || '#000000', // Fallback color if not defined
 	}))
+
+	if (isLoading) {
+		return (
+			<div className="container mx-auto py-6">
+				<div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+					<Skeleton className="h-8 w-64" />
+					<Skeleton className="h-10 w-32" />
+				</div>
+
+				<div className="mb-6">
+					<Skeleton className="h-10 w-full" />
+				</div>
+
+				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+					{['a', 'b', 'c', 'd', 'e', 'f'].map((key) => (
+						<ProposalCardSkeleton key={`skeleton-${key}`} />
+					))}
+				</div>
+
+				<div className="mb-6">
+					<ChartSkeleton />
+				</div>
+			</div>
+		)
+	}
 
 	return (
 		<div className="container mx-auto py-6">

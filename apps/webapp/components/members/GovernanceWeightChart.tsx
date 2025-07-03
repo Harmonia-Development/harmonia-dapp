@@ -19,9 +19,9 @@ export default function GovernanceWeight() {
 			<div className="mb-4">
 				<p className="text-sm text-gray-400">Distribution of voting power across roles</p>
 				<div className="flex flex-wrap gap-2 mt-2">
-					{roles.map((r, i) => (
-						<div key={i} className="flex items-center gap-2">
-							<div className={`w-3 h-3 rounded-full ${r.color}`}></div>
+					{roles.map((r) => (
+						<div key={r.label} className="flex items-center gap-2">
+							<div className={`w-3 h-3 rounded-full ${r.color}`} />
 							<span className="text-sm">
 								{r.label} ({r.value}%)
 							</span>
@@ -32,8 +32,8 @@ export default function GovernanceWeight() {
 			<div>
 				<p className="text-sm text-gray-400 mb-2">Top Voting Power</p>
 				<ul className="space-y-2">
-					{topVoters.map((v, i) => (
-						<li key={i} className="flex justify-between border-b border-gray-700 pb-2">
+					{topVoters.map((v) => (
+						<li key={v.name} className="flex justify-between border-b border-gray-700 pb-2">
 							<div>
 								<p className="text-sm font-semibold">{v.name}</p>
 								<p className="text-xs text-gray-400">{v.role}</p>

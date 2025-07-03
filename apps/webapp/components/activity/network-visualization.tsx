@@ -114,7 +114,7 @@ function Connection({
 	})
 
 	return (
-		<line >
+		<line>
 			<bufferGeometry attach="geometry" {...lineGeometry} />
 			<lineBasicMaterial
 				attach="material"

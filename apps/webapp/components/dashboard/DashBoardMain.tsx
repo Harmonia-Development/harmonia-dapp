@@ -1,4 +1,3 @@
-import React from 'react'
 import NotificationDashboard from './NotificationDashboard'
 import NotificationSettings from './NotificationSetting'
 

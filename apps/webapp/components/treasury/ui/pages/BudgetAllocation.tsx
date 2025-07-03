@@ -59,7 +59,7 @@ export default function BudgetAllocation() {
 							<ChartTooltip
 								content={
 									<ChartTooltipContent
-										formatter={(value, name, props) => (
+										formatter={(value, _name, props) => (
 											<div className="flex items-center justify-between gap-2">
 												<span>{props.payload.category}</span>
 												<span className="font-medium">{value}%</span>
