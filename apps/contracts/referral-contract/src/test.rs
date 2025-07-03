@@ -15,4 +15,3 @@ fn test_referral_stats_struct() {
     assert_eq!(stats.converted, 5);
     assert_eq!(stats.pending, 5);
 }
-
