@@ -26,34 +26,31 @@ fn test_referral_stats_struct() {
 fn test_register_referral() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let referrer = Address::generate(&env);
     let referee = Address::generate(&env);
 
     env.ledger().set_timestamp(12345);
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer.clone(), referee.clone());
-    });
+    client.register_referral(&referrer, &referee);
 
     // Check that the referral relationship was stored correctly
     let campaign_referrals = symbol_short!("referrals");
-    let referrals: Map<Address, Referral> = env.as_contract(&contract_id, || {
-        env.storage()
-            .persistent()
-            .get(&campaign_referrals)
-            .unwrap()
-    });
+    let referrals: Map<Address, Referral> = env
+        .storage()
+        .persistent()
+        .get(&campaign_referrals)
+        .unwrap();
     let stored = referrals.get(referee.clone()).unwrap();
     assert_eq!(stored.referrer, referrer);
     assert_eq!(stored.referee, referee);
     assert_eq!(stored.timestamp, 12345);
 
     // Verify that both referrer and referee received their initial rewards
-    let rewards: Map<Address, Reward> = env.as_contract(&contract_id, || {
-        env.storage()
-            .persistent()
-            .get(&symbol_short!("rewards"))
-            .unwrap()
-    });
+    let rewards: Map<Address, Reward> = env
+        .storage()
+        .persistent()
+        .get(&symbol_short!("rewards"))
+        .unwrap();
     assert_eq!(rewards.get(referrer.clone()).unwrap().amount, 1);
     assert_eq!(rewards.get(referee.clone()).unwrap().referee_amount, 1);
 }
@@ -65,10 +62,9 @@ fn test_register_referral() {
 fn test_self_referral() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let user = Address::generate(&env);
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), user.clone(), user.clone());
-    });
+    client.register_referral(&user, &user);
 }
 
 /// Test that a user can only have one referrer - prevents referral conflicts
@@ -78,18 +74,15 @@ fn test_self_referral() {
 fn test_duplicate_referral() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let referrer1 = Address::generate(&env);
     let referrer2 = Address::generate(&env);
     let referee = Address::generate(&env);
 
     // First referral should succeed
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer1, referee.clone());
-    });
+    client.register_referral(&referrer1, &referee);
     // Second referral should fail - user already has a referrer
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer2, referee);
-    });
+    client.register_referral(&referrer2, &referee);
 }
 
 /// Test retrieving a user's referrer - basic lookup functionality
@@ -98,16 +91,13 @@ fn test_duplicate_referral() {
 fn test_get_referrer() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let referrer = Address::generate(&env);
     let referee = Address::generate(&env);
 
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer.clone(), referee.clone());
-    });
+    client.register_referral(&referrer, &referee);
 
-    let result = env.as_contract(&contract_id, || {
-        referral::get_referrer(env.clone(), referee.clone())
-    });
+    let result = client.get_referrer(&referee);
     assert_eq!(result, Some(referrer));
 }
 
@@ -117,23 +107,18 @@ fn test_get_referrer() {
 fn test_has_been_referred() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let referrer = Address::generate(&env);
     let referee = Address::generate(&env);
 
     // User should not be referred initially
-    let result_before = env.as_contract(&contract_id, || {
-        referral::has_been_referred(env.clone(), referee.clone())
-    });
+    let result_before = client.has_been_referred(&referee);
     assert_eq!(result_before, false);
 
     // After registration, user should be marked as referred
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer.clone(), referee.clone());
-    });
+    client.register_referral(&referrer, &referee);
 
-    let result_after = env.as_contract(&contract_id, || {
-        referral::has_been_referred(env.clone(), referee.clone())
-    });
+    let result_after = client.has_been_referred(&referee);
     assert_eq!(result_after, true);
 }
 
@@ -143,19 +128,16 @@ fn test_has_been_referred() {
 fn test_list_referrals() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let referrer = Address::generate(&env);
     let referee1 = Address::generate(&env);
     let referee2 = Address::generate(&env);
 
     // Register multiple referrals for the same referrer
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer.clone(), referee1.clone());
-        referral::register_referral(env.clone(), referrer.clone(), referee2.clone());
-    });
+    client.register_referral(&referrer, &referee1);
+    client.register_referral(&referrer, &referee2);
 
-    let result = env.as_contract(&contract_id, || {
-        referral::list_referrals(env.clone(), referrer.clone())
-    });
+    let result = client.list_referrals(&referrer);
     assert_eq!(result.len(), 2);
     assert!(result.contains(&referee1));
     assert!(result.contains(&referee2));
@@ -167,29 +149,22 @@ fn test_list_referrals() {
 fn test_grant_reward() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let referrer = Address::generate(&env);
     let referee = Address::generate(&env);
 
     // Register a referral to earn initial reward
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer.clone(), referee.clone());
-    });
+    client.register_referral(&referrer, &referee);
 
     // Check initial reward balance
-    let balance_before = env.as_contract(&contract_id, || {
-        referral::get_reward_balance(env.clone(), referrer.clone())
-    });
+    let balance_before = client.get_reward_balance(&referrer);
     assert_eq!(balance_before, 1);
 
     // Claim the reward
-    env.as_contract(&contract_id, || {
-        referral::grant_reward(env.clone(), referrer.clone());
-    });
+    client.grant_reward(&referrer);
 
     // Balance should be reset to zero after claiming
-    let balance_after = env.as_contract(&contract_id, || {
-        referral::get_reward_balance(env.clone(), referrer.clone())
-    });
+    let balance_after = client.get_reward_balance(&referrer);
     assert_eq!(balance_after, 0);
 }
 
@@ -199,6 +174,7 @@ fn test_grant_reward() {
 fn test_get_leaderboard_ordering() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let referrer1 = Address::generate(&env);
     let referrer2 = Address::generate(&env);
     let referee1 = Address::generate(&env);
@@ -206,23 +182,17 @@ fn test_get_leaderboard_ordering() {
     let referee3 = Address::generate(&env);
 
     // Setup: referrer1 gets 2 referrals, referrer2 gets 1
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer1.clone(), referee1.clone());
-        referral::register_referral(env.clone(), referrer1.clone(), referee2.clone());
-        referral::register_referral(env.clone(), referrer2.clone(), referee3.clone());
-    });
+    client.register_referral(&referrer1, &referee1);
+    client.register_referral(&referrer1, &referee2);
+    client.register_referral(&referrer2, &referee3);
 
     // Mark two conversions: both referrals by referrer1
     env.mock_all_auths();
-    env.as_contract(&contract_id, || {
-        ReferralContract::mark_converted(env.clone(), referee1.clone());
-        ReferralContract::mark_converted(env.clone(), referee2.clone());
-    });
+    client.mark_converted(&referee1);
+    client.mark_converted(&referee2);
 
     // Fetch leaderboard
-    let leaderboard = env.as_contract(&contract_id, || {
-        ReferralContract::get_leaderboard(env.clone())
-    });
+    let leaderboard = client.get_leaderboard();
 
     assert_eq!(leaderboard.len(), 1); // Only referrer1 should have conversions
     assert_eq!(leaderboard.get(0).unwrap().address, referrer1);
@@ -235,24 +205,19 @@ fn test_get_leaderboard_ordering() {
 fn test_get_referral_stats() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let referrer = Address::generate(&env);
     let referee1 = Address::generate(&env);
     let referee2 = Address::generate(&env);
 
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), referrer.clone(), referee1.clone());
-        referral::register_referral(env.clone(), referrer.clone(), referee2.clone());
-    });
+    client.register_referral(&referrer, &referee1);
+    client.register_referral(&referrer, &referee2);
 
     // Mark only one as converted
     env.mock_all_auths();
-    env.as_contract(&contract_id, || {
-        ReferralContract::mark_converted(env.clone(), referee1.clone());
-    });
+    client.mark_converted(&referee1);
 
-    let stats = env.as_contract(&contract_id, || {
-        ReferralContract::get_referral_stats(env.clone(), referrer.clone())
-    });
+    let stats = client.get_referral_stats(&referrer);
 
     assert_eq!(stats.total_invites, 2);
     assert_eq!(stats.converted, 1);
@@ -267,15 +232,12 @@ fn test_get_referral_stats() {
 fn test_circular_referral() {
     let env = Env::default();
     let contract_id = env.register(ReferralContract, ());
+    let client = ReferralContractClient::new(&env, &contract_id);
     let addr1 = Address::generate(&env);
     let addr2 = Address::generate(&env);
 
     // First referral should work
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), addr1.clone(), addr2.clone());
-    });
+    client.register_referral(&addr1, &addr2);
     // Second referral should fail - would create a circular reference
-    env.as_contract(&contract_id, || {
-        referral::register_referral(env.clone(), addr2.clone(), addr1.clone());
-    });
+    client.register_referral(&addr2, &addr1);
 }

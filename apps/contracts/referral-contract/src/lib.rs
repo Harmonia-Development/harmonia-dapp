@@ -114,9 +114,7 @@ impl ReferralContract {
             .get(&CODES)
             .unwrap_or(Map::new(&env));
         if let Some((inviter, _)) = codes.iter().find(|(_, c)| *c == code) {
-            env.as_contract(&env.current_contract_address(), || {
-                referral::register_referral(env.clone(), inviter.clone(), new_user.clone());
-            });
+            referral::register_referral(env.clone(), inviter.clone(), new_user.clone());
         }
     }
 
@@ -248,6 +246,30 @@ impl ReferralContract {
             leaderboard.push_back(entry);
         }
         leaderboard
+    }
+
+    pub fn register_referral(env: Env, referrer: Address, referee: Address) {
+        referral::register_referral(env, referrer, referee);
+    }
+
+    pub fn get_referrer(env: Env, referee: Address) -> Option<Address> {
+        referral::get_referrer(env, referee)
+    }
+
+    pub fn has_been_referred(env: Env, referee: Address) -> bool {
+        referral::has_been_referred(env, referee)
+    }
+
+    pub fn list_referrals(env: Env, referrer: Address) -> Vec<Address> {
+        referral::list_referrals(env, referrer)
+    }
+
+    pub fn get_reward_balance(env: Env, address: Address) -> i128 {
+        referral::get_reward_balance(env, address)
+    }
+
+    pub fn grant_reward(env: Env, address: Address) {
+        referral::grant_reward(env, address);
     }
 }
 
