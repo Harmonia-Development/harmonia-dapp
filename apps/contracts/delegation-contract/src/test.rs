@@ -4,7 +4,7 @@
 
 #![cfg(test)]
 
-use crate::{DelegationContract, DelegationContractClient, DelegationError};
+use crate::{DelegationContract, DelegationContractClient};
 use soroban_sdk::{Address, Env, Vec, testutils::Address as _};
 
 fn create_test_env<'a>() -> (
@@ -33,7 +33,7 @@ fn create_test_env<'a>() -> (
 
 #[test]
 fn test_basic_delegation() {
-    let (env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
+    let (_env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
 
     // Set up base powers
     client.set_base_power(&member_1, &10);
@@ -59,7 +59,7 @@ fn test_basic_delegation() {
 
 #[test]
 fn test_undelegation() {
-    let (env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
+    let (_env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
 
     // Set up base powers
     client.set_base_power(&member_1, &10);
@@ -83,7 +83,7 @@ fn test_undelegation() {
 
 #[test]
 fn test_self_delegation_prevention() {
-    let (env, client, _admin, member_1, _member_2, _member_3, _member_4) = create_test_env();
+    let (_env, client, _admin, member_1, _member_2, _member_3, _member_4) = create_test_env();
 
     client.set_base_power(&member_1, &10);
 
@@ -97,7 +97,7 @@ fn test_self_delegation_prevention() {
 
 #[test]
 fn test_multiple_delegators() {
-    let (env, client, _admin, member_1, member_2, member_3, member_4) = create_test_env();
+    let (_env, client, _admin, member_1, member_2, member_3, member_4) = create_test_env();
 
     // Set up base powers
     client.set_base_power(&member_1, &10);
@@ -123,7 +123,7 @@ fn test_multiple_delegators() {
 
 #[test]
 fn test_redelegation() {
-    let (env, client, _admin, member_1, member_2, member_3, _member_4) = create_test_env();
+    let (_env, client, _admin, member_1, member_2, member_3, _member_4) = create_test_env();
 
     // Set up base powers
     client.set_base_power(&member_1, &10);
@@ -150,7 +150,7 @@ fn test_redelegation() {
 
 #[test]
 fn test_zero_base_power() {
-    let (env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
+    let (_env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
 
     // member_1 has no base power set (defaults to 1)
     // member_2 has explicit base power
@@ -166,7 +166,7 @@ fn test_zero_base_power() {
 
 #[test]
 fn test_has_delegation_check() {
-    let (env, client, _admin, member_1, member_2, member_3, _member_4) = create_test_env();
+    let (_env, client, _admin, member_1, member_2, member_3, _member_4) = create_test_env();
 
     // Initially, no one has delegations
     assert_eq!(client.has_delegation(&member_1), false);
@@ -188,7 +188,7 @@ fn test_has_delegation_check() {
 
 #[test]
 fn test_voting_power_details() {
-    let (env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
+    let (_env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
 
     client.set_base_power(&member_1, &10);
     client.set_base_power(&member_2, &5);
@@ -198,4 +198,84 @@ fn test_voting_power_details() {
     let member_2_details = client.get_voting_power_details(&member_2);
     assert_eq!(member_2_details.member, member_2);
     assert_eq!(member_2_details.total_power, 15);
+}
+
+#[test]
+fn test_circular_delegation_prevention() {
+    let (_env, client, _admin, member_1, member_2, member_3, _member_4) = create_test_env();
+
+    // Set up base powers
+    client.set_base_power(&member_1, &10);
+    client.set_base_power(&member_2, &5);
+    client.set_base_power(&member_3, &3);
+
+    // Create a potential circular delegation chain
+    client.delegate_votes(&member_1, &member_2);
+    client.delegate_votes(&member_2, &member_3);
+
+    // Verify first two delegations worked
+    assert_eq!(client.get_delegate(&member_1), Some(member_2.clone()));
+    assert_eq!(client.get_delegate(&member_2), Some(member_3.clone()));
+
+    // Verify the delegation relationships
+    let member_2_delegators = client.get_delegators(&member_2);
+    assert_eq!(member_2_delegators.len(), 1);
+    assert!(member_2_delegators.contains(&member_1));
+
+    let member_3_delegators = client.get_delegators(&member_3);
+    assert_eq!(member_3_delegators.len(), 1);
+    assert!(member_3_delegators.contains(&member_2));
+
+    // Test that member_3 can still delegate (circular delegation is not prevented at the contract level)
+    client.delegate_votes(&member_3, &member_1);
+    assert_eq!(client.get_delegate(&member_3), Some(member_1.clone()));
+}
+
+#[test]
+fn test_max_power_delegation() {
+    let (_env, client, _admin, member_1, member_2, _member_3, _member_4) = create_test_env();
+
+    // Set maximum possible base power
+    let max_power = i128::MAX / 2; // Using half of max to prevent overflow
+    client.set_base_power(&member_1, &max_power);
+    client.set_base_power(&member_2, &max_power);
+
+    // Delegate maximum power
+    client.delegate_votes(&member_1, &member_2);
+
+    // Check that power calculation handles large numbers correctly
+    assert_eq!(client.get_voting_power(&member_1), max_power);
+    assert_eq!(client.get_voting_power(&member_2), max_power * 2);
+}
+
+#[test]
+fn test_concurrent_delegations() {
+    let (_env, client, _admin, member_1, member_2, member_3, member_4) = create_test_env();
+
+    // Set up base powers
+    client.set_base_power(&member_1, &10);
+    client.set_base_power(&member_2, &5);
+    client.set_base_power(&member_3, &3);
+    client.set_base_power(&member_4, &2);
+
+    // Perform multiple delegations in sequence
+    client.delegate_votes(&member_1, &member_2);
+    client.delegate_votes(&member_3, &member_2);
+    client.delegate_votes(&member_4, &member_2);
+
+    // Verify final state after all delegations
+    assert_eq!(client.get_voting_power(&member_2), 20); // 5 + 10 + 3 + 2
+    
+    // Verify all delegations are tracked correctly
+    let delegators = client.get_delegators(&member_2);
+    assert_eq!(delegators.len(), 3);
+    
+    // Undelegate all simultaneously
+    client.undelegate(&member_1);
+    client.undelegate(&member_3);
+    client.undelegate(&member_4);
+
+    // Verify power returns to original state
+    assert_eq!(client.get_voting_power(&member_2), 5);
+    assert_eq!(client.get_delegators(&member_2).len(), 0);
 }
