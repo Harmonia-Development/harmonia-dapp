@@ -1,14 +1,18 @@
-'use client'
-import MembersDashboard from '@/components/members/MembersDashboard'
+"use client";
+import MembersDashboard from "@/components/members/MembersDashboard";
+import { LayoutWrapper } from "@/components/ui/layout-wrapper";
+import { ThemeWrapper } from "@/components/ui/theme-wrapper";
 
 const page = () => {
-	return (
-		<div className="bg-black h-full md:h-screen">
-			<div className="min-w-screen flex justify-between items-center px-5 pt-4">
-				<MembersDashboard />
-			</div>
-		</div>
-	)
-}
+  return (
+    <ThemeWrapper className="h-full md:h-screen">
+      <LayoutWrapper>
+        <div className="min-w-screen flex justify-between items-center">
+          <MembersDashboard />
+        </div>
+      </LayoutWrapper>
+    </ThemeWrapper>
+  );
+};
 
-export default page
+export default page;
