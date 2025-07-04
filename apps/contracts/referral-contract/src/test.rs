@@ -8,12 +8,13 @@ use crate::referral::{Referral, Reward};
 /// Test that the ReferralStats struct correctly stores and retrieves data
 #[test]
 fn test_referral_stats_struct() {
-    // Create a ReferralStats struct and check its fields
+    // Test that the ReferralStats struct can be created
     let stats = ReferralStats {
         total_invites: 10,
         converted: 5,
         pending: 5,
     };
+    
     assert_eq!(stats.total_invites, 10);
     assert_eq!(stats.converted, 5);
     assert_eq!(stats.pending, 5);
