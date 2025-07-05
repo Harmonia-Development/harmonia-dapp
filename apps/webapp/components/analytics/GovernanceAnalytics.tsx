@@ -23,7 +23,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { VotingDistribution } from "./voting-distribution";
+import { VotingDistribution } from "./VotingDistribution";
 
 const CustomTooltip = ({
   active,

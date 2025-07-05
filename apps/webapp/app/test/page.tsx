@@ -1,6 +1,6 @@
 'use client'
-import NetworkVisualization from '@/components/activity/network-visualization'
-import RecentActivity, { type ActivityItem } from '@/components/activity/recent-activity'
+import NetworkVisualization from '@/components/activity/NetworkVisualization'
+import RecentActivity, { type ActivityItem } from '@/components/activity/RecentActivity'
 import { Card, CardContent } from '@/components/ui/card'
 import { useState } from 'react'
 
