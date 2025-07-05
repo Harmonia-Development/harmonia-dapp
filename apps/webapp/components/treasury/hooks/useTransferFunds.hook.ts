@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import {
 	type TransferFundsFormValues,
 	transferFundsSchema,
-} from '../schema/transfer-funds-modal.schema'
+} from '../schema/TransferFundsModal.schema'
 
 interface TransferFundsFormProps {
 	onClose: () => void

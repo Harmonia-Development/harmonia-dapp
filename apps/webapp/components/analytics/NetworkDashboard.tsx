@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { NetworkVisualization } from "./network-visualiztion";
+import { NetworkVisualization } from "./Network-Visualiztion";
 
 export default function NetworkDashboard() {
   const [mounted, setMounted] = useState(false);

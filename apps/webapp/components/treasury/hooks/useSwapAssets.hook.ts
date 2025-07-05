@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { type SwapAssetsFormValues, swapAssetsSchema } from '../schema/swap-assets-modal.schema'
+import { type SwapAssetsFormValues, swapAssetsSchema } from '../schema/SwapAssetsModal.schema'
 
 const exchangeRates = {
 	'xlm-usdc': 0.34,
