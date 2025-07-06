@@ -64,32 +64,21 @@ const cardVariants = cva('rounded-lg p-4 md:p-5 relative', {
 })
 
 // Función auxiliar para renderizar el icono con la clase correcta
-const renderIcon = (
-	icon: React.ReactNode, 
-	variant: 'default' | 'success' | 'error' | 'info'
-) => {
+const renderIcon = (icon: React.ReactNode, variant: 'default' | 'success' | 'error' | 'info') => {
 	// Si no es un elemento React válido, no renderizamos nada
-	if (!React.isValidElement(icon)) return null;
-	
+	if (!React.isValidElement(icon)) return null
+
 	// Extraer la clase actual si existe
-	const element = icon as ReactElement<{ className?: string }>;
-	const currentClassName = element.props.className || '';
-	
+	const element = icon as ReactElement<{ className?: string }>
+	const currentClassName = element.props.className || ''
+
 	// Crear un nuevo elemento con la clase combinada
 	return (
 		<div className={iconContainerVariants({ variant })}>
-			<span 
-				className={clsx(
-					currentClassName,
-					iconVariants({ variant }),
-					'w-4 h-4'
-				)}
-			>
-				{icon}
-			</span>
+			<span className={clsx(currentClassName, iconVariants({ variant }), 'w-4 h-4')}>{icon}</span>
 		</div>
-	);
-};
+	)
+}
 
 export const ProposalStatCard: React.FC<StatCardProps> = ({
 	title,

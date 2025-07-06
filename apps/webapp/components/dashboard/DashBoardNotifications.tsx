@@ -1,7 +1,7 @@
 import React from 'react'
 
 const DashBoardNotifications = () => {
-	return <div></div>
+	return <div />
 }
 
 export default DashBoardNotifications

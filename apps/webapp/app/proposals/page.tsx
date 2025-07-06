@@ -2,8 +2,6 @@ import { ProposalCalendar } from '@/components/proposals/ProposalCalendar'
 import { ProposalList } from '@/components/proposals/ProposalList'
 import { ProposalStats } from '@/components/proposals/ProposalStats'
 
-
-
 export default function ProposalsPage() {
 	return (
 		<>
@@ -20,7 +18,7 @@ export default function ProposalsPage() {
 					</div>
 					<ProposalList />
 				</div>
-        	<div>
+				<div>
 					<ProposalCalendar events={[]} />
 				</div>
 			</main>

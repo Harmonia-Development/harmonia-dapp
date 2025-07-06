@@ -30,11 +30,7 @@
 		"contracts:test": "cd apps/contracts && PATH=\"$HOME/.cargo/bin:$PATH\" cargo test --target wasm32-unknown-unknown"
 	},
 	"workspaces": {
-		"packages": [
-			"apps/*",
-			"services/*",
-			"packages/*"
-		],
+		"packages": ["apps/*", "services/*", "packages/*"],
 		"nohoist": [
 			"**/cbw-sdk",
 			"**/cbw-sdk/**",

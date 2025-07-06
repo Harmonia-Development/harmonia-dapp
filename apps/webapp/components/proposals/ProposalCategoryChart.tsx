@@ -46,9 +46,9 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
 						labelLine={false}
 						isAnimationActive={true}
 					>
-						{dataWithPercentages.map((entry, index) => (
+						{dataWithPercentages.map((entry) => (
 							<Cell
-								key={`cell-${index}`}
+								key={entry.name}
 								fill={entry.color}
 								stroke="#fff"
 								strokeWidth={2}
@@ -63,10 +63,11 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
 							borderRadius: '4px',
 							color: '#fff',
 						}}
-						formatter={(value: number, name: string, props: any) => [
-							`${props.payload.percentage}%`,
-							name,
-						]}
+						formatter={(
+							value: number,
+							name: string,
+							props: { payload: { percentage: number } },
+						) => [`${props.payload.percentage}%`, name]}
 					/>
 				</PieChart>
 			</ResponsiveContainer>
@@ -78,7 +79,7 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
 								className="w-4 h-4 rounded-full"
 								style={{ backgroundColor: entry.color }}
 								aria-hidden="true"
-							></span>
+							/>
 							<span className="text-gray-300">{entry.name}</span>
 						</div>
 						<span className="text-gray-300">{entry.percentage}%</span>

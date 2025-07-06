@@ -59,6 +59,9 @@ export default function AssetManagementPanel() {
 						<div
 							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
 							onClick={() => openModal('deposit')}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') openModal('deposit')
+							}}
 						>
 							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/20">
 								<ArrowDownIcon className="h-5 w-5" />
@@ -73,6 +76,9 @@ export default function AssetManagementPanel() {
 						<div
 							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
 							onClick={() => openModal('transfer')}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') openModal('transfer')
+							}}
 						>
 							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/20">
 								<ArrowUpIcon className="h-5 w-5" />
@@ -87,6 +93,9 @@ export default function AssetManagementPanel() {
 						<div
 							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
 							onClick={() => openModal('swap')}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') openModal('swap')
+							}}
 						>
 							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/20">
 								<RepeatIcon className="h-5 w-5" />
@@ -101,6 +110,9 @@ export default function AssetManagementPanel() {
 						<div
 							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
 							onClick={() => openModal('rebalance')}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') openModal('rebalance')
+							}}
 						>
 							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/20">
 								<BarChart4Icon className="h-5 w-5" />
