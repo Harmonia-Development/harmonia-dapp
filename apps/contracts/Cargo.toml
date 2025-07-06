@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
+  "delegation-contract",
+  "dispute-resolution-contract",
   "member-registry",
   "notification-router",
   "proposal-contract",
