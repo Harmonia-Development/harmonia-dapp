@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useToast } from '@/hooks/use-toast'
+import { AxiosError } from 'axios'
 
 export default function EscrowTestPage() {
   const [contractId, setContractId] = useState<string>('')
@@ -27,7 +28,7 @@ export default function EscrowTestPage() {
 
   // Form data for escrow creation
   const [formData, setFormData] = useState({
-    title: 'Demo Escrow Contract',
+    title: 'Harmonia Escrow Contract',
     description: 'Test escrow for Harmonia DAO integration',
     amount: '1000',
     platformFee: '100',
@@ -35,7 +36,9 @@ export default function EscrowTestPage() {
     approverAddress: '',
     markerAddress: '',
     releaserAddress: '',
-    resolverAddress: ''
+    resolverAddress: '',
+    trustlineAddress: '',
+    trustlineDecimals: 6,
   })
 
   // Environment variables for display
@@ -65,10 +68,10 @@ export default function EscrowTestPage() {
         releaseSigner: formData.releaserAddress || address || '',
         disputeResolver: formData.resolverAddress || address || ''
       },
-      // trustline: {
-      //   address: 'USDC-GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5', // Testnet USDC
-      //   decimals: 6
-      // },
+      trustline: {
+        address: formData.trustlineAddress,
+        decimals: formData.trustlineDecimals
+      },
       platformFee: Number(formData.platformFee) * 1000000
     }
 
@@ -163,9 +166,9 @@ export default function EscrowTestPage() {
         throw new Error(`Transaction failed with status: ${result.status}`)
       }
 
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to create escrow:', err)
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create escrow'
+      const errorMessage = err instanceof AxiosError ? err?.response?.data?.message : 'Failed to create escrow'
       setError(`❌ ${errorMessage}`)
       toast({
         title: "Error",
@@ -283,6 +286,27 @@ export default function EscrowTestPage() {
                 value={formData.receiverAddress}
                 onChange={(e) => setFormData(prev => ({ ...prev, receiverAddress: e.target.value }))}
               />
+            </div>
+
+            {/* trustline */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-2">
+                <Label htmlFor="trustlineAddress">Trustline Address</Label>
+                <Input
+                  id="trustline"
+                  value={formData.trustlineAddress}
+                  onChange={(e) => setFormData(prev => ({ ...prev, trustlineAddress: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="trustlineDecimals">Trustline Decimals</Label>
+                <Input
+                  id="trustlineDecimals"
+                  type="number"
+                  value={formData.trustlineDecimals}
+                  onChange={(e) => setFormData(prev => ({ ...prev, trustlineDecimals: Number(e.target.value) }))}
+                />
+              </div>
             </div>
 
             <Button
