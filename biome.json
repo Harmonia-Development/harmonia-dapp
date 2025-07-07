@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -7,10 +7,11 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
+		"include": ["**"],
 		"ignore": [
 			"**/node_modules/**",
-			"./apps/webapp/.next/**",
-			"./apps/indexer/src/types/models/**",
+			"apps/webapp/.next/**",
+			"apps/indexer/src/types/models/**",
 			"**/dist/**",
 			"**/build/**"
 		]
@@ -34,7 +35,16 @@
 				"noNonNullAssertion": "warn",
 				"noUselessElse": "error",
 				"useForOf": "error",
-				"useImportType": "error"
+				"useImportType": "error",
+				"noParameterAssign": "error",
+				"useAsConstAssertion": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useSelfClosingElements": "error",
+				"useSingleVarDeclarator": "error",
+				"noUnusedTemplateLiteral": "error",
+				"useNumberNamespace": "error",
+				"noInferrableTypes": "error"
 			},
 			"correctness": {
 				"recommended": true,

@@ -1,5 +1,6 @@
-'use client'
-import MembersDashboard from '@/components/members/MembersDashboard'
+"use client";
+import MembersDashboard from "@/components/members/MembersDashboard";
+import { LayoutWrapper } from "@/components/ui/layout-wrapper";
 
 export default function Page() {
 	return (
@@ -10,4 +11,3 @@ export default function Page() {
 		</div>
 	)
 }
-
