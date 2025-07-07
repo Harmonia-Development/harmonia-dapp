@@ -1,14 +1,14 @@
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { ProposalCalendar } from "@/components/proposals/ProposalCalendar";
 import { ProposalList } from "@/components/proposals/ProposalList";
 import { ProposalStats } from "@/components/proposals/ProposalStats";
-import { LayoutWrapper } from "@/components/ui/layout-wrapper";
 
 export default function ProposalsPage() {
   return (
-    <>
+    <ErrorBoundary>
       <main className="min-h-screen bg-background">
-        <LayoutWrapper>
-          <div>
+        <div className="max-w-7xl mx-auto">
+          <div className="container mx-auto py-6">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
               Proposals
             </h1>
@@ -16,15 +16,21 @@ export default function ProposalsPage() {
               Create, vote, and track governance proposals
             </p>
           </div>
-          <div>
-            <ProposalStats />
+          <div className="container mx-auto py-3">
+            <ErrorBoundary>
+              <ProposalStats />
+            </ErrorBoundary>
           </div>
-          <ProposalList />
-        </LayoutWrapper>
+          <ErrorBoundary>
+            <ProposalList />
+          </ErrorBoundary>
+        </div>
         <div>
-          <ProposalCalendar events={[]} />
+          <ErrorBoundary>
+            <ProposalCalendar events={[]} />
+          </ErrorBoundary>
         </div>
       </main>
-    </>
+    </ErrorBoundary>
   );
 }

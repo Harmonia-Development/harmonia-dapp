@@ -3,8 +3,9 @@ import NetworkVisualization from "@/components/activity/network-visualization";
 import RecentActivity, {
   type ActivityItem,
 } from "@/components/activity/recent-activity";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { Card, CardContent } from "@/components/ui/card";
-import { LayoutWrapper } from "@/components/ui/layout-wrapper";
+import { logDev, logError } from "@/lib/utils/logger";
 import { useState } from "react";
 
 // Sample activity data
@@ -134,31 +135,35 @@ export default function Test() {
     }
   });
   return (
-    <main className="min-h-screen relative overflow-hidden bg-[#070B1D]">
-      <LayoutWrapper>
+    <ErrorBoundary>
+      <main className="min-h-screen relative overflow-hidden bg-[#070B1D]">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Activity Component */}
           <div className="lg:col-span-1">
-            <RecentActivity
-              data={activityData}
-              onClick={(item) => console.log("Clicked:", item)}
-            />
+            <ErrorBoundary>
+              <RecentActivity
+                data={activityData}
+                onClick={(item) => logDev("Clicked:", item)}
+              />
+            </ErrorBoundary>
           </div>
 
           {/* Network Visualization */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card className="m-3">
               <CardContent className="p-0">
-                <NetworkVisualization
-                  data={networkData}
-                  color="#a855f7"
-                  nodeSize={0.15}
-                />
+                <ErrorBoundary>
+                  <NetworkVisualization
+                    data={networkData}
+                    color="#a855f7"
+                    nodeSize={0.15}
+                  />
+                </ErrorBoundary>
               </CardContent>
             </Card>
           </div>
         </div>
-      </LayoutWrapper>
-    </main>
+      </main>
+    </ErrorBoundary>
   );
 }
