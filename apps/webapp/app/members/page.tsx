@@ -2,16 +2,12 @@
 import MembersDashboard from "@/components/members/MembersDashboard";
 import { LayoutWrapper } from "@/components/ui/layout-wrapper";
 
-const page = () => {
-  return (
-    <div className="bg-black h-full md:h-screen">
-      <LayoutWrapper>
-        <div className="min-w-screen flex justify-between items-center">
-          <MembersDashboard />
-        </div>
-      </LayoutWrapper>
-    </div>
-  );
-};
-
-export default page;
+export default function Page() {
+	return (
+		<div className="bg-black h-full md:h-screen">
+			<div className="min-w-screen flex justify-between items-center px-5 pt-4">
+				<MembersDashboard />
+			</div>
+		</div>
+	)
+}
