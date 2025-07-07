@@ -3,7 +3,7 @@ import DashBoardMain from "@/components/dashboard/DashBoardMain";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import React from "react";
 
-const page = () => {
+export default function Page() {
   return (
     <ErrorBoundary>
       <div className="bg-black h-full md:h-screen">
@@ -41,5 +41,3 @@ const page = () => {
     </ErrorBoundary>
   );
 };
-
-export default page;

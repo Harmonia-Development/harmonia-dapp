@@ -9,32 +9,32 @@ import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import { logDev } from "@/lib/utils/logger";
 
 const AddToTreasuryModal: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentTab, setCurrentTab] = useState("transaction-details");
+	const [isOpen, setIsOpen] = useState(false)
+	const [currentTab, setCurrentTab] = useState('transaction-details')
 
-  // Form state
-  const [formData, setFormData] = useState({
-    amount: "",
-    asset: "XLM",
-    transactionType: "Deposit",
-    sourceAddress: "",
-    destinationAddress: "",
-    memo: "",
-    referenceId: "",
-    requireMultiSig: false,
-    scheduleTransaction: false,
-    scheduledDateTime: "",
-    recurringTransaction: false,
-    recurringFrequency: "Weekly",
-  });
+	// Form state
+	const [formData, setFormData] = useState({
+		amount: '',
+		asset: 'XLM',
+		transactionType: 'Deposit',
+		sourceAddress: '',
+		destinationAddress: '',
+		memo: '',
+		referenceId: '',
+		requireMultiSig: false,
+		scheduleTransaction: false,
+		scheduledDateTime: '',
+		recurringTransaction: false,
+		recurringFrequency: 'Weekly',
+	})
 
-  // Validation state
-  const [errors, setErrors] = useState({
-    amount: "",
-    asset: "",
-    sourceAddress: "",
-    destinationAddress: "",
-  });
+	// Validation state
+	const [errors, setErrors] = useState({
+		amount: '',
+		asset: '',
+		sourceAddress: '',
+		destinationAddress: '',
+	})
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -44,34 +44,30 @@ const AddToTreasuryModal: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when field is edited
-    if (name in errors) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
+		// Clear error when field is edited
+		if (name in errors) {
+			setErrors((prev) => ({ ...prev, [name]: '' }))
+		}
+	}
 
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: checked }));
-  };
+	const handleSwitchChange = (name: string, checked: boolean) => {
+		setFormData((prev) => ({ ...prev, [name]: checked }))
+	}
 
-  const validateForm = () => {
-    const newErrors = {
-      amount: !formData.amount ? "Amount is required" : "",
-      asset: !formData.asset ? "Asset is required" : "",
-      sourceAddress: !formData.sourceAddress
-        ? "Source address is required"
-        : "",
-      destinationAddress: !formData.destinationAddress
-        ? "Destination address is required"
-        : "",
-    };
+	const validateForm = () => {
+		const newErrors = {
+			amount: !formData.amount ? 'Amount is required' : '',
+			asset: !formData.asset ? 'Asset is required' : '',
+			sourceAddress: !formData.sourceAddress ? 'Source address is required' : '',
+			destinationAddress: !formData.destinationAddress ? 'Destination address is required' : '',
+		}
 
-    setErrors(newErrors);
-    return !Object.values(newErrors).some((error) => error);
-  };
+		setErrors(newErrors)
+		return !Object.values(newErrors).some((error) => error)
+	}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault()
 
     if (validateForm()) {
       logDev("Form submitted with data:", formData)
@@ -411,4 +407,4 @@ const AddToTreasuryModal: React.FC = () => {
   );
 };
 
-export default AddToTreasuryModal;
+export default AddToTreasuryModal

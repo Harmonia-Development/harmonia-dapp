@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ChartSkeleton } from '@/components/ui/loading-skeletons'
 import type React from 'react'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import type { Payload } from 'recharts/types/component/DefaultTooltipContent'
 
 type ProposalCategory = {
 	name: string
@@ -8,17 +9,26 @@ type ProposalCategory = {
 	value: number
 }
 
-interface Props {
-	data: ProposalCategory[]
+interface ProposalCategoryWithPercentage extends ProposalCategory {
+	percentage: string
 }
 
-const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
+interface Props {
+	data: ProposalCategory[]
+	isLoading?: boolean
+}
+
+const ProposalCategoryChart: React.FC<Props> = ({ data, isLoading = false }) => {
 	const total = data.reduce((sum, entry) => sum + entry.value, 0)
 
-	const dataWithPercentages = data.map((entry) => ({
+	const dataWithPercentages: ProposalCategoryWithPercentage[] = data.map((entry) => ({
 		...entry,
-		percentage: total > 0 ? ((entry.value / total) * 100).toFixed(0) : 0, // Handle case where total is 0
+		percentage: total > 0 ? ((entry.value / total) * 100).toFixed(0) : '0', // Handle case where total is 0
 	}))
+
+	if (isLoading) {
+		return <ChartSkeleton />
+	}
 
 	return (
 		<div className="w-full max-w-md mx-auto p-4 rounded-lg border border-gray-700">
@@ -46,9 +56,9 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
 						labelLine={false}
 						isAnimationActive={true}
 					>
-						{dataWithPercentages.map((entry, index) => (
+						{dataWithPercentages.map((entry) => (
 							<Cell
-								key={`cell-${index}`}
+								key={entry.name}
 								fill={entry.color}
 								stroke="#fff"
 								strokeWidth={2}
@@ -63,8 +73,8 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
 							borderRadius: '4px',
 							color: '#fff',
 						}}
-						formatter={(value: number, name: string, props: any) => [
-							`${props.payload.percentage}%`,
+						formatter={(_value: number, name: string, item: Payload<number, string>) => [
+							`${item.payload.percentage}%`,
 							name,
 						]}
 					/>
@@ -78,7 +88,7 @@ const ProposalCategoryChart: React.FC<Props> = ({ data }) => {
 								className="w-4 h-4 rounded-full"
 								style={{ backgroundColor: entry.color }}
 								aria-hidden="true"
-							></span>
+							/>
 							<span className="text-gray-300">{entry.name}</span>
 						</div>
 						<span className="text-gray-300">{entry.percentage}%</span>

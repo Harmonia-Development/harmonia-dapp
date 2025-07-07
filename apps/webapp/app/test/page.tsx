@@ -130,7 +130,7 @@ export default function Test() {
     try {
       return generateNetworkData(20, 0.15);
     } catch (error) {
-      logError("Error generating network data:", error);
+      console.error("Error generating network data:", error);
       return []; // Return empty array as fallback
     }
   });

@@ -2,7 +2,7 @@
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 import MembersDashboard from "@/components/members/MembersDashboard";
 
-const page = () => {
+export default function Page() {
   return (
     <ErrorBoundary>
       <div className="bg-black h-full md:h-screen">
@@ -13,5 +13,3 @@ const page = () => {
     </ErrorBoundary>
   );
 };
-
-export default page;
