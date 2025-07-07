@@ -38,7 +38,7 @@ export default function GovernanceWeight() {
 								<p className="text-sm font-semibold">{v.name}</p>
 								<p className="text-xs text-gray-400">{v.role}</p>
 							</div>
-							<span className="text-sm font-semibold">{v.power}</span>
+							<span className="font-bold">{v.power}</span>
 						</li>
 					))}
 				</ul>

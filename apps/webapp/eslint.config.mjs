@@ -1,5 +1,3 @@
-// biome-ignore lint/style/useNodejsImportProtocol: <explanation>
-
 import { dirname } from 'node:path'
 // biome-ignore lint/style/useNodejsImportProtocol: <explanation>
 import { fileURLToPath } from 'url'

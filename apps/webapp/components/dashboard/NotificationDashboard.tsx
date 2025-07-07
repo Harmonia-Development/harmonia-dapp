@@ -250,10 +250,7 @@ const Pagination = ({
 			<button
 				type="button"
 				onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-				disabled={currentPage === 1}
-				className={`px-4 py-2 text-sm ${
-					currentPage === 1 ? 'text-gray-600' : 'text-white hover:bg-gray-800'
-				}`}
+				className={`px-3 py-1 rounded ${currentPage === 1 ? 'bg-gray-700 text-gray-400' : 'bg-purple-600 text-white'}`}
 			>
 				Previous
 			</button>
@@ -263,9 +260,7 @@ const Pagination = ({
 						type="button"
 						key={page}
 						onClick={() => onPageChange(page)}
-						className={`w-8 h-8 text-sm flex items-center justify-center rounded-md ${
-							currentPage === page ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-800'
-						}`}
+						className={`px-3 py-1 rounded ${currentPage === page ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400'}`}
 					>
 						{page}
 					</button>
@@ -274,10 +269,7 @@ const Pagination = ({
 			<button
 				type="button"
 				onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
-				disabled={currentPage === totalPages}
-				className={`px-4 py-2 text-sm ${
-					currentPage === totalPages ? 'text-gray-600' : 'text-white hover:bg-gray-800'
-				}`}
+				className={`px-3 py-1 rounded ${currentPage === totalPages ? 'bg-gray-700 text-gray-400' : 'bg-purple-600 text-white'}`}
 			>
 				Next
 			</button>

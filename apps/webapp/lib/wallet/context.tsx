@@ -2,14 +2,23 @@
 'use client'
 
 import {
-	FREIGHTER_ID,
+	AlbedoModule,
+	FreighterModule,
+	HanaModule,
+	HotWalletModule,
+	LobstrModule,
+	RabetModule,
 	StellarWalletsKit,
 	WalletNetwork,
-	allowAllModules,
+	XBULL_ID,
+	xBullModule,
 } from '@creit.tech/stellar-wallets-kit'
+import {
+	WalletConnectAllowedMethods,
+	WalletConnectModule,
+} from '@creit.tech/stellar-wallets-kit/modules/walletconnect.module'
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
-// Types
 export interface WalletContextType {
 	kit: StellarWalletsKit
 	isConnected: boolean
@@ -32,15 +41,32 @@ interface WalletState {
 const SELECTED_WALLET_ID = 'selectedWalletId'
 
 function getSelectedWalletId(): string {
-	if (typeof window === 'undefined') return FREIGHTER_ID
-	return localStorage.getItem(SELECTED_WALLET_ID) ?? FREIGHTER_ID
+	if (typeof window === 'undefined') return XBULL_ID
+	return localStorage.getItem(SELECTED_WALLET_ID) ?? XBULL_ID
 }
 
 // Create kit instance
 const kit = new StellarWalletsKit({
 	network: WalletNetwork.TESTNET,
 	selectedWalletId: getSelectedWalletId(),
-	modules: allowAllModules(),
+	modules: [
+		new xBullModule(),
+		new AlbedoModule(),
+		new FreighterModule(),
+		new RabetModule(),
+		new WalletConnectModule({
+			url: typeof window !== 'undefined' ? window.location.origin : '',
+			projectId: '',
+			method: WalletConnectAllowedMethods.SIGN,
+			description: 'Harmonia Dapp',
+			name: 'Harmonia',
+			icons: [],
+			network: WalletNetwork.TESTNET,
+		}),
+		new LobstrModule(),
+		new HanaModule(),
+		new HotWalletModule(),
+	],
 })
 
 // Create context
@@ -83,7 +109,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 			isLoading: true,
 			error: null,
 		}))
-
 		try {
 			await kit.openModal({
 				onWalletSelected: async (option) => {
@@ -96,6 +121,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 						isConnected: true,
 						isLoading: false,
 					}))
+				},
+				onClosed: () => {
+					setState((prev: WalletState) => ({ ...prev, isLoading: false }))
 				},
 			})
 		} catch (error) {
@@ -155,7 +183,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
 	const value = {
 		kit,
-		...state,
+		isConnected: state.isConnected,
+		address: state.address,
+		isLoading: state.isLoading,
+		error: state.error,
 		connect,
 		disconnect,
 		signTransaction,

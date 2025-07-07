@@ -5,7 +5,7 @@ import Header from '@/components/dashboard/Header'
 import { Toaster } from '@/components/ui/toaster'
 import { WalletProvider } from '@/lib/wallet/context'
 import { GoogleAnalytics } from '@next/third-parties/google'
-import { ReactQueryClientProvider } from '@packages/lib/providers';
+import { ReactQueryClientProvider } from '@packages/lib/providers'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -40,6 +40,6 @@ export default function RootLayout({
 				</ReactQueryClientProvider>
 				<GoogleAnalytics gaId="G-YHNFJFWVCG" />
 			</body>
-		</html >
+		</html>
 	)
 }
