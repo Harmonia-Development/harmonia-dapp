@@ -4,6 +4,7 @@ import TransactionHistory from "@/components/treasury/ui/pages/TransactionHistor
 import { LayoutWrapper } from "@/components/ui/layout-wrapper";
 import type { Metadata } from "next";
 
+
 export const metadata: Metadata = {
   title: "Treasury | Harmonia",
   description: "Manage your DAO treasury assets and transactions",
