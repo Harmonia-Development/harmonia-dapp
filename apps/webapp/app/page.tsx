@@ -1,8 +1,9 @@
-import DAODashboard from '@/components/dashboard/DAODashboard'
-import DashBoardMain from '@/components/dashboard/DashBoardMain'
-import React from 'react'
+import DAODashboard from "@/components/dashboard/DAODashboard";
+import DashBoardMain from "@/components/dashboard/DashBoardMain";
+import { LayoutWrapper } from "@/components/ui/layout-wrapper";
+import React from "react";
 
-const page = () => {
+export default function Page() {
 	return (
 		<div className="bg-black h-full md:h-screen">
 			<div className="">
@@ -25,5 +26,3 @@ const page = () => {
 		</div>
 	)
 }
-
-export default page
