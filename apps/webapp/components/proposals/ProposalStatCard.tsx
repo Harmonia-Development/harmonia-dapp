@@ -3,8 +3,8 @@
 import { cva } from 'class-variance-authority'
 import clsx from 'clsx'
 import { motion } from 'framer-motion'
-import React from 'react'
 import type { ReactElement } from 'react'
+import React from 'react'
 
 export interface StatCardProps {
 	title: string
@@ -123,10 +123,10 @@ export const ProposalStatCard: React.FC<StatCardProps> = ({
 							)}
 							style={{ width: `${percentage}%` }}
 							role="progressbar"
+							tabIndex={0}
 							aria-valuenow={percentage}
 							aria-valuemin={0}
 							aria-valuemax={100}
-							tabIndex={0}
 						/>
 					</div>
 				</div>

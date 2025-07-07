@@ -1,9 +1,8 @@
 'use client'
 
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, type TooltipProps } from 'recharts'
-
 import type { CategoryData, PieLabelRenderProps } from '@/lib/types/analytics.types'
 import { useCallback } from 'react'
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, type TooltipProps } from 'recharts'
 
 interface ProposalCategoriesProps {
 	data: CategoryData[]

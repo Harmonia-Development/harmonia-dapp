@@ -1,4 +1,5 @@
 'use client'
+import { logDev } from '@/lib/utils/logger'
 import type React from 'react'
 import { useState } from 'react'
 
@@ -18,7 +19,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = () => {
 
 	// Handle Save Settings button click
 	const handleSaveSettings = () => {
-		console.log('Settings saved:', {
+		logDev('Settings saved:', {
 			email: emailEnabled,
 			push: pushEnabled,
 			inApp: inAppEnabled,

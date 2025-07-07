@@ -91,7 +91,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 					address,
 					isConnected: true,
 				}))
-			} catch (error) {
+			} catch (_error) {
 				// Not connected, which is fine
 				setState((prev: WalletState) => ({
 					...prev,

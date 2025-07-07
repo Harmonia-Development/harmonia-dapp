@@ -1,5 +1,6 @@
 'use client'
 
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -29,6 +30,7 @@ import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
+import { logDev } from '@/lib/utils/logger'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, Copy, Link, Mail, MessageCircle, Timer, User } from 'lucide-react'
 import { useState } from 'react'
@@ -97,7 +99,7 @@ export function InviteMemberModal({ open, onOpenChange }: InviteMemberModalProps
 	})
 
 	function onSubmit(data: InviteFormValues) {
-		console.log('Invitation data:', data)
+		logDev('Invitation data:', data)
 
 		toast({
 			title: 'Invitation created',
@@ -135,377 +137,379 @@ export function InviteMemberModal({ open, onOpenChange }: InviteMemberModalProps
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent
-				className="sm:max-w-[600px] h-[90vh] p-0 flex flex-col"
-				onPointerDownOutside={(e) => {
-					// Prevent closing the dialog when clicking outside
-					e.preventDefault()
-				}}
-			>
-				<div className="p-6 border-b">
-					<DialogHeader>
-						<DialogTitle className="text-xl font-semibold">Invite Member</DialogTitle>
-						<DialogDescription>
-							Invite new members to join your DAO as contributors.
-						</DialogDescription>
-					</DialogHeader>
-				</div>
-
-				<Tabs
-					value={activeTab}
-					onValueChange={setActiveTab}
-					className="flex flex-col flex-1 w-full overflow-hidden"
+		<ErrorBoundary>
+			<Dialog open={open} onOpenChange={onOpenChange}>
+				<DialogContent
+					className="sm:max-w-[600px] h-[90vh] p-0 flex flex-col"
+					onPointerDownOutside={(e) => {
+						// Prevent closing the dialog when clicking outside
+						e.preventDefault()
+					}}
 				>
-					<div className="px-6 pt-2">
-						<TabsList className="grid w-full grid-cols-2">
-							<TabsTrigger value="create" className="font-semibold">
-								Create Invite
-							</TabsTrigger>
-							<TabsTrigger value="share" className="font-semibold">
-								Share Invite
-							</TabsTrigger>
-						</TabsList>
+					<div className="p-6 border-b">
+						<DialogHeader>
+							<DialogTitle className="text-xl font-semibold">Invite Member</DialogTitle>
+							<DialogDescription>
+								Invite new members to join your DAO as contributors.
+							</DialogDescription>
+						</DialogHeader>
 					</div>
 
-					<div className="flex-1 overflow-hidden">
-						<TabsContent
-							value="create"
-							className="flex-1 h-full data-[state=active]:flex flex-col overflow-hidden"
-						>
-							<div className="flex-1 overflow-y-auto px-6 py-4">
-								<Form {...form}>
-									<form
-										id="invite-form"
-										onSubmit={form.handleSubmit(onSubmit)}
-										className="space-y-6"
-									>
-										<FormField
-											control={form.control}
-											name="email"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>
-														<div className="flex items-center gap-1 font-semibold">
-															<Mail className="h-4 w-4 text-gray-500" />
-															Email Address
-														</div>
-													</FormLabel>
-													<div className="ml-3">
-														<FormControl>
-															<Input
-																{...field}
-																placeholder="member@example.com"
-																className="focus-visible:ring-2 focus-visible:ring-[#723DCA]"
-															/>
-														</FormControl>
-													</div>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+					<Tabs
+						value={activeTab}
+						onValueChange={setActiveTab}
+						className="flex flex-col flex-1 w-full overflow-hidden"
+					>
+						<div className="px-6 pt-2">
+							<TabsList className="grid w-full grid-cols-2">
+								<TabsTrigger value="create" className="font-semibold">
+									Create Invite
+								</TabsTrigger>
+								<TabsTrigger value="share" className="font-semibold">
+									Share Invite
+								</TabsTrigger>
+							</TabsList>
+						</div>
 
-										<FormField
-											control={form.control}
-											name="role"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>
-														<div className="flex items-center gap-1 font-semibold">
-															<User className="h-4 w-4 text-gray-500" />
-															Role
-														</div>
-													</FormLabel>
-													<div className="ml-3">
-														<Select onValueChange={field.onChange} defaultValue={field.value}>
-															<FormControl>
-																<SelectTrigger className="focus:ring-2 focus:ring-[#723DCA] focus:ring-offset-0 border-input">
-																	<SelectValue placeholder="Select a role" />
-																</SelectTrigger>
-															</FormControl>
-															<SelectContent>
-																<SelectItem
-																	value="member"
-																	className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
-																>
-																	Member
-																</SelectItem>
-																<SelectItem
-																	value="contributor"
-																	className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
-																>
-																	Contributor
-																</SelectItem>
-																<SelectItem
-																	value="advisor"
-																	className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
-																>
-																	Advisor
-																</SelectItem>
-																<SelectItem
-																	value="admin"
-																	className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
-																>
-																	Admin
-																</SelectItem>
-															</SelectContent>
-														</Select>
-													</div>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<FormField
-											control={form.control}
-											name="message"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>
-														<div className="flex items-center gap-1 font-semibold">
-															<MessageCircle className="h-4 w-4 text-gray-500" />
-															Invitation Message
-														</div>
-													</FormLabel>
-													<div className="ml-3">
-														<FormControl>
-															<Textarea
-																placeholder="Write a personal message..."
-																className="min-h-[100px] focus-visible:ring-2 focus-visible:ring-[#723DCA]"
-																{...field}
-															/>
-														</FormControl>
-													</div>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<FormField
-											control={form.control}
-											name="referralCode"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>
-														<div className="flex items-center justify-between font-semibold">
-															<div className="flex items-center gap-1">
-																<Link className="h-4 w-4 text-gray-500" />
-																Referral Code
+						<div className="flex-1 overflow-hidden">
+							<TabsContent
+								value="create"
+								className="flex-1 h-full data-[state=active]:flex flex-col overflow-hidden"
+							>
+								<div className="flex-1 overflow-y-auto px-6 py-4">
+									<Form {...form}>
+										<form
+											id="invite-form"
+											onSubmit={form.handleSubmit(onSubmit)}
+											className="space-y-6"
+										>
+											<FormField
+												control={form.control}
+												name="email"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>
+															<div className="flex items-center gap-1 font-semibold">
+																<Mail className="h-4 w-4 text-gray-500" />
+																Email Address
 															</div>
+														</FormLabel>
+														<div className="ml-3">
+															<FormControl>
+																<Input
+																	{...field}
+																	placeholder="member@example.com"
+																	className="focus-visible:ring-2 focus-visible:ring-[#723DCA]"
+																/>
+															</FormControl>
+														</div>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
 
+											<FormField
+												control={form.control}
+												name="role"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>
+															<div className="flex items-center gap-1 font-semibold">
+																<User className="h-4 w-4 text-gray-500" />
+																Role
+															</div>
+														</FormLabel>
+														<div className="ml-3">
+															<Select onValueChange={field.onChange} defaultValue={field.value}>
+																<FormControl>
+																	<SelectTrigger className="focus:ring-2 focus:ring-[#723DCA] focus:ring-offset-0 border-input">
+																		<SelectValue placeholder="Select a role" />
+																	</SelectTrigger>
+																</FormControl>
+																<SelectContent>
+																	<SelectItem
+																		value="member"
+																		className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+																	>
+																		Member
+																	</SelectItem>
+																	<SelectItem
+																		value="contributor"
+																		className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+																	>
+																		Contributor
+																	</SelectItem>
+																	<SelectItem
+																		value="advisor"
+																		className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+																	>
+																		Advisor
+																	</SelectItem>
+																	<SelectItem
+																		value="admin"
+																		className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+																	>
+																		Admin
+																	</SelectItem>
+																</SelectContent>
+															</Select>
+														</div>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="message"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>
+															<div className="flex items-center gap-1 font-semibold">
+																<MessageCircle className="h-4 w-4 text-gray-500" />
+																Invitation Message
+															</div>
+														</FormLabel>
+														<div className="ml-3">
+															<FormControl>
+																<Textarea
+																	placeholder="Write a personal message..."
+																	className="min-h-[100px] focus-visible:ring-2 focus-visible:ring-[#723DCA]"
+																	{...field}
+																/>
+															</FormControl>
+														</div>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<FormField
+												control={form.control}
+												name="referralCode"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>
+															<div className="flex items-center justify-between font-semibold">
+																<div className="flex items-center gap-1">
+																	<Link className="h-4 w-4 text-gray-500" />
+																	Referral Code
+																</div>
+
+																<Button
+																	type="button"
+																	variant="outline"
+																	onClick={regenerateCode}
+																	className="font-semibold hover:bg-[#723DCA] hover:text-white"
+																>
+																	Generate New
+																</Button>
+															</div>
+														</FormLabel>
+														<div className="ml-3 flex items-center space-x-2">
+															<FormControl>
+																<Input
+																	{...field}
+																	disabled
+																	className="text-white disabled:text-white"
+																/>
+															</FormControl>
 															<Button
 																type="button"
 																variant="outline"
-																onClick={regenerateCode}
+																size="icon"
+																onClick={() => copyInviteLink(true)}
 																className="font-semibold hover:bg-[#723DCA] hover:text-white"
 															>
-																Generate New
+																<Copy className="h-4 w-4" />
 															</Button>
 														</div>
-													</FormLabel>
-													<div className="ml-3 flex items-center space-x-2">
-														<FormControl>
-															<Input
-																{...field}
-																disabled
-																className="text-white disabled:text-white"
-															/>
-														</FormControl>
-														<Button
-															type="button"
-															variant="outline"
-															size="icon"
-															onClick={() => copyInviteLink(true)}
-															className="font-semibold hover:bg-[#723DCA] hover:text-white"
-														>
-															<Copy className="h-4 w-4" />
-														</Button>
-													</div>
-													<FormDescription>
-														This code will be used to track the referrals from this invitation.
-													</FormDescription>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+														<FormDescription>
+															This code will be used to track the referrals from this invitation.
+														</FormDescription>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
 
-										<FormField
-											control={form.control}
-											name="expiration"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>
-														<div className="flex items-center gap-1 font-semibold">
-															<Timer className="h-4 w-4 text-gray-500" />
-															Expiration
+											<FormField
+												control={form.control}
+												name="expiration"
+												render={({ field }) => (
+													<FormItem>
+														<FormLabel>
+															<div className="flex items-center gap-1 font-semibold">
+																<Timer className="h-4 w-4 text-gray-500" />
+																Expiration
+															</div>
+														</FormLabel>
+														<div className="ml-3">
+															<Select onValueChange={field.onChange} defaultValue={field.value}>
+																<FormControl>
+																	<SelectTrigger className="focus:ring-2 focus:ring-[#723DCA] focus:ring-offset-0 border-input">
+																		<SelectValue placeholder="Select expiration" />
+																	</SelectTrigger>
+																</FormControl>
+																<SelectContent>
+																	<SelectItem
+																		value="7"
+																		className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+																	>
+																		7 days
+																	</SelectItem>
+																	<SelectItem
+																		value="14"
+																		className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+																	>
+																		14 days
+																	</SelectItem>
+																	<SelectItem
+																		value="30"
+																		className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+																	>
+																		30 days
+																	</SelectItem>
+																	<SelectItem
+																		value="never"
+																		className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+																	>
+																		Never expires
+																	</SelectItem>
+																</SelectContent>
+															</Select>
 														</div>
-													</FormLabel>
-													<div className="ml-3">
-														<Select onValueChange={field.onChange} defaultValue={field.value}>
+														<FormMessage />
+													</FormItem>
+												)}
+											/>
+
+											<div className="space-y-4 border rounded-lg p-4">
+												<h3 className="text-sm font-semibold">Options</h3>
+
+												<FormField
+													control={form.control}
+													name="trackReferral"
+													render={({ field }) => (
+														<FormItem className="flex flex-row items-center justify-between rounded-lg">
+															<div className="space-y-0.5">
+																<FormLabel className="text-base">Track Referral</FormLabel>
+																<FormDescription>
+																	Track this invitation in your referral statistics.
+																</FormDescription>
+															</div>
 															<FormControl>
-																<SelectTrigger className="focus:ring-2 focus:ring-[#723DCA] focus:ring-offset-0 border-input">
-																	<SelectValue placeholder="Select expiration" />
-																</SelectTrigger>
+																<Switch
+																	className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
+																	checked={field.value}
+																	onCheckedChange={field.onChange}
+																/>
 															</FormControl>
-															<SelectContent>
-																<SelectItem
-																	value="7"
-																	className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
-																>
-																	7 days
-																</SelectItem>
-																<SelectItem
-																	value="14"
-																	className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
-																>
-																	14 days
-																</SelectItem>
-																<SelectItem
-																	value="30"
-																	className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
-																>
-																	30 days
-																</SelectItem>
-																<SelectItem
-																	value="never"
-																	className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
-																>
-																	Never expires
-																</SelectItem>
-															</SelectContent>
-														</Select>
-													</div>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+														</FormItem>
+													)}
+												/>
 
-										<div className="space-y-4 border rounded-lg p-4">
-											<h3 className="text-sm font-semibold">Options</h3>
+												<FormField
+													control={form.control}
+													name="sendEmail"
+													render={({ field }) => (
+														<FormItem className="flex flex-row items-center justify-between rounded-lg">
+															<div className="space-y-0.5">
+																<FormLabel className="text-base">Send Email</FormLabel>
+																<FormDescription>
+																	Send invitation via email automatically.
+																</FormDescription>
+															</div>
+															<FormControl>
+																<Switch
+																	className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
+																	checked={field.value}
+																	onCheckedChange={field.onChange}
+																/>
+															</FormControl>
+														</FormItem>
+													)}
+												/>
 
-											<FormField
-												control={form.control}
-												name="trackReferral"
-												render={({ field }) => (
-													<FormItem className="flex flex-row items-center justify-between rounded-lg">
-														<div className="space-y-0.5">
-															<FormLabel className="text-base">Track Referral</FormLabel>
-															<FormDescription>
-																Track this invitation in your referral statistics.
-															</FormDescription>
-														</div>
-														<FormControl>
-															<Switch
-																className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
-																checked={field.value}
-																onCheckedChange={field.onChange}
-															/>
-														</FormControl>
-													</FormItem>
-												)}
-											/>
-
-											<FormField
-												control={form.control}
-												name="sendEmail"
-												render={({ field }) => (
-													<FormItem className="flex flex-row items-center justify-between rounded-lg">
-														<div className="space-y-0.5">
-															<FormLabel className="text-base">Send Email</FormLabel>
-															<FormDescription>
-																Send invitation via email automatically.
-															</FormDescription>
-														</div>
-														<FormControl>
-															<Switch
-																className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
-																checked={field.value}
-																onCheckedChange={field.onChange}
-															/>
-														</FormControl>
-													</FormItem>
-												)}
-											/>
-
-											<FormField
-												control={form.control}
-												name="limitedTimeOffer"
-												render={({ field }) => (
-													<FormItem className="flex flex-row items-center justify-between rounded-lg">
-														<div className="space-y-0.5">
-															<FormLabel className="text-base">Limited Time Offer</FormLabel>
-															<FormDescription>
-																Add special incentives for quick sign-ups.
-															</FormDescription>
-														</div>
-														<FormControl>
-															<Switch
-																className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
-																checked={field.value}
-																onCheckedChange={field.onChange}
-															/>
-														</FormControl>
-													</FormItem>
-												)}
-											/>
-										</div>
-									</form>
-								</Form>
-							</div>
-
-							<div className="border-t p-4 mt-auto">
-								<div className="flex justify-end gap-2">
-									<Button
-										type="button"
-										variant="outline"
-										onClick={() => onOpenChange(false)}
-										className="hover:bg-[#5b2f9e]"
-									>
-										Cancel
-									</Button>
-									<Button
-										type="submit"
-										form="invite-form"
-										className="bg-[#723DCA] text-white font-semibold rounded-md px-4 py-2 flex items-center hover:bg-[#5b2f9e]"
-									>
-										Create Invitation
-									</Button>
+												<FormField
+													control={form.control}
+													name="limitedTimeOffer"
+													render={({ field }) => (
+														<FormItem className="flex flex-row items-center justify-between rounded-lg">
+															<div className="space-y-0.5">
+																<FormLabel className="text-base">Limited Time Offer</FormLabel>
+																<FormDescription>
+																	Add special incentives for quick sign-ups.
+																</FormDescription>
+															</div>
+															<FormControl>
+																<Switch
+																	className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
+																	checked={field.value}
+																	onCheckedChange={field.onChange}
+																/>
+															</FormControl>
+														</FormItem>
+													)}
+												/>
+											</div>
+										</form>
+									</Form>
 								</div>
-							</div>
-						</TabsContent>
 
-						<TabsContent
-							value="share"
-							className="flex-1 h-full data-[state=active]:flex flex-col overflow-hidden"
-						>
-							<div className="flex-1 overflow-y-auto px-6 py-4">
-								<div className="space-y-4">
-									<h3 className="text-lg font-medium">Share Invitation Link</h3>
-									<p className="text-sm text-muted-foreground">
-										Share this unique invitation link with your new member.
-									</p>
-
-									<div className="flex items-center space-x-2">
-										<Input
-											readOnly
-											value={`http://localhost:3000/invite/${form.getValues('referralCode')}`}
-										/>
+								<div className="border-t p-4 mt-auto">
+									<div className="flex justify-end gap-2">
 										<Button
 											type="button"
 											variant="outline"
-											size="icon"
-											onClick={() => copyInviteLink()}
-											className="font-semibold hover:bg-[#723DCA] hover:text-white"
+											onClick={() => onOpenChange(false)}
+											className="hover:bg-[#5b2f9e]"
 										>
-											{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+											Cancel
+										</Button>
+										<Button
+											type="submit"
+											form="invite-form"
+											className="bg-[#723DCA] text-white font-semibold rounded-md px-4 py-2 flex items-center hover:bg-[#5b2f9e]"
+										>
+											Create Invitation
 										</Button>
 									</div>
 								</div>
-							</div>
-						</TabsContent>
-					</div>
-				</Tabs>
-			</DialogContent>
-		</Dialog>
+							</TabsContent>
+
+							<TabsContent
+								value="share"
+								className="flex-1 h-full data-[state=active]:flex flex-col overflow-hidden"
+							>
+								<div className="flex-1 overflow-y-auto px-6 py-4">
+									<div className="space-y-4">
+										<h3 className="text-lg font-medium">Share Invitation Link</h3>
+										<p className="text-sm text-muted-foreground">
+											Share this unique invitation link with your new member.
+										</p>
+
+										<div className="flex items-center space-x-2">
+											<Input
+												readOnly
+												value={`http://localhost:3000/invite/${form.getValues('referralCode')}`}
+											/>
+											<Button
+												type="button"
+												variant="outline"
+												size="icon"
+												onClick={() => copyInviteLink()}
+												className="font-semibold hover:bg-[#723DCA] hover:text-white"
+											>
+												{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+											</Button>
+										</div>
+									</div>
+								</div>
+							</TabsContent>
+						</div>
+					</Tabs>
+				</DialogContent>
+			</Dialog>
+		</ErrorBoundary>
 	)
 }

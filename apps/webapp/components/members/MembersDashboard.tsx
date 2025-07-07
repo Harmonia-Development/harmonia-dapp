@@ -5,8 +5,8 @@ import MemberStats from '@/components/members/MemberStats'
 import { UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../ui/button'
-import { WalletConnectButton } from '../wallet/connect-button'
 import { InviteMemberModal } from './modals/InviteMemberModal'
+import { ReferralStatsTabs } from './referrals/ReferralStatsTabs'
 
 const MembersDashboard: React.FC = () => {
 	const [open, setOpen] = useState(false)
@@ -18,23 +18,21 @@ const MembersDashboard: React.FC = () => {
 					<h2 className="text-white text-2xl font-bold">Members</h2>
 					<span className="text-gray-400 mt-1">Manage and explore DAO membership</span>
 				</div>
-
-				<div className="flex items-center gap-4">
-					<WalletConnectButton />
-					<Button
-						onClick={() => setOpen(true)}
-						className="bg-[#723DCA] text-white font-semibold rounded-md px-4 py-2 flex items-center hover:bg-[#5b2f9e]"
-					>
-						<UserPlus className="h-4 w-4" />
-						Invite Member
-					</Button>
-				</div>
+				<Button
+					onClick={() => setOpen(true)}
+					className="bg-[#723DCA] text-white font-semibold rounded-md px-4 py-2 flex items-center hover:bg-[#5b2f9e]"
+				>
+					<UserPlus className="h-4 w-4" />
+					Invite Member
+				</Button>
 			</div>
 
 			<MemberStats />
+
 			<div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 				<MemberDirectory />
 				<GovernanceWeight />
+				<ReferralStatsTabs />
 			</div>
 
 			<InviteMemberModal open={open} onOpenChange={setOpen} />

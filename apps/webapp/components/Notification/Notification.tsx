@@ -1,5 +1,6 @@
 import { FileText, Users, Wallet } from 'lucide-react'
 import NotificationItem from './NotificationItem'
+
 const Notifications: React.FC = () => {
 	return (
 		<div className="rounded-lg border border-[#2C2C2C] w-full">

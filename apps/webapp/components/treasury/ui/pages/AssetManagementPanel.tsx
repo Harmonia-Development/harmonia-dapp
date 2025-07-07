@@ -2,8 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PlusIcon } from 'lucide-react'
-import { ArrowDownIcon, ArrowUpIcon, BarChart4Icon, RepeatIcon } from 'lucide-react'
+import { ArrowDownIcon, ArrowUpIcon, BarChart4Icon, PlusIcon, RepeatIcon } from 'lucide-react'
 import { useState } from 'react'
 import DepositFundsModal from '../modals/DepositFundsModal'
 import RebalancePortfolioModal from '../modals/RebalancePortfolioModal'
@@ -56,8 +55,9 @@ export default function AssetManagementPanel() {
 				<TabsContent value="quick-actions" className="p-4">
 					<div className="grid grid-cols-1 gap-4">
 						{/* Deposit Funds */}
-						<div
-							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
+						<button
+							type="button"
+							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer w-full text-left"
 							onClick={() => openModal('deposit')}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter' || e.key === ' ') openModal('deposit')
@@ -70,11 +70,12 @@ export default function AssetManagementPanel() {
 								<h4 className="font-medium">Deposit Funds</h4>
 								<p className="text-sm text-muted-foreground">Add assets to the treasury</p>
 							</div>
-						</div>
+						</button>
 
 						{/* Transfer Funds */}
-						<div
-							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
+						<button
+							type="button"
+							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer w-full text-left"
 							onClick={() => openModal('transfer')}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter' || e.key === ' ') openModal('transfer')
@@ -87,11 +88,12 @@ export default function AssetManagementPanel() {
 								<h4 className="font-medium">Transfer Funds</h4>
 								<p className="text-sm text-muted-foreground">Send assets to another account</p>
 							</div>
-						</div>
+						</button>
 
 						{/* Swap Assets */}
-						<div
-							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
+						<button
+							type="button"
+							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer w-full text-left"
 							onClick={() => openModal('swap')}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter' || e.key === ' ') openModal('swap')
@@ -104,11 +106,12 @@ export default function AssetManagementPanel() {
 								<h4 className="font-medium">Swap Assets</h4>
 								<p className="text-sm text-muted-foreground">Exchange one asset for another</p>
 							</div>
-						</div>
+						</button>
 
 						{/* Rebalance Portfolio */}
-						<div
-							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer"
+						<button
+							type="button"
+							className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-accent/50 cursor-pointer w-full text-left"
 							onClick={() => openModal('rebalance')}
 							onKeyDown={(e) => {
 								if (e.key === 'Enter' || e.key === ' ') openModal('rebalance')
@@ -121,7 +124,7 @@ export default function AssetManagementPanel() {
 								<h4 className="font-medium">Rebalance Portfolio</h4>
 								<p className="text-sm text-muted-foreground">Adjust asset allocation</p>
 							</div>
-						</div>
+						</button>
 					</div>
 				</TabsContent>
 			</Tabs>

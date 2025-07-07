@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import type React from 'react'
+
 interface DashboardCardProps {
 	title: string
 	label: string

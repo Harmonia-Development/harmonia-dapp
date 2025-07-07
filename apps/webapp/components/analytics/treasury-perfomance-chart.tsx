@@ -1,8 +1,6 @@
 'use client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import type React from 'react'
-
 import { allocation, data, efficiency } from '@/lib/mock-data/treasure-mock'
 import {
 	Bar,

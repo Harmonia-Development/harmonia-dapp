@@ -44,6 +44,21 @@ const ChartContainer = React.forwardRef<
 	const uniqueId = React.useId()
 	const chartId = `chart-${id || uniqueId.replace(/:/g, '')}`
 
+	// Compute CSS variables for colors
+	const style: React.CSSProperties = {}
+	for (const [key, itemConfig] of Object.entries(config)) {
+		if ('color' in itemConfig && itemConfig.color) {
+			;(style as Record<string, string>)[`--color-${key}`] = itemConfig.color
+		} else if ('theme' in itemConfig && itemConfig.theme) {
+			// Pick theme based on document.documentElement.classList
+			const isDark =
+				typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+			const themeKey = isDark ? 'dark' : 'light'
+			const color = itemConfig.theme[themeKey as keyof typeof itemConfig.theme]
+			if (color) (style as Record<string, string>)[`--color-${key}`] = color
+		}
+	}
+
 	return (
 		<ChartContext.Provider value={{ config }}>
 			<div
@@ -53,37 +68,15 @@ const ChartContainer = React.forwardRef<
 					"flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none",
 					className,
 				)}
+				style={style}
 				{...props}
 			>
-				<ChartStyle id={chartId} config={config} />
 				<RechartsPrimitive.ResponsiveContainer>{children}</RechartsPrimitive.ResponsiveContainer>
 			</div>
 		</ChartContext.Provider>
 	)
 })
 ChartContainer.displayName = 'Chart'
-
-const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-	const colorConfig = Object.entries(config).filter(([, config]) => config.theme || config.color)
-
-	if (!colorConfig.length) {
-		return null
-	}
-
-	return (
-		<style>
-			{Object.entries(THEMES)
-				.map(
-					([theme, css]) => `
-						.${theme} {
-							${css}
-						}
-					`,
-				)
-				.join('\n')}
-		</style>
-	)
-}
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
@@ -312,11 +305,4 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
 	return configLabelKey in config ? config[configLabelKey] : config[key as keyof typeof config]
 }
 
-export {
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-	ChartLegend,
-	ChartLegendContent,
-	ChartStyle,
-}
+export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent }

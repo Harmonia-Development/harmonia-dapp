@@ -1,10 +1,11 @@
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { ProposalCalendar } from '@/components/proposals/ProposalCalendar'
 import { ProposalList } from '@/components/proposals/ProposalList'
 import { ProposalStats } from '@/components/proposals/ProposalStats'
 
 export default function ProposalsPage() {
 	return (
-		<>
+		<ErrorBoundary>
 			<main className="min-h-screen bg-background">
 				<div className="max-w-7xl mx-auto">
 					<div className="container mx-auto py-6">
@@ -14,14 +15,20 @@ export default function ProposalsPage() {
 						</p>
 					</div>
 					<div className="container mx-auto py-3">
-						<ProposalStats />
+						<ErrorBoundary>
+							<ProposalStats />
+						</ErrorBoundary>
 					</div>
-					<ProposalList />
+					<ErrorBoundary>
+						<ProposalList />
+					</ErrorBoundary>
 				</div>
 				<div>
-					<ProposalCalendar events={[]} />
+					<ErrorBoundary>
+						<ProposalCalendar events={[]} />
+					</ErrorBoundary>
 				</div>
 			</main>
-		</>
+		</ErrorBoundary>
 	)
 }

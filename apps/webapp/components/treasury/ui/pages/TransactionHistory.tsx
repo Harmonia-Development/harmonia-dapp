@@ -8,13 +8,19 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { TableSkeleton } from '@/components/ui/loading-skeletons'
+import { Skeleton } from '@/components/ui/skeleton'
 import { ChevronDownIcon, DownloadIcon, FilterIcon, SearchIcon } from 'lucide-react'
 import { useTransactionHistory } from '../../hooks/useTransactionHistory.hook'
 import { AddToTreasuryButton } from '../../modals'
 import TransactionPagination from '../components/TransactionPagination'
 import TransactionTable from '../tables/TransactionTable'
 
-export default function TransactionHistory() {
+interface TransactionHistoryProps {
+	isLoading?: boolean
+}
+
+export default function TransactionHistory({ isLoading = false }: TransactionHistoryProps) {
 	const {
 		searchQuery,
 		sortOrder,
@@ -31,6 +37,32 @@ export default function TransactionHistory() {
 		setSelectedStatus,
 		setSortOrder,
 	} = useTransactionHistory()
+
+	if (isLoading) {
+		return (
+			<div className="rounded-lg border bg-card text-card-foreground shadow">
+				<div className="flex flex-row items-center justify-between p-6">
+					<div>
+						<Skeleton className="h-6 w-40 mb-2" />
+						<Skeleton className="h-3 w-48" />
+					</div>
+					<div className="flex flex-col sm:flex-row items-center gap-4">
+						<Skeleton className="h-10 w-10" />
+						<Skeleton className="h-10 w-32" />
+					</div>
+				</div>
+
+				<div className="p-6 pt-0">
+					<div className="flex items-center gap-4 py-4">
+						<Skeleton className="h-10 flex-1" />
+						<Skeleton className="h-10 w-10" />
+					</div>
+
+					<TableSkeleton rows={8} />
+				</div>
+			</div>
+		)
+	}
 
 	return (
 		<div className="rounded-lg border bg-card text-card-foreground shadow">

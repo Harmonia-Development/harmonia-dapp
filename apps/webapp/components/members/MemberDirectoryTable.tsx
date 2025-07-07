@@ -60,7 +60,7 @@ export default function MemberDirectory() {
 					</thead>
 					<tbody>
 						{members.map((m) => (
-							<tr key={m.id} className="border-b border-gray-700">
+							<tr key={m.name} className="border-b border-gray-700">
 								<td className="p-2">{m.name}</td>
 								<td className="p-2">{m.role}</td>
 								<td className="p-2">{m.joinDate}</td>

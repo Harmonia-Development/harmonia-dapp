@@ -1,20 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import {
-	Building,
-	DollarSign,
-	FileText,
-	Menu,
-	MessageSquare,
-	MoreVertical,
-	RefreshCw,
-	Search,
-	Settings,
-	ShieldAlert,
-	User,
-	Users,
-} from 'lucide-react'
+import { Building, DollarSign, Menu, MoreVertical, Search, Settings, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 // Types

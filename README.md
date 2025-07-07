@@ -50,6 +50,8 @@ Harmonia/
 │   │   └── README.md       # Webapp documentation
 ├── docs/                   # Documentation
 ├── node_modules/           # Dependencies
+├── packages/               # Shared Utilities
+│   └── lib                 # Shared logic, clients, hooks, and utilities across apps
 ├── services/               # Backend services
 │   ├── supabase/           # API services
 │   └── README.md           # Services documentation
@@ -77,8 +79,8 @@ Ensure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/harmonia.git
-   cd harmonia
+   git clone https://github.com/your-username/harmonia-dapp.git
+   cd harmonia-dapp
    ```
 
 2. Install dependencies:

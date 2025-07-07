@@ -1,4 +1,5 @@
 'use client'
+import { logDev } from '@/lib/utils/logger'
 import {
 	BarChart3,
 	Bell,
@@ -36,7 +37,7 @@ const Header: React.FC = () => {
 
 	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault()
-		console.log('Searching for:', searchQuery)
+		logDev('Searching for:', searchQuery)
 		// Implement your search logic here
 		setSearchQuery('')
 		setIsSearchExpanded(false)
