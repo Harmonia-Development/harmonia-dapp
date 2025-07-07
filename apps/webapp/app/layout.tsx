@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
+import Header from '@/components/dashboard/Header'
 import { Toaster } from '@/components/ui/toaster'
 import { WalletProvider } from '@/lib/wallet/context'
-import Header from '@/components/dashboard/Header'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { ReactQueryClientProvider } from '@packages/lib/providers';
 

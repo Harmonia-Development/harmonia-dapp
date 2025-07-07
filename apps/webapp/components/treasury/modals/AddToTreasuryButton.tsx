@@ -1,8 +1,8 @@
-import React from "react";
-import AddToTreasuryModal from "./AddToTreasuryModal";
+import type React from 'react'
+import AddToTreasuryModal from './AddToTreasuryModal'
 
 const AddToTreasuryButton: React.FC = () => {
-  return <AddToTreasuryModal />;
-};
+	return <AddToTreasuryModal />
+}
 
-export default AddToTreasuryButton;
+export default AddToTreasuryButton
