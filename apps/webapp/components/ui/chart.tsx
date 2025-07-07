@@ -6,15 +6,15 @@ import * as RechartsPrimitive from 'recharts'
 import { cn } from '@/lib/utils'
 
 // Format: { THEME_NAME: CSS_SELECTOR }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const THEMES = { light: '', dark: '.dark' } as const
+type Themes = { light: ''; dark: '.dark' }
+
 export type ChartConfig = {
 	[k in string]: {
 		label?: React.ReactNode
 		icon?: React.ComponentType
 	} & (
 		| { color?: string; theme?: never }
-		| { color?: never; theme: Record<keyof typeof THEMES, string> }
+		| { color?: never; theme: Record<keyof Themes, string> }
 	)
 }
 

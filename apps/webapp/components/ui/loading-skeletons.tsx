@@ -36,42 +36,36 @@ export function ChartSkeleton() {
 
 // Table skeleton for data tables
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
-  const headerKeys = ["header-a", "header-b", "header-c", "header-d"];
-  return (
-    <div className="space-y-3">
-      <div className="flex justify-between items-center">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-10 w-24" />
-      </div>
-      <div className="border border-gray-700 rounded-lg">
-        <div className="p-4 border-b border-gray-700">
-          <div className="grid grid-cols-4 gap-4">
-            {headerKeys.map((key) => (
-              <Skeleton key={key} className="h-4 w-20" />
-            ))}
-          </div>
-        </div>
-        {Array.from({ length: rows }).map((_, i) => {
-          const rowKey = `row-${i}-${Date.now()}`;
-          return (
-            <div
-              key={rowKey}
-              className="p-4 border-b border-gray-700 last:border-b-0"
-            >
-              <div className="grid grid-cols-4 gap-4">
-                {headerKeys.map((headerKey) => (
-                  <Skeleton
-                    key={`cell-${rowKey}-${headerKey}`}
-                    className="h-4 w-full"
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+	const headerKeys = ['header-a', 'header-b', 'header-c', 'header-d']
+	return (
+		<div className="space-y-3">
+			<div className="flex justify-between items-center">
+				<Skeleton className="h-8 w-32" />
+				<Skeleton className="h-10 w-24" />
+			</div>
+			<div className="border border-gray-700 rounded-lg">
+				<div className="p-4 border-b border-gray-700">
+					<div className="grid grid-cols-4 gap-4">
+						{headerKeys.map((key) => (
+							<Skeleton key={key} className="h-4 w-20" />
+						))}
+					</div>
+				</div>
+				{Array.from({ length: rows }).map((_, i) => {
+					const rowKey = `row-${i}-${Date.now()}`
+					return (
+						<div key={rowKey} className="p-4 border-b border-gray-700 last:border-b-0">
+							<div className="grid grid-cols-4 gap-4">
+								{headerKeys.map((headerKey) => (
+									<Skeleton key={`cell-${rowKey}-${headerKey}`} className="h-4 w-full" />
+								))}
+							</div>
+						</div>
+					)
+				})}
+			</div>
+		</div>
+	)
 }
 
 // Proposal card skeleton
@@ -134,12 +128,12 @@ export function StatsSkeleton() {
 export function ModalSkeleton() {
   return (
     <div className="p-6 space-y-4">
-      <Skeleton className="h-6 w-32" />
-      <div className="space-y-3">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-10 w-full" />
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-6 w-32" />
+        <Skeleton className="h-6 w-6" />
       </div>
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-3/4" />
       <div className="flex justify-end gap-2">
         <Skeleton className="h-10 w-20" />
         <Skeleton className="h-10 w-20" />
