@@ -81,6 +81,7 @@ const Header: React.FC = () => {
 			{/* Right side - Search, Notifications, Theme Toggle, Profile */}
 			<div className="flex items-center space-x-2">
 				{/* Search */}
+				<WalletConnectButton />
 				<div className="relative">
 					<form onSubmit={handleSearch} className="flex items-center">
 						{isSearchExpanded ? (
