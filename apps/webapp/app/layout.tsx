@@ -4,8 +4,11 @@ import './globals.css'
 import Header from '@/components/dashboard/Header'
 import { Toaster } from '@/components/ui/toaster'
 import { WalletProvider } from '@/lib/wallet/context'
+import { TrustlessWorkProvider } from './trustless-work-provider'
+import Header from '@/components/dashboard/Header'
 import { GoogleAnalytics } from '@next/third-parties/google'
 import { ReactQueryClientProvider } from '@packages/lib/providers'
+
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -32,11 +35,13 @@ export default function RootLayout({
 		<html lang="en" className="dark">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<ReactQueryClientProvider>
+				<TrustlessWorkProvider>
 					<WalletProvider>
 						<Header />
 						{children}
 						<Toaster />
 					</WalletProvider>
+				</TrustlessWorkProvider>
 				</ReactQueryClientProvider>
 				<GoogleAnalytics gaId="G-YHNFJFWVCG" />
 			</body>
