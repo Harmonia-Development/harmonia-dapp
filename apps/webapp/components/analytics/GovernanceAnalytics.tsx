@@ -1,6 +1,4 @@
 "use client";
-import React from "react";
-
 import {
   Card,
   CardContent,
@@ -9,8 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { memberData, data, votingData } from "@/lib/mock-data/governance-mock";
-
+import { data, memberData, votingData } from "@/lib/mock-data/governance-mock";
 import {
   Bar,
   BarChart,
@@ -24,7 +21,6 @@ import {
   YAxis,
 } from "recharts";
 import { VotingDistribution } from "./VotingDistribution";
-
 const CustomTooltip = ({
   active,
   payload,

@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import type React from 'react'
+
 interface DashboardCardProps {
 	title: string
 	label: string
@@ -46,12 +47,12 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
 				{Icon && (
 					<div
 						className={cn(
-							'p-1.5 sm:p-2 rounded-full',
+							'flex items-center justify-center rounded-full',
 							iconBackground,
-							'flex items-center justify-center',
+							'w-8 h-8 sm:w-10 sm:h-10',
+							className,
 						)}
-					>
-					</div>
+					/>
 				)}
 			</div>
 

@@ -2,14 +2,23 @@
 'use client'
 
 import {
-	FREIGHTER_ID,
+	AlbedoModule,
+	FreighterModule,
+	HanaModule,
+	HotWalletModule,
+	LobstrModule,
+	RabetModule,
 	StellarWalletsKit,
 	WalletNetwork,
-	allowAllModules,
+	XBULL_ID,
+	xBullModule,
 } from '@creit.tech/stellar-wallets-kit'
+import {
+	WalletConnectAllowedMethods,
+	WalletConnectModule,
+} from '@creit.tech/stellar-wallets-kit/modules/walletconnect.module'
 import { type ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
-// Types
 export interface WalletContextType {
 	kit: StellarWalletsKit
 	isConnected: boolean
@@ -32,15 +41,32 @@ interface WalletState {
 const SELECTED_WALLET_ID = 'selectedWalletId'
 
 function getSelectedWalletId(): string {
-	if (typeof window === 'undefined') return FREIGHTER_ID
-	return localStorage.getItem(SELECTED_WALLET_ID) ?? FREIGHTER_ID
+	if (typeof window === 'undefined') return XBULL_ID
+	return localStorage.getItem(SELECTED_WALLET_ID) ?? XBULL_ID
 }
 
 // Create kit instance
 const kit = new StellarWalletsKit({
 	network: WalletNetwork.TESTNET,
 	selectedWalletId: getSelectedWalletId(),
-	modules: allowAllModules(),
+	modules: [
+		new xBullModule(),
+		new AlbedoModule(),
+		new FreighterModule(),
+		new RabetModule(),
+		new WalletConnectModule({
+			url: typeof window !== 'undefined' ? window.location.origin : '',
+			projectId: '',
+			method: WalletConnectAllowedMethods.SIGN,
+			description: 'Harmonia Dapp',
+			name: 'Harmonia',
+			icons: [],
+			network: WalletNetwork.TESTNET,
+		}),
+		new LobstrModule(),
+		new HanaModule(),
+		new HotWalletModule(),
+	],
 })
 
 // Create context
@@ -65,7 +91,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 					address,
 					isConnected: true,
 				}))
-			} catch (error) {
+			} catch (_error) {
 				// Not connected, which is fine
 				setState((prev: WalletState) => ({
 					...prev,
@@ -78,8 +104,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 	}, [])
 
 	const connect = async () => {
-		setState((prev: WalletState) => ({ ...prev, isLoading: true, error: null }))
-
+		setState((prev: WalletState) => ({
+			...prev,
+			isLoading: true,
+			error: null,
+		}))
 		try {
 			await kit.openModal({
 				onWalletSelected: async (option) => {
@@ -93,6 +122,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 						isLoading: false,
 					}))
 				},
+				onClosed: () => {
+					setState((prev: WalletState) => ({ ...prev, isLoading: false }))
+				},
 			})
 		} catch (error) {
 			setState((prev: WalletState) => ({
@@ -104,7 +136,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 	}
 
 	const disconnect = async () => {
-		setState((prev: WalletState) => ({ ...prev, isLoading: true, error: null }))
+		setState((prev: WalletState) => ({
+			...prev,
+			isLoading: true,
+			error: null,
+		}))
 
 		try {
 			await kit.disconnect()
@@ -125,7 +161,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 	}
 
 	const signTransaction = async (xdr: string) => {
-		setState((prev: WalletState) => ({ ...prev, isLoading: true, error: null }))
+		setState((prev: WalletState) => ({
+			...prev,
+			isLoading: true,
+			error: null,
+		}))
 
 		try {
 			const result = await kit.signTransaction(xdr)
@@ -143,7 +183,10 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
 	const value = {
 		kit,
-		...state,
+		isConnected: state.isConnected,
+		address: state.address,
+		isLoading: state.isLoading,
+		error: state.error,
 		connect,
 		disconnect,
 		signTransaction,

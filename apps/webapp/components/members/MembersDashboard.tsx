@@ -6,6 +6,7 @@ import { UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../ui/button'
 import { InviteMemberModal } from './modals/InviteMemberModal'
+import { ReferralStatsTabs } from './referrals/ReferralStatsTabs'
 
 const MembersDashboard: React.FC = () => {
 	const [open, setOpen] = useState(false)
@@ -27,9 +28,11 @@ const MembersDashboard: React.FC = () => {
 			</div>
 
 			<MemberStats />
+
 			<div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 				<MemberDirectory />
 				<GovernanceWeight />
+				<ReferralStatsTabs />
 			</div>
 
 			<InviteMemberModal open={open} onOpenChange={setOpen} />

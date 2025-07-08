@@ -1,0 +1,37 @@
+{
+	"name": "@services/supabase",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"description": "supabase module for harmonia",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"scripts": {
+		"gen:remote": "bun run types:remote && bun run schemas",
+		"gen": "bun run types && bun run schemas",
+		"types:remote": "supabase gen types typescript --project-id ${PROJECT_ID} > src/database.types.ts",
+		"types": "supabase gen types typescript --local > src/database.types.ts",
+		"schemas": "supabase-to-zod --input src/database.types.ts --output src/database.schemas.ts",
+		"db:pull": "supabase db pull --local",
+		"db:push": "supabase db push --local",
+		"start": "supabase start",
+		"stop": "supabase stop",
+		"reset": "supabase db reset",
+		"migrate": "supabase migration up",
+		"status": "supabase status",
+		"gen:drizzle": "drizzle-kit generate --name",
+		"gen:supabase": "supabase migration new"
+	},
+	"author": "harmonia",
+	"license": "MIT",
+	"devDependencies": {
+		"drizzle-kit": "^0.31.4",
+		"supabase": "^2.0.0",
+		"supabase-to-zod": "^1.0.7"
+	},
+	"dependencies": {
+		"dotenv": "^17.0.1",
+		"drizzle-orm": "^0.44.2",
+		"postgres": "^3.4.7"
+	}
+}
