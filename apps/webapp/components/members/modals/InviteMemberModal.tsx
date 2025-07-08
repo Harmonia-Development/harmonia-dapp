@@ -516,8 +516,10 @@ export function InviteMemberModal({ open, onOpenChange }: InviteMemberModalProps
                         </FormItem>
                       )}
                     />
+
                     <fieldset className="space-y-4 border rounded-lg p-4">
                       <legend className="text-sm font-semibold px-2">Options</legend>
+
                       <FormField
                         control={form.control}
                         name="trackReferral"

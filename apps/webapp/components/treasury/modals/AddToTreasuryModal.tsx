@@ -1,74 +1,92 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { X, Calendar, Plus, AlertCircle } from "lucide-react"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { X, Calendar, Plus, AlertCircle } from "lucide-react";
 
 // Form data interface
 interface FormData {
-  amount: string
-  asset: string
-  transactionType: string
-  sourceAddress: string
-  destinationAddress: string
-  memo: string
-  referenceId: string
-  requireMultiSig: boolean
-  scheduleTransaction: boolean
-  scheduledDateTime: string
-  recurringTransaction: boolean
-  recurringFrequency: string
+  amount: string;
+  asset: string;
+  transactionType: string;
+  sourceAddress: string;
+  destinationAddress: string;
+  memo: string;
+  referenceId: string;
+  requireMultiSig: boolean;
+  scheduleTransaction: boolean;
+  scheduledDateTime: string;
+  recurringTransaction: boolean;
+  recurringFrequency: string;
 }
 
 // Type definitions
-type Errors = Partial<Record<keyof FormData, string>>
-type Touched = Partial<Record<keyof FormData, boolean>>
+type Errors = Partial<Record<keyof FormData, string>>;
+type Touched = Partial<Record<keyof FormData, boolean>>;
 
 // Move this function outside the component
-const validateField = (name: keyof FormData, value: string | boolean, formData: FormData): string => {
+const validateField = (
+  name: keyof FormData,
+  value: string | boolean,
+  formData: FormData
+): string => {
   switch (name) {
     case "amount":
-      if (!value) return "Amount is required"
-      if (typeof value === "string" && (isNaN(Number.parseFloat(value)) || Number.parseFloat(value) <= 0))
-        return "Amount must be a positive number"
-      if (typeof value === "string" && Number.parseFloat(value) > 1000000) return "Amount cannot exceed 1,000,000"
-      return ""
+      if (!value) return "Amount is required";
+      if (
+        typeof value === "string" &&
+        (isNaN(Number.parseFloat(value)) || Number.parseFloat(value) <= 0)
+      )
+        return "Amount must be a positive number";
+      if (typeof value === "string" && Number.parseFloat(value) > 1000000)
+        return "Amount cannot exceed 1,000,000";
+      return "";
     case "asset":
-      if (!value) return "Asset is required"
-      return ""
+      if (!value) return "Asset is required";
+      return "";
     case "sourceAddress":
-      if (!value) return "Source address is required"
-      if (typeof value === "string" && value.length < 10) return "Source address must be at least 10 characters"
+      if (!value) return "Source address is required";
+      if (typeof value === "string" && value.length < 10)
+        return "Source address must be at least 10 characters";
       if (typeof value === "string" && !/^[a-zA-Z0-9]+$/.test(value))
-        return "Source address contains invalid characters"
-      return ""
+        return "Source address contains invalid characters";
+      return "";
     case "destinationAddress":
-      if (!value) return "Destination address is required"
-      if (typeof value === "string" && value.length < 10) return "Destination address must be at least 10 characters"
+      if (!value) return "Destination address is required";
+      if (typeof value === "string" && value.length < 10)
+        return "Destination address must be at least 10 characters";
       if (typeof value === "string" && !/^[a-zA-Z0-9]+$/.test(value))
-        return "Destination address contains invalid characters"
-      if (value === formData.sourceAddress) return "Destination address cannot be the same as source address"
-      return ""
+        return "Destination address contains invalid characters";
+      if (value === formData.sourceAddress)
+        return "Destination address cannot be the same as source address";
+      return "";
     case "scheduledDateTime":
-      if (formData.scheduleTransaction && !value) return "Date and time are required for scheduled transactions"
-      if (formData.scheduleTransaction && typeof value === "string" && new Date(value) <= new Date())
-        return "Scheduled date must be in the future"
-      return ""
+      if (formData.scheduleTransaction && !value)
+        return "Date and time are required for scheduled transactions";
+      if (
+        formData.scheduleTransaction &&
+        typeof value === "string" &&
+        new Date(value) <= new Date()
+      )
+        return "Scheduled date must be in the future";
+      return "";
     case "memo":
-      if (typeof value === "string" && value.length > 500) return "Memo cannot exceed 500 characters"
-      return ""
+      if (typeof value === "string" && value.length > 500)
+        return "Memo cannot exceed 500 characters";
+      return "";
     case "referenceId":
-      if (typeof value === "string" && value.length > 100) return "Reference ID cannot exceed 100 characters"
-      return ""
+      if (typeof value === "string" && value.length > 100)
+        return "Reference ID cannot exceed 100 characters";
+      return "";
     default:
-      return ""
+      return "";
   }
-}
+};
 
 export default function AddToTreasuryModal() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [currentTab, setCurrentTab] = useState("transaction-details")
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentTab, setCurrentTab] = useState("transaction-details");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
@@ -84,53 +102,61 @@ export default function AddToTreasuryModal() {
     scheduledDateTime: "",
     recurringTransaction: false,
     recurringFrequency: "Weekly",
-  })
+  });
 
   // Validation state
-  const [errors, setErrors] = useState<Errors>({})
-  const [touched, setTouched] = useState<Touched>({})
+  const [errors, setErrors] = useState<Errors>({});
+  const [touched, setTouched] = useState<Touched>({});
 
   // Real-time validation
   useEffect(() => {
-    const newErrors: Errors = {}
+    const newErrors: Errors = {};
     Object.keys(formData).forEach((key) => {
-      const fieldKey = key as keyof FormData
+      const fieldKey = key as keyof FormData;
       if (touched[fieldKey]) {
-        const error = validateField(fieldKey, formData[fieldKey], formData)
-        if (error) newErrors[fieldKey] = error
+        const error = validateField(fieldKey, formData[fieldKey], formData);
+        if (error) newErrors[fieldKey] = error;
       }
-    })
-    setErrors(newErrors)
-  }, [formData, touched])
+    });
+    setErrors(newErrors);
+  }, [formData, touched]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
     // Mark field as touched
-    setTouched((prev) => ({ ...prev, [name]: true }))
-  }
+    setTouched((prev) => ({ ...prev, [name]: true }));
+  };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name } = e.target
-    setTouched((prev) => ({ ...prev, [name as keyof FormData]: true }))
-  }
+  const handleBlur = (
+    e: React.FocusEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name as keyof FormData]: true }));
+  };
 
   const handleSwitchChange = (name: keyof FormData, checked: boolean): void => {
-    setFormData((prev) => ({ ...prev, [name]: checked }))
+    setFormData((prev) => ({ ...prev, [name]: checked }));
     // Clear related fields when switches are turned off
     if (!checked) {
       if (name === "scheduleTransaction") {
-        setFormData((prev) => ({ ...prev, scheduledDateTime: "" }))
-        setTouched((prev) => ({ ...prev, scheduledDateTime: false }))
+        setFormData((prev) => ({ ...prev, scheduledDateTime: "" }));
+        setTouched((prev) => ({ ...prev, scheduledDateTime: false }));
       }
       if (name === "recurringTransaction") {
-        setFormData((prev) => ({ ...prev, recurringFrequency: "Weekly" }))
+        setFormData((prev) => ({ ...prev, recurringFrequency: "Weekly" }));
       }
     }
-  }
+  };
 
   const validateAllFields = () => {
-    const newErrors: Errors = {}
+    const newErrors: Errors = {};
     const fieldsToValidate: (keyof FormData)[] = [
       "amount",
       "asset",
@@ -138,42 +164,44 @@ export default function AddToTreasuryModal() {
       "destinationAddress",
       "memo",
       "referenceId",
-    ]
+    ];
 
     // Add conditional validation fields
     if (formData.scheduleTransaction) {
-      fieldsToValidate.push("scheduledDateTime")
+      fieldsToValidate.push("scheduledDateTime");
     }
 
     fieldsToValidate.forEach((field) => {
-      const error = validateField(field, formData[field], formData)
-      if (error) newErrors[field] = error
-    })
+      const error = validateField(field, formData[field], formData);
+      if (error) newErrors[field] = error;
+    });
 
-    setErrors(newErrors)
+    setErrors(newErrors);
 
     // Mark all fields as touched
-    const allTouched: Touched = {}
+    const allTouched: Touched = {};
     fieldsToValidate.forEach((field) => {
-      allTouched[field] = true
-    })
-    setTouched(allTouched)
+      allTouched[field] = true;
+    });
+    setTouched(allTouched);
 
-    return Object.keys(newErrors).length === 0
-  }
+    return Object.keys(newErrors).length === 0;
+  };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault()
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
+    e.preventDefault();
 
     if (!validateAllFields()) {
-      return
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // Simulate API call
-      await new Promise<void>((resolve) => setTimeout(resolve, 2000))
-      console.log("Form submitted with data:", formData)
+      await new Promise<void>((resolve) => setTimeout(resolve, 2000));
+      console.log("Form submitted with data:", formData);
 
       // Reset form after successful submission
       setFormData({
@@ -189,25 +217,26 @@ export default function AddToTreasuryModal() {
         scheduledDateTime: "",
         recurringTransaction: false,
         recurringFrequency: "Weekly",
-      })
-      setErrors({})
-      setTouched({})
-      setIsOpen(false)
+      });
+      setErrors({});
+      setTouched({});
+      setIsOpen(false);
     } catch (error) {
-      console.error("Submission error:", error)
+      console.error("Submission error:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const isFormValid =
     Object.keys(errors).length === 0 &&
     formData.amount &&
     formData.asset &&
     formData.sourceAddress &&
-    formData.destinationAddress
+    formData.destinationAddress;
 
-  const getFieldErrorId = (fieldName: keyof FormData): string => `${fieldName}-error`
+  const getFieldErrorId = (fieldName: keyof FormData): string =>
+    `${fieldName}-error`;
 
   return (
     <div className="p-8 bg-gray-900 min-h-screen">
@@ -227,7 +256,9 @@ export default function AddToTreasuryModal() {
             {/* Header */}
             <div className="p-6 pb-4 border-b border-gray-800">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-white">Add to Treasury</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  Add to Treasury
+                </h2>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="text-gray-400 hover:text-white transition-colors"
@@ -270,7 +301,10 @@ export default function AddToTreasuryModal() {
                   <div className="space-y-4">
                     {/* Amount and Asset */}
                     <div className="space-y-2">
-                      <label htmlFor="amount" className="block text-sm font-medium text-gray-300">
+                      <label
+                        htmlFor="amount"
+                        className="block text-sm font-medium text-gray-300"
+                      >
                         Amount <span className="text-red-500">*</span>
                       </label>
                       <div className="flex">
@@ -288,7 +322,11 @@ export default function AddToTreasuryModal() {
                           step="0.01"
                           min="0"
                           aria-invalid={!!errors.amount}
-                          aria-describedby={errors.amount ? getFieldErrorId("amount") : undefined}
+                          aria-describedby={
+                            errors.amount
+                              ? getFieldErrorId("amount")
+                              : undefined
+                          }
                         />
                         <select
                           id="asset"
@@ -300,7 +338,9 @@ export default function AddToTreasuryModal() {
                             errors.asset ? "border-red-500" : "border-gray-700"
                           } border-l-0 rounded-r-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500`}
                           aria-invalid={!!errors.asset}
-                          aria-describedby={errors.asset ? getFieldErrorId("asset") : undefined}
+                          aria-describedby={
+                            errors.asset ? getFieldErrorId("asset") : undefined
+                          }
                         >
                           <option value="XLM">XLM</option>
                           <option value="USDC">USDC</option>
@@ -309,7 +349,10 @@ export default function AddToTreasuryModal() {
                         </select>
                       </div>
                       {errors.amount && (
-                        <p id={getFieldErrorId("amount")} className="text-xs text-red-500 flex items-center gap-1">
+                        <p
+                          id={getFieldErrorId("amount")}
+                          className="text-xs text-red-500 flex items-center gap-1"
+                        >
                           <AlertCircle className="h-3 w-3" />
                           {errors.amount}
                         </p>
@@ -318,7 +361,10 @@ export default function AddToTreasuryModal() {
 
                     {/* Transaction Type */}
                     <div className="space-y-2">
-                      <label htmlFor="transactionType" className="block text-sm font-medium text-gray-300">
+                      <label
+                        htmlFor="transactionType"
+                        className="block text-sm font-medium text-gray-300"
+                      >
                         Transaction Type
                       </label>
                       <select
@@ -337,7 +383,10 @@ export default function AddToTreasuryModal() {
 
                     {/* Source Address */}
                     <div className="space-y-2">
-                      <label htmlFor="sourceAddress" className="block text-sm font-medium text-gray-300">
+                      <label
+                        htmlFor="sourceAddress"
+                        className="block text-sm font-medium text-gray-300"
+                      >
                         Source Address <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -348,11 +397,17 @@ export default function AddToTreasuryModal() {
                         onChange={handleInputChange}
                         onBlur={handleBlur}
                         className={`w-full bg-gray-900 border ${
-                          errors.sourceAddress ? "border-red-500" : "border-gray-700"
+                          errors.sourceAddress
+                            ? "border-red-500"
+                            : "border-gray-700"
                         } rounded-md px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500`}
                         placeholder="0x..."
                         aria-invalid={!!errors.sourceAddress}
-                        aria-describedby={errors.sourceAddress ? getFieldErrorId("sourceAddress") : undefined}
+                        aria-describedby={
+                          errors.sourceAddress
+                            ? getFieldErrorId("sourceAddress")
+                            : undefined
+                        }
                       />
                       {errors.sourceAddress && (
                         <p
@@ -367,8 +422,12 @@ export default function AddToTreasuryModal() {
 
                     {/* Destination Address */}
                     <div className="space-y-2">
-                      <label htmlFor="destinationAddress" className="block text-sm font-medium text-gray-300">
-                        Destination Address <span className="text-red-500">*</span>
+                      <label
+                        htmlFor="destinationAddress"
+                        className="block text-sm font-medium text-gray-300"
+                      >
+                        Destination Address{" "}
+                        <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -378,11 +437,17 @@ export default function AddToTreasuryModal() {
                         onChange={handleInputChange}
                         onBlur={handleBlur}
                         className={`w-full bg-gray-900 border ${
-                          errors.destinationAddress ? "border-red-500" : "border-gray-700"
+                          errors.destinationAddress
+                            ? "border-red-500"
+                            : "border-gray-700"
                         } rounded-md px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500`}
                         placeholder="0x..."
                         aria-invalid={!!errors.destinationAddress}
-                        aria-describedby={errors.destinationAddress ? getFieldErrorId("destinationAddress") : undefined}
+                        aria-describedby={
+                          errors.destinationAddress
+                            ? getFieldErrorId("destinationAddress")
+                            : undefined
+                        }
                       />
                       {errors.destinationAddress && (
                         <p
@@ -397,7 +462,10 @@ export default function AddToTreasuryModal() {
 
                     {/* Memo */}
                     <div className="space-y-2">
-                      <label htmlFor="memo" className="block text-sm font-medium text-gray-300">
+                      <label
+                        htmlFor="memo"
+                        className="block text-sm font-medium text-gray-300"
+                      >
                         Memo / Description
                       </label>
                       <textarea
@@ -413,12 +481,17 @@ export default function AddToTreasuryModal() {
                         placeholder="Add a description for this transaction..."
                         maxLength={500}
                         aria-invalid={!!errors.memo}
-                        aria-describedby={errors.memo ? getFieldErrorId("memo") : undefined}
+                        aria-describedby={
+                          errors.memo ? getFieldErrorId("memo") : undefined
+                        }
                       />
                       <div className="flex justify-between text-xs text-gray-400">
                         <span>{formData.memo.length}/500 characters</span>
                         {errors.memo && (
-                          <span id={getFieldErrorId("memo")} className="text-red-500 flex items-center gap-1">
+                          <span
+                            id={getFieldErrorId("memo")}
+                            className="text-red-500 flex items-center gap-1"
+                          >
                             <AlertCircle className="h-3 w-3" />
                             {errors.memo}
                           </span>
@@ -428,7 +501,10 @@ export default function AddToTreasuryModal() {
 
                     {/* Reference ID */}
                     <div className="space-y-2">
-                      <label htmlFor="referenceId" className="block text-sm font-medium text-gray-300">
+                      <label
+                        htmlFor="referenceId"
+                        className="block text-sm font-medium text-gray-300"
+                      >
                         Reference ID (Optional)
                       </label>
                       <input
@@ -439,15 +515,24 @@ export default function AddToTreasuryModal() {
                         onChange={handleInputChange}
                         onBlur={handleBlur}
                         className={`w-full bg-gray-900 border ${
-                          errors.referenceId ? "border-red-500" : "border-gray-700"
+                          errors.referenceId
+                            ? "border-red-500"
+                            : "border-gray-700"
                         } rounded-md px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500`}
                         placeholder="External reference ID..."
                         maxLength={100}
                         aria-invalid={!!errors.referenceId}
-                        aria-describedby={errors.referenceId ? getFieldErrorId("referenceId") : undefined}
+                        aria-describedby={
+                          errors.referenceId
+                            ? getFieldErrorId("referenceId")
+                            : undefined
+                        }
                       />
                       {errors.referenceId && (
-                        <p id={getFieldErrorId("referenceId")} className="text-xs text-red-500 flex items-center gap-1">
+                        <p
+                          id={getFieldErrorId("referenceId")}
+                          className="text-xs text-red-500 flex items-center gap-1"
+                        >
                           <AlertCircle className="h-3 w-3" />
                           {errors.referenceId}
                         </p>
@@ -461,22 +546,34 @@ export default function AddToTreasuryModal() {
                   <div className="space-y-6">
                     {/* Multi-signature */}
                     <div className="flex items-center justify-between">
-                      <label htmlFor="requireMultiSig" className="text-sm font-medium text-gray-300">
+                      <label
+                        htmlFor="requireMultiSig"
+                        className="text-sm font-medium text-gray-300"
+                      >
                         Require Multi-signature
                       </label>
                       <button
                         type="button"
                         id="requireMultiSig"
-                        onClick={() => handleSwitchChange("requireMultiSig", !formData.requireMultiSig)}
+                        onClick={() =>
+                          handleSwitchChange(
+                            "requireMultiSig",
+                            !formData.requireMultiSig
+                          )
+                        }
                         className={`w-10 h-5 rounded-full relative transition-colors ${
-                          formData.requireMultiSig ? "bg-indigo-600" : "bg-gray-700"
+                          formData.requireMultiSig
+                            ? "bg-indigo-600"
+                            : "bg-gray-700"
                         }`}
                         aria-checked={formData.requireMultiSig}
                         role="switch"
                       >
                         <span
                           className={`block w-4 h-4 bg-white rounded-full transition-transform ${
-                            formData.requireMultiSig ? "translate-x-5" : "translate-x-0.5"
+                            formData.requireMultiSig
+                              ? "translate-x-5"
+                              : "translate-x-0.5"
                           }`}
                         />
                       </button>
@@ -485,22 +582,34 @@ export default function AddToTreasuryModal() {
                     {/* Schedule Transaction */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <label htmlFor="scheduleTransaction" className="text-sm font-medium text-gray-300">
+                        <label
+                          htmlFor="scheduleTransaction"
+                          className="text-sm font-medium text-gray-300"
+                        >
                           Schedule Transaction
                         </label>
                         <button
                           type="button"
                           id="scheduleTransaction"
-                          onClick={() => handleSwitchChange("scheduleTransaction", !formData.scheduleTransaction)}
+                          onClick={() =>
+                            handleSwitchChange(
+                              "scheduleTransaction",
+                              !formData.scheduleTransaction
+                            )
+                          }
                           className={`w-10 h-5 rounded-full relative transition-colors ${
-                            formData.scheduleTransaction ? "bg-indigo-600" : "bg-gray-700"
+                            formData.scheduleTransaction
+                              ? "bg-indigo-600"
+                              : "bg-gray-700"
                           }`}
                           aria-checked={formData.scheduleTransaction}
                           role="switch"
                         >
                           <span
                             className={`block w-4 h-4 bg-white rounded-full transition-transform ${
-                              formData.scheduleTransaction ? "translate-x-5" : "translate-x-0.5"
+                              formData.scheduleTransaction
+                                ? "translate-x-5"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -508,7 +617,10 @@ export default function AddToTreasuryModal() {
 
                       {formData.scheduleTransaction && (
                         <div className="pl-4 border-l border-gray-700 space-y-2">
-                          <label htmlFor="scheduledDateTime" className="block text-sm font-medium text-gray-300">
+                          <label
+                            htmlFor="scheduledDateTime"
+                            className="block text-sm font-medium text-gray-300"
+                          >
                             Date & Time
                           </label>
                           <div className="relative">
@@ -520,14 +632,21 @@ export default function AddToTreasuryModal() {
                               onChange={handleInputChange}
                               onBlur={handleBlur}
                               className={`w-full bg-gray-900 border ${
-                                errors.scheduledDateTime ? "border-red-500" : "border-gray-700"
+                                errors.scheduledDateTime
+                                  ? "border-red-500"
+                                  : "border-gray-700"
                               } rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500`}
                               aria-invalid={!!errors.scheduledDateTime}
                               aria-describedby={
-                                errors.scheduledDateTime ? getFieldErrorId("scheduledDateTime") : undefined
+                                errors.scheduledDateTime
+                                  ? getFieldErrorId("scheduledDateTime")
+                                  : undefined
                               }
                             />
-                            <Calendar size={16} className="absolute right-3 top-3 text-gray-400" />
+                            <Calendar
+                              size={16}
+                              className="absolute right-3 top-3 text-gray-400"
+                            />
                           </div>
                           {errors.scheduledDateTime && (
                             <p
@@ -545,22 +664,34 @@ export default function AddToTreasuryModal() {
                     {/* Recurring Transaction */}
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <label htmlFor="recurringTransaction" className="text-sm font-medium text-gray-300">
+                        <label
+                          htmlFor="recurringTransaction"
+                          className="text-sm font-medium text-gray-300"
+                        >
                           Recurring Transaction
                         </label>
                         <button
                           type="button"
                           id="recurringTransaction"
-                          onClick={() => handleSwitchChange("recurringTransaction", !formData.recurringTransaction)}
+                          onClick={() =>
+                            handleSwitchChange(
+                              "recurringTransaction",
+                              !formData.recurringTransaction
+                            )
+                          }
                           className={`w-10 h-5 rounded-full relative transition-colors ${
-                            formData.recurringTransaction ? "bg-indigo-600" : "bg-gray-700"
+                            formData.recurringTransaction
+                              ? "bg-indigo-600"
+                              : "bg-gray-700"
                           }`}
                           aria-checked={formData.recurringTransaction}
                           role="switch"
                         >
                           <span
                             className={`block w-4 h-4 bg-white rounded-full transition-transform ${
-                              formData.recurringTransaction ? "translate-x-5" : "translate-x-0.5"
+                              formData.recurringTransaction
+                                ? "translate-x-5"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -568,7 +699,10 @@ export default function AddToTreasuryModal() {
 
                       {formData.recurringTransaction && (
                         <div className="pl-4 border-l border-gray-700 space-y-2">
-                          <label htmlFor="recurringFrequency" className="block text-sm font-medium text-gray-300">
+                          <label
+                            htmlFor="recurringFrequency"
+                            className="block text-sm font-medium text-gray-300"
+                          >
                             Frequency
                           </label>
                           <select
@@ -616,5 +750,5 @@ export default function AddToTreasuryModal() {
         </div>
       )}
     </div>
-  )
+  );
 }
