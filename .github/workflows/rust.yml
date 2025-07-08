@@ -2,9 +2,13 @@ name: Soroban Smart Contracts CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
+    paths:
+      - 'apps/contracts/**'
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
+    paths:
+      - 'apps/contracts/**'
 
 env:
   CARGO_TERM_COLOR: always
