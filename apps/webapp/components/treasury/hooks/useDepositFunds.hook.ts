@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import {
 	type DepositFundsFormValues,
 	depositFundsSchema,
-} from '../schema/deposit-funds-modal.schema'
+} from '../schema/DepositFundsModal.schema'
 
 interface UseDepositFundsProps {
 	onClose: () => void

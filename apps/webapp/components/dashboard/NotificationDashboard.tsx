@@ -1,20 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import {
-	Building,
-	DollarSign,
-	FileText,
-	Menu,
-	MessageSquare,
-	MoreVertical,
-	RefreshCw,
-	Search,
-	Settings,
-	ShieldAlert,
-	User,
-	Users,
-} from 'lucide-react'
+import { Building, DollarSign, Menu, MoreVertical, Search, Settings, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 // Types
@@ -261,33 +247,28 @@ const Pagination = ({
 	return (
 		<div className="flex justify-between items-center">
 			<button
+				type="button"
 				onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-				disabled={currentPage === 1}
-				className={`px-4 py-2 text-sm ${
-					currentPage === 1 ? 'text-gray-600' : 'text-white hover:bg-gray-800'
-				}`}
+				className={`px-3 py-1 rounded ${currentPage === 1 ? 'bg-gray-700 text-gray-400' : 'bg-purple-600 text-white'}`}
 			>
 				Previous
 			</button>
 			<div className="flex gap-2">
 				{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
 					<button
+						type="button"
 						key={page}
 						onClick={() => onPageChange(page)}
-						className={`w-8 h-8 text-sm flex items-center justify-center rounded-md ${
-							currentPage === page ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-800'
-						}`}
+						className={`px-3 py-1 rounded ${currentPage === page ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-400'}`}
 					>
 						{page}
 					</button>
 				))}
 			</div>
 			<button
+				type="button"
 				onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
-				disabled={currentPage === totalPages}
-				className={`px-4 py-2 text-sm ${
-					currentPage === totalPages ? 'text-gray-600' : 'text-white hover:bg-gray-800'
-				}`}
+				className={`px-3 py-1 rounded ${currentPage === totalPages ? 'bg-gray-700 text-gray-400' : 'bg-purple-600 text-white'}`}
 			>
 				Next
 			</button>

@@ -1,8 +1,8 @@
 'use client'
+import { logDev } from '@/lib/utils/logger'
 import type React from 'react'
 import { useState } from 'react'
 
-// biome-ignore lint/suspicious/noEmptyInterface: <explanation>
 type NotificationSettingsProps = object
 
 const NotificationSettings: React.FC<NotificationSettingsProps> = () => {
@@ -19,7 +19,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = () => {
 
 	// Handle Save Settings button click
 	const handleSaveSettings = () => {
-		console.log('Settings saved:', {
+		logDev('Settings saved:', {
 			email: emailEnabled,
 			push: pushEnabled,
 			inApp: inAppEnabled,
@@ -138,6 +138,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = () => {
 			{/* Save Settings Button */}
 			<div className="mt-8">
 				<button
+					type="button"
 					className="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
 					onClick={handleSaveSettings}
 				>

@@ -1,4 +1,5 @@
 'use client'
+import { logDev } from '@/lib/utils/logger'
 import {
 	BarChart3,
 	Bell,
@@ -14,7 +15,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type React from 'react'
 import { useState } from 'react'
-
+import { WalletConnectButton } from '../wallet/ConnectButton'
 // Navigation items
 const navItems = [
 	{
@@ -36,7 +37,7 @@ const Header: React.FC = () => {
 
 	const handleSearch = (e: React.FormEvent) => {
 		e.preventDefault()
-		console.log('Searching for:', searchQuery)
+		logDev('Searching for:', searchQuery)
 		// Implement your search logic here
 		setSearchQuery('')
 		setIsSearchExpanded(false)
@@ -81,6 +82,7 @@ const Header: React.FC = () => {
 			{/* Right side - Search, Notifications, Theme Toggle, Profile */}
 			<div className="flex items-center space-x-2">
 				{/* Search */}
+				<WalletConnectButton />
 				<div className="relative">
 					<form onSubmit={handleSearch} className="flex items-center">
 						{isSearchExpanded ? (
