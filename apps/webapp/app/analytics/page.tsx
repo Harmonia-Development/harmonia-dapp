@@ -1,11 +1,18 @@
-'use client'
-import AnalyticsCard from '@/components/analytics/analytics-cards'
-import { ComparativeDashboard } from '@/components/analytics/comparative-analysis'
-import { GovernanceDashboard } from '@/components/analytics/governance-analytics'
-import MemberEngagementChart from '@/components/analytics/member-engagement'
-import NetworkDashboard from '@/components/analytics/network-dashboard'
-import { TreasuryDashboard } from '@/components/analytics/treasury-perfomance-chart'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+"use client";
+import React from "react";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import AnalyticsCard from "@/components/analytics/AnalyticsCards";
+
+import { TreasuryDashboard } from "@/components/analytics/TreasuryPerfomanceChart";
+import { GovernanceDashboard } from "@/components/analytics/GovernanceAnalytics";
+import { ComparativeDashboard } from "@/components/analytics/ComparativeAnalysis";
+import MemberEngagementChart from "@/components/analytics/MemberEngagement";
+import NetworkDashboard from "@/components/analytics/NetworkDashboard";
 
 export default function Page() {
 	return (

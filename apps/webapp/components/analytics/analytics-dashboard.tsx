@@ -5,10 +5,10 @@ import { ChartSkeleton } from '@/components/ui/loading-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { categoryData, memberData, treasuryData, votingData } from '@/lib/mock-data/analytics.mock'
-import { MemberActivity } from './member-activity'
-import { ProposalCategories } from './proposal-categories'
-import { TreasuryChart } from './treasury-chart'
-import { VotingDistribution } from './voting-distribution'
+import { MemberActivity } from './MemberActivity'
+import { TreasuryChart } from './TreasuryChart'
+import { ProposalCategories } from './ProposalCategories'
+import { VotingDistribution } from './VotingDistribution'
 
 interface AnalyticsDashboardProps {
 	isLoading?: boolean

@@ -15,7 +15,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type React from 'react'
 import { useState } from 'react'
-import { WalletConnectButton } from '../wallet/connect-button'
+import { WalletConnectButton } from '../wallet/ConnectButton'
 // Navigation items
 const navItems = [
 	{

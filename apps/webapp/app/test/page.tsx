@@ -1,9 +1,9 @@
 'use client'
-import NetworkVisualization from '@/components/activity/network-visualization'
-import RecentActivity, { type ActivityItem } from '@/components/activity/recent-activity'
+import NetworkVisualization from '@/components/activity/NetworkVisualization'
+import RecentActivity, { type ActivityItem } from '@/components/activity/RecentActivity'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { Card, CardContent } from '@/components/ui/card'
-import { logDev, logError } from '@/lib/utils/logger'
+import { logDev } from '@/lib/utils/logger'
 import { useState } from 'react'
 
 // Sample activity data

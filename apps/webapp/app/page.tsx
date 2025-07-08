@@ -1,6 +1,5 @@
 import DAODashboard from '@/components/dashboard/DAODashboard'
 import DashBoardMain from '@/components/dashboard/DashBoardMain'
-import { LayoutWrapper } from '@/components/ui/layout-wrapper'
 import React from 'react'
 
 export default function Page() {
