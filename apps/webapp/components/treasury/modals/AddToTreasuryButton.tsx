@@ -544,7 +544,6 @@ const AddToTreasuryModal: React.FC = () => {
                           />
                         </button>
                       </div>
-
                       {formData.recurringTransaction && (
                         <div className="pl-4 border-l border-gray-700 space-y-2">
                           <label htmlFor="recurringFrequency" className="block text-sm font-medium text-gray-300">
@@ -567,7 +566,6 @@ const AddToTreasuryModal: React.FC = () => {
                     </div>
                   </div>
                 )}
-
                 <div className="mt-6 flex justify-end space-x-3">
                   <button
                     type="button"
