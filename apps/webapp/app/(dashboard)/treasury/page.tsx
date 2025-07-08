@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function TreasuryPage() {
 	return (
 		<div className="h-full md:h-screen">
-			<div className="container mx-auto mt-5">
+			<div className="px-7 mx-auto mt-5">
 				<div className="flex flex-col md:flex-row justify-between">
 					<div className="w-full grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
 						<div className="order-1 md:order-1 md:col-span-1 lg:col-span-2">

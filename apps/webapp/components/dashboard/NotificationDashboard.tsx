@@ -135,11 +135,10 @@ const TabNavigation = ({
 				// biome-ignore lint/a11y/useButtonType: <explanation>
 				<button
 					key={tab}
-					className={`py-1 m-1 px-4 text-center flex-1 text-sm ${
-						activeTab === tab
-							? 'bg-black rounded-lg text-white font-medium'
-							: 'text-gray-400 hover:bg-gray-700'
-					}`}
+					className={`py-1 m-1 px-4 text-center flex-1 text-sm ${activeTab === tab
+						? 'bg-black rounded-lg text-white font-medium'
+						: 'text-gray-400 hover:bg-gray-700'
+						}`}
 					onClick={() => setActiveTab(tab)}
 				>
 					{tab}
@@ -263,9 +262,8 @@ const Pagination = ({
 			<button
 				onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
 				disabled={currentPage === 1}
-				className={`px-4 py-2 text-sm ${
-					currentPage === 1 ? 'text-gray-600' : 'text-white hover:bg-gray-800'
-				}`}
+				className={`px-4 py-2 text-sm ${currentPage === 1 ? 'text-gray-600' : 'text-white hover:bg-gray-800'
+					}`}
 			>
 				Previous
 			</button>
@@ -274,9 +272,8 @@ const Pagination = ({
 					<button
 						key={page}
 						onClick={() => onPageChange(page)}
-						className={`w-8 h-8 text-sm flex items-center justify-center rounded-md ${
-							currentPage === page ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-800'
-						}`}
+						className={`w-8 h-8 text-sm flex items-center justify-center rounded-md ${currentPage === page ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-800'
+							}`}
 					>
 						{page}
 					</button>
@@ -285,9 +282,8 @@ const Pagination = ({
 			<button
 				onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
 				disabled={currentPage === totalPages}
-				className={`px-4 py-2 text-sm ${
-					currentPage === totalPages ? 'text-gray-600' : 'text-white hover:bg-gray-800'
-				}`}
+				className={`px-4 py-2 text-sm ${currentPage === totalPages ? 'text-gray-600' : 'text-white hover:bg-gray-800'
+					}`}
 			>
 				Next
 			</button>
@@ -340,14 +336,14 @@ export default function NotificationDashboard() {
 	return (
 		<div className="bg-black  p-4">
 			<div className="mx-auto">
-				<div className="rounded-lg shadow-lg overflow-hidden">
-					<div className="border p-4 m-3 rounded-xl shadow-lg">
+				<div className=" flex flex-col gap-3 rounded-lg shadow-lg overflow-hidden">
+					<div className="border p-4 rounded-xl shadow-lg">
 						<TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 						<SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 					</div>
 
-					<div className="p-4 border rounded-lg m-3">
-						<div className="mt-">
+					<div className="p-4 border rounded-lg">
+						<div className="">
 							<h2 className="text-xl font-semibold mb-1">All Notifications</h2>
 							<p className="text-gray-400 text-sm mb-6">Your recent notifications and alerts</p>
 							<NotificationList notifications={currentItems} />

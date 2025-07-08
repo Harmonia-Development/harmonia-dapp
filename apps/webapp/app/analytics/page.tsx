@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import AnalyticsCard from "@/components/analytics/analytics-cards";
-
 import { TreasuryDashboard } from "@/components/analytics/treasury-perfomance-chart";
 import { GovernanceDashboard } from "@/components/analytics/governance-analytics";
 import { ComparativeDashboard } from "@/components/analytics/comparative-analysis";
@@ -16,10 +15,13 @@ import NetworkDashboard from "@/components/analytics/network-dashboard";
 
 export default function Page() {
   return (
-    <Card>
-      <AnalyticsCard />
+    <div className="px-7">
+      {/* <Card> */}
+      <div className="my-8">
+        <AnalyticsCard />
+      </div>
       <div className="flex flex-col lg:flex-row gap-4 outline-none border-none">
-        <div className="flex-1 max-w[900px]">
+        <div className="flex-1 my-2">
           <Card className="border-none">
             <GovernanceDashboard />
             <TreasuryDashboard />
@@ -51,6 +53,7 @@ export default function Page() {
           </Card>
         </div>
       </div>
-    </Card>
+      {/* </Card> */}
+    </div>
   );
 }

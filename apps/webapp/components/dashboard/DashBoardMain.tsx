@@ -4,11 +4,11 @@ import NotificationSettings from './NotificationSetting'
 
 const DashBoardMain = () => {
 	return (
-		<div className="flex flex-row px-4 h-full">
-			<div className="w-[70%]">
+		<div className="flex flex-col gap-2 lg:flex-row h-full">
+			<div className="w-full lg:w-[70%]">
 				<NotificationDashboard />
 			</div>
-			<div className="w-[28%] h-full">
+			<div className="w-full lg:w-[28%] h-full">
 				<NotificationSettings />
 			</div>
 		</div>

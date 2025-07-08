@@ -39,7 +39,7 @@ const CustomTooltip: React.FC<TooltipProps<ValueType, NameType>> = ({
       <p className="text-sm">{label}</p>
       {payload.map((entry, index) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-<p key={index} className="text-sm">
+        <p key={index} className="text-sm">
           {`${entry.name}: ${entry.value}%`}
         </p>
       ))}
@@ -58,7 +58,7 @@ const CustomAlocationTooltip: React.FC<TooltipProps<ValueType, NameType>> = ({
         <p className="text-sm font-semibold">{label}</p>
         {payload.map((entry, index) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-<p key={index} className="text-sm text-purple-300">
+          <p key={index} className="text-sm text-purple-300">
             {`Allocation : ${entry.value}%`}
           </p>
         ))}
@@ -94,7 +94,7 @@ const CustomEfficiencyTooltip = ({
 
 export function ComparativeDashboard() {
   return (
-    <Card>
+    <Card className="mt-4">
       <CardHeader className="pb-2">
         <CardTitle className="text-2xl font-bold">
           Comparative Analytics

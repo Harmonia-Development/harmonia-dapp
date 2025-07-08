@@ -47,7 +47,7 @@ const Header: React.FC = () => {
 	}
 
 	return (
-		<header className="bg-black text-white px-6 py-5 shadow-xl  flex items-center justify-between border-b border-gray-500">
+		<header className="bg-black text-white px-10 py-5 shadow-xl  flex items-center justify-between border-b border-gray-500">
 			<div className="flex items-center space-x-6">
 				<Link href="/">
 					<span className="text-2xl font-bold">
@@ -62,11 +62,10 @@ const Header: React.FC = () => {
 						<Link
 							href={item.path}
 							key={item.name}
-							className={`px-3 py-2 rounded-md flex items-center space-x-2 ${
-								pathname === item.path
-									? 'bg-gray-800 text-white'
-									: 'text-gray-300 hover:bg-gray-700 hover:text-white'
-							}`}
+							className={`px-3 py-2 rounded-md flex items-center space-x-2 ${pathname === item.path
+								? 'bg-gray-800 text-white'
+								: 'text-gray-300 hover:bg-gray-700 hover:text-white'
+								}`}
 						>
 							<span className="text-gray-400">{item.icon}</span>
 							<span>{item.name}</span>

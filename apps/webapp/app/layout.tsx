@@ -4,7 +4,7 @@ import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { WalletProvider } from '@/lib/wallet/context'
 import Header from '@/components/dashboard/Header'
-import { GoogleAnalytics } from '@next/third-parties/google'
+import Container from '@/hooks/container'
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -29,13 +29,14 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en" className="dark">
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}>
 				<WalletProvider>
 					<Header />
-					{children}
+					<Container className=''>
+						{children}
+					</Container>
 					<Toaster />
 				</WalletProvider>
-				<GoogleAnalytics gaId="G-YHNFJFWVCG" />
 			</body>
 		</html>
 	)
