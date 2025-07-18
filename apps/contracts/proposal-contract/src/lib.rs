@@ -33,11 +33,11 @@ impl ProposalContract {
         let now = env.ledger().timestamp();
 
         if deadline <= now {
-            return Err(ProposalError::InvalidDeadline.into());
+            return Err(ProposalError::InvalidDeadline);
         }
 
-        if title.len() == 0 || title.len() > 100 {
-            return Err(ProposalError::InvalidTitleLength.into());
+        if title.is_empty() || title.len() > 100 {
+            return Err(ProposalError::InvalidTitleLength);
         }
 
         let proposal_type = match proposal_type_symbol {
@@ -45,7 +45,7 @@ impl ProposalContract {
             s if s == Symbol::new(&env, "governance") => ProposalType::Governance,
             s if s == Symbol::new(&env, "community") => ProposalType::Community,
             s if s == Symbol::new(&env, "technical") => ProposalType::Technical,
-            _ => return Err(ProposalError::InvalidProposalType.into()),
+            _ => return Err(ProposalError::InvalidProposalType),
         };
 
         let id = Self::next_id(&env);
@@ -86,7 +86,7 @@ impl ProposalContract {
 
         let vote_key = (symbol_short!("vote"), proposal_id, user.clone());
         if env.storage().persistent().has(&vote_key) {
-            return Err(ProposalError::AlreadyVoted.into());
+            return Err(ProposalError::AlreadyVoted);
         }
 
         let mut proposal: Proposal = env
@@ -96,11 +96,11 @@ impl ProposalContract {
             .ok_or(ProposalError::ProposalNotFound)?;
 
         if proposal.status != ProposalStatus::Open {
-            return Err(ProposalError::ProposalNotOpen.into());
+            return Err(ProposalError::ProposalNotOpen);
         }
 
         if env.ledger().timestamp() > proposal.deadline {
-            return Err(ProposalError::VotingClosed.into());
+            return Err(ProposalError::VotingClosed);
         }
 
         let vote_choice_clone = vote_choice.clone();
@@ -109,7 +109,7 @@ impl ProposalContract {
             s if s == symbol_short!("For") => proposal.for_votes += 1,
             s if s == symbol_short!("Against") => proposal.against_votes += 1,
             s if s == symbol_short!("Abstain") => proposal.abstain_votes += 1,
-            _ => return Err(ProposalError::InvalidVoteChoice.into()),
+            _ => return Err(ProposalError::InvalidVoteChoice),
         }
 
         env.storage().persistent().set(&Self::proposal_key(proposal_id), &proposal);
@@ -130,11 +130,11 @@ impl ProposalContract {
             .ok_or(ProposalError::ProposalNotFound)?;
 
         if proposal.status != ProposalStatus::Open {
-            return Err(ProposalError::AlreadyFinalized.into());
+            return Err(ProposalError::AlreadyFinalized);
         }
 
         if env.ledger().timestamp() < proposal.deadline {
-            return Err(ProposalError::DeadlineNotReached.into());
+            return Err(ProposalError::DeadlineNotReached);
         }
 
         let total_votes = proposal.for_votes + proposal.against_votes + proposal.abstain_votes;
@@ -148,14 +148,12 @@ impl ProposalContract {
             } else {
                 ProposalStatus::Rejected
             }
+        } else if effective_votes == 0 {
+            ProposalStatus::Rejected
+        } else if proposal.for_votes > proposal.against_votes && proposal.for_votes > 0 {
+            ProposalStatus::Accepted
         } else {
-            if effective_votes == 0 {
-                ProposalStatus::Rejected
-            } else if proposal.for_votes > proposal.against_votes && proposal.for_votes > 0 {
-                ProposalStatus::Accepted
-            } else {
-                ProposalStatus::Rejected
-            }
+            ProposalStatus::Rejected
         };
 
         env.storage().persistent().set(&Self::proposal_key(proposal_id), &proposal);
