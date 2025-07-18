@@ -43,7 +43,8 @@ impl ProposalContract {
         let proposal_type = match proposal_type_symbol {
             s if s == Symbol::new(&env, "treasury") => ProposalType::Treasury,
             s if s == Symbol::new(&env, "governance") => ProposalType::Governance,
-            s if s == Symbol::new(&env, "system") => ProposalType::System,
+            s if s == Symbol::new(&env, "community") => ProposalType::Community,
+            s if s == Symbol::new(&env, "technical") => ProposalType::Technical,
             _ => return Err(ProposalError::InvalidProposalType.into()),
         };
 

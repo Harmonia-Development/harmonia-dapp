@@ -99,7 +99,7 @@ fn test_finalize_accepted_when_quorum_met() {
         &String::from_str(&env, "Majority For"),
         &String::from_str(&env, "Accepted 1"),
         &(now + 10),
-        &Symbol::new(&env, "system"),
+        &Symbol::new(&env, "community"),
         &Some(3),
     );
     assert_event!(env, contract_id, "proposal_created", 1u32);    
@@ -188,7 +188,7 @@ fn test_finalize_rejected_on_for_against_tie() {
         &String::from_str(&env, "Tie"),
         &String::from_str(&env, "Tie Votes"),
         &(env.ledger().timestamp() + 10),
-        &Symbol::new(&env, "system"),
+        &Symbol::new(&env, "technical"),
         &None,
     );
     assert_event!(env, contract_id, "proposal_created", 1u32);
@@ -310,7 +310,7 @@ fn test_vote_on_closed_proposal() {
         &String::from_str(&env, "Closed Test"),
         &String::from_str(&env, "Closed"),
         &(env.ledger().timestamp() + 10),
-        &Symbol::new(&env, "system"),
+        &Symbol::new(&env, "community"),
         &None,
     );
     assert_event!(env, contract_id, "proposal_created", 1u32);
