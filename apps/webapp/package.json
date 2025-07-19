@@ -24,6 +24,7 @@
 		"@react-three/drei": "^10.0.7",
 		"@react-three/fiber": "^9.1.2",
 		"@tanstack/react-query": "^5.81.5",
+		"@trustless-work/escrow": "^2.0.1",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"framer-motion": "^12.9.2",

@@ -10,6 +10,8 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { EmptyState } from "../ui/EmptyState";
+import { Button } from "../ui/button";
 
 // Types
 interface Notification {
@@ -240,9 +242,11 @@ const NotificationList = ({
 }) => {
   if (notifications.length === 0) {
     return (
-      <div className="text-center py-6 text-gray-400">
-        No notifications found
-      </div>
+      <EmptyState
+        title="No Notifications Yet"
+        description="Create your first notification to get started."
+        actionButton={<Button>Create Notification</Button>}
+      />
     );
   }
 
@@ -333,7 +337,7 @@ export default function NotificationDashboard() {
     // Filter by tab
     if (activeTab !== "All") {
       filtered = filtered.filter(
-        (notification) => notification.category === activeTab,
+        (notification) => notification.category === activeTab
       );
     }
 
@@ -344,9 +348,7 @@ export default function NotificationDashboard() {
           notification.title
             .toLowerCase()
             .includes(searchQuery.toLowerCase()) ||
-          notification.message
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()),
+          notification.message.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -359,7 +361,7 @@ export default function NotificationDashboard() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredNotifications.slice(
     indexOfFirstItem,
-    indexOfLastItem,
+    indexOfLastItem
   );
   const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage);
 

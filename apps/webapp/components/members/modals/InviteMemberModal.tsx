@@ -217,7 +217,7 @@ export function InviteMemberModal({
                                 <Input
                                   {...field}
                                   placeholder="member@example.com"
-                                  className="focus-visible:ring-2 focus-visible:ring-[#723DCA]"
+                                  className="focus-visible:ring-2 focus-visible:ring-primary"
                                 />
                               </FormControl>
                             </div>
@@ -243,32 +243,32 @@ export function InviteMemberModal({
                                 defaultValue={field.value}
                               >
                                 <FormControl>
-                                  <SelectTrigger className="focus:ring-2 focus:ring-[#723DCA] focus:ring-offset-0 border-input">
+                                  <SelectTrigger className="focus:ring-2 focus:ring-primary focus:ring-offset-0 border-input">
                                     <SelectValue placeholder="Select a role" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   <SelectItem
                                     value="member"
-                                    className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+                                    className="focus:bg-primary/10 data-[highlighted]:bg-primary cursor-pointer"
                                   >
                                     Member
                                   </SelectItem>
                                   <SelectItem
                                     value="contributor"
-                                    className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+                                    className="focus:bg-primary/10 data-[highlighted]:bg-primary cursor-pointer"
                                   >
                                     Contributor
                                   </SelectItem>
                                   <SelectItem
                                     value="advisor"
-                                    className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+                                    className="focus:bg-primary/10 data-[highlighted]:bg-primary cursor-pointer"
                                   >
                                     Advisor
                                   </SelectItem>
                                   <SelectItem
                                     value="admin"
-                                    className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+                                    className="focus:bg-primary/10 data-[highlighted]:bg-primary cursor-pointer"
                                   >
                                     Admin
                                   </SelectItem>
@@ -295,7 +295,7 @@ export function InviteMemberModal({
                               <FormControl>
                                 <Textarea
                                   placeholder="Write a personal message..."
-                                  className="min-h-[100px] focus-visible:ring-2 focus-visible:ring-[#723DCA]"
+                                  className="min-h-[100px] focus-visible:ring-2 focus-visible:ring-primary"
                                   {...field}
                                 />
                               </FormControl>
@@ -321,7 +321,7 @@ export function InviteMemberModal({
                                   type="button"
                                   variant="outline"
                                   onClick={regenerateCode}
-                                  className="font-semibold hover:bg-[#723DCA] hover:text-white"
+                                  className="font-semibold hover:bg-primary hover:text-white"
                                 >
                                   Generate New
                                 </Button>
@@ -340,7 +340,7 @@ export function InviteMemberModal({
                                 variant="outline"
                                 size="icon"
                                 onClick={() => copyInviteLink(true)}
-                                className="font-semibold hover:bg-[#723DCA] hover:text-white"
+                                className="font-semibold hover:bg-primary hover:text-white"
                               >
                                 <Copy className="h-4 w-4" />
                               </Button>
@@ -371,32 +371,32 @@ export function InviteMemberModal({
                                 defaultValue={field.value}
                               >
                                 <FormControl>
-                                  <SelectTrigger className="focus:ring-2 focus:ring-[#723DCA] focus:ring-offset-0 border-input">
+                                  <SelectTrigger className="focus:ring-2 focus:ring-primary focus:ring-offset-0 border-input">
                                     <SelectValue placeholder="Select expiration" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
                                   <SelectItem
                                     value="7"
-                                    className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+                                    className="focus:bg-primary/10 data-[highlighted]:bg-primary cursor-pointer"
                                   >
                                     7 days
                                   </SelectItem>
                                   <SelectItem
                                     value="14"
-                                    className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+                                    className="focus:bg-primary/10 data-[highlighted]:bg-primary cursor-pointer"
                                   >
                                     14 days
                                   </SelectItem>
                                   <SelectItem
                                     value="30"
-                                    className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+                                    className="focus:bg-primary/10 data-[highlighted]:bg-primary cursor-pointer"
                                   >
                                     30 days
                                   </SelectItem>
                                   <SelectItem
                                     value="never"
-                                    className="focus:bg-[#723DCA]/10 data-[highlighted]:bg-[#723DCA] cursor-pointer"
+                                    className="focus:bg-primary/10 data-[highlighted]:bg-primary cursor-pointer"
                                   >
                                     Never expires
                                   </SelectItem>
@@ -427,7 +427,7 @@ export function InviteMemberModal({
                               </div>
                               <FormControl>
                                 <Switch
-                                  className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
+                                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-neutral-800"
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                 />
@@ -451,7 +451,7 @@ export function InviteMemberModal({
                               </div>
                               <FormControl>
                                 <Switch
-                                  className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
+                                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-neutral-800"
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                 />
@@ -475,7 +475,7 @@ export function InviteMemberModal({
                               </div>
                               <FormControl>
                                 <Switch
-                                  className="data-[state=checked]:bg-[#723DCA] data-[state=unchecked]:bg-[#2A2A2D]"
+                                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-neutral-800"
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
                                 />
@@ -494,14 +494,14 @@ export function InviteMemberModal({
                       type="button"
                       variant="outline"
                       onClick={() => onOpenChange(false)}
-                      className="hover:bg-[#5b2f9e]"
+                      className="hover:bg-primary-hover"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
                       form="invite-form"
-                      className="bg-[#723DCA] text-white font-semibold rounded-md px-4 py-2 flex items-center hover:bg-[#5b2f9e]"
+                      className="bg-primary text-white font-semibold rounded-md px-4 py-2 flex items-center hover:bg-primary-hover"
                     >
                       Create Invitation
                     </Button>
@@ -532,7 +532,7 @@ export function InviteMemberModal({
                         variant="outline"
                         size="icon"
                         onClick={() => copyInviteLink()}
-                        className="font-semibold hover:bg-[#723DCA] hover:text-white"
+                        className="font-semibold hover:bg-primary hover:text-white"
                       >
                         {copied ? (
                           <Check className="h-4 w-4" />
