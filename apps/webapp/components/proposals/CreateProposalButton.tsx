@@ -6,25 +6,21 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { useToast } from '@/hooks/use-toast'
 import type { CreateProposalFormValues } from '@/lib/types/proposals.types'
 import { logDev } from '@/lib/utils/logger'
 import { PlusCircle } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { ErrorBoundary } from '../common/ErrorBoundary'
 import { CreateProposalForm } from './CreateProposalForm'
 
 export function CreateProposalButton() {
 	const [open, setOpen] = useState(false)
-	const { toast } = useToast()
 
 	const handleSubmit = (values: CreateProposalFormValues) => {
 		logDev('Submitting proposal:', values)
 		setOpen(false)
-		toast({
-			title: 'Proposal Created',
-			description: `Your proposal has been successfully created and will be active for ${values.timeLeft} days.`,
-		})
+		toast.success(`Your proposal has been created and will be active for ${values.timeLeft} days.`)
 	}
 
 	const handleCancel = () => {
