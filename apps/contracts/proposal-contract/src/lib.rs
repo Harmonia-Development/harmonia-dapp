@@ -1,6 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, Env, Symbol, symbol_short, Address, String};
+use soroban_sdk::{contract, contractimpl, symbol_short, Address, Env, String, Symbol, Vec};
 
 mod datatypes;
 use datatypes::{Proposal, ProposalStatus, ProposalType};
@@ -179,6 +179,21 @@ impl ProposalContract {
             .persistent()
             .get(&Self::proposal_key(proposal_id))
             .unwrap_or_else(|| panic!("Proposal not found"))
+    }
+
+    /// Returns all proposals stored in persistent storage.
+    /// Iterates from 1 to the current next_id (exclusive) and collects all existing proposals.
+    pub fn get_all_proposals(env: Env) -> Vec<Proposal> {
+        let mut proposals = Vec::new(&env);
+        let next_id = Self::next_id(&env);
+
+        for id in 1..next_id {
+            if let Some(proposal) = env.storage().persistent().get::<_, Proposal>(&Self::proposal_key(id)) {
+                proposals.push_back(proposal);
+            }
+        }
+
+        proposals
     }
 
     /// Returns the next available proposal ID from storage, starting at 1.

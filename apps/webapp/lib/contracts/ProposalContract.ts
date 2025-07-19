@@ -1,4 +1,4 @@
-import { Client } from './src'
+import { Client, type Proposal } from './src'
 
 export interface ProposalContractConfig {
 	contractId: string
@@ -57,6 +57,12 @@ export class ProposalContract {
 
 	async getProposal(proposalId: number) {
 		const tx = await this.client.get_proposal({ proposal_id: proposalId })
+		const result = await tx.simulate()
+		return result.result
+	}
+
+	async getAllProposals(): Promise<Proposal[]> {
+		const tx = await this.client.get_all_proposals()
 		const result = await tx.simulate()
 		return result.result
 	}

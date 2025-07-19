@@ -406,3 +406,33 @@ fn test_create_proposal_without_auth_should_fail() {
         &None,
     );
 }
+
+// Verifies that `get_all_proposals` returns all created proposals in order
+#[test]
+fn test_get_all_proposals_returns_all() {
+    let (env, user, _contract_id, client) = setup();
+
+    client.create_proposal(
+        &user,
+        &String::from_str(&env, "Proposal 1"),
+        &String::from_str(&env, "Description 1"),
+        &(env.ledger().timestamp() + 100),
+        &Symbol::new(&env, "governance"),
+        &Some(2),
+    );
+
+    client.create_proposal(
+        &user,
+        &String::from_str(&env, "Proposal 2"),
+        &String::from_str(&env, "Description 2"),
+        &(env.ledger().timestamp() + 200),
+        &Symbol::new(&env, "technical"),
+        &None,
+    );
+
+    let proposals = client.get_all_proposals();
+
+    assert_eq!(proposals.len(), 2);
+    assert_eq!(proposals.get(0).unwrap().title, String::from_str(&env, "Proposal 1"));
+    assert_eq!(proposals.get(1).unwrap().title, String::from_str(&env, "Proposal 2"));
+}

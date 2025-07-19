@@ -1,5 +1,4 @@
 import { Buffer } from 'node:buffer'
-import { Address } from '@stellar/stellar-sdk'
 import {
 	type AssembledTransaction,
 	Client as ContractClient,
@@ -8,19 +7,7 @@ import {
 	type MethodOptions,
 	type Result,
 } from '@stellar/stellar-sdk/contract'
-import type {
-	Duration,
-	Option,
-	Typepoint,
-	i32,
-	i64,
-	i128,
-	i256,
-	u32,
-	u64,
-	u128,
-	u256,
-} from '@stellar/stellar-sdk/contract'
+import type { Option, u32, u64 } from '@stellar/stellar-sdk/contract'
 export * from '@stellar/stellar-sdk'
 export * as contract from '@stellar/stellar-sdk/contract'
 export * as rpc from '@stellar/stellar-sdk/rpc'
@@ -33,7 +20,7 @@ if (typeof window !== 'undefined') {
 export const networks = {
 	testnet: {
 		networkPassphrase: 'Test SDF Network ; September 2015',
-		contractId: 'CBCS7OVY7GEC7O6H4IZIW4ZNO3DLRHJCH5QCXDHDTVTX5MDELC4V54Y4',
+		contractId: 'CDMXLZ5626PNGNCIYWK5OQ6YSU3FYSIOET6TIZULVDCFVKR7GLHJBRXA',
 	},
 } as const
 
@@ -220,6 +207,28 @@ export interface Client {
 			simulate?: boolean
 		},
 	) => Promise<AssembledTransaction<Proposal>>
+
+	/**
+	 * Construct and simulate a get_all_proposals transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
+	 * Returns all proposals stored in persistent storage.
+	 * Iterates from 1 to the current next_id (exclusive) and collects all existing proposals.
+	 */
+	get_all_proposals: (options?: {
+		/**
+		 * The fee to pay for the transaction. Default: BASE_FEE
+		 */
+		fee?: number
+
+		/**
+		 * The maximum amount of time to wait for the transaction to complete. Default: DEFAULT_TIMEOUT
+		 */
+		timeoutInSeconds?: number
+
+		/**
+		 * Whether to automatically simulate the transaction when constructing the AssembledTransaction. Default: true
+		 */
+		simulate?: boolean
+	}) => Promise<AssembledTransaction<Array<Proposal>>>
 }
 // biome-ignore lint/suspicious/noUnsafeDeclarationMerging: intentional merging of interface and class Client for typing purposes
 export class Client extends ContractClient {
@@ -249,6 +258,7 @@ export class Client extends ContractClient {
 				'AAAAAAAAAMdGaW5hbGl6ZXMgYSBwcm9wb3NhbCBieSBzZXR0aW5nIGl0cyBzdGF0dXMgYmFzZWQgb24gdm90ZSByZXN1bHRzIGFuZCBxdW9ydW0gKGlmIGRlZmluZWQpLgpDYW4gb25seSBiZSBjYWxsZWQgYWZ0ZXIgdGhlIHByb3Bvc2FsIGRlYWRsaW5lLgpFbWl0cyBhIGBwcm9wb3NhbF9maW5hbGl6ZWRgIGV2ZW50IHdpdGggdGhlIHJlc3VsdGluZyBzdGF0dXMuAAAAAAhmaW5hbGl6ZQAAAAEAAAAAAAAAC3Byb3Bvc2FsX2lkAAAAAAQAAAABAAAD6QAAA+0AAAAAAAAH0AAAAA1Qcm9wb3NhbEVycm9yAAAA',
 				'AAAAAAAAAG1SZXRyaWV2ZXMgdGhlIHZvdGUgY291bnRzIGZvciBhIGdpdmVuIHByb3Bvc2FsLgpSZXR1cm5zIGEgdHVwbGUgb2YgKGZvcl92b3RlcywgYWdhaW5zdF92b3RlcywgYWJzdGFpbl92b3RlcykuAAAAAAAACWdldF92b3RlcwAAAAAAAAEAAAAAAAAAC3Byb3Bvc2FsX2lkAAAAAAQAAAABAAAD7QAAAAMAAAAEAAAABAAAAAQ=',
 				'AAAAAAAAADRSZXRyaWV2ZXMgdGhlIGZ1bGwgcHJvcG9zYWwgb2JqZWN0IGZvciB0aGUgZ2l2ZW4gSUQuAAAADGdldF9wcm9wb3NhbAAAAAEAAAAAAAAAC3Byb3Bvc2FsX2lkAAAAAAQAAAABAAAH0AAAAAhQcm9wb3NhbA==',
+				'AAAAAAAAAItSZXR1cm5zIGFsbCBwcm9wb3NhbHMgc3RvcmVkIGluIHBlcnNpc3RlbnQgc3RvcmFnZS4KSXRlcmF0ZXMgZnJvbSAxIHRvIHRoZSBjdXJyZW50IG5leHRfaWQgKGV4Y2x1c2l2ZSkgYW5kIGNvbGxlY3RzIGFsbCBleGlzdGluZyBwcm9wb3NhbHMuAAAAABFnZXRfYWxsX3Byb3Bvc2FscwAAAAAAAAAAAAABAAAD6gAAB9AAAAAIUHJvcG9zYWw=',
 			]),
 			options,
 		)
@@ -259,5 +269,6 @@ export class Client extends ContractClient {
 		finalize: this.txFromJSON<Result<void>>,
 		get_votes: this.txFromJSON<readonly [u32, u32, u32]>,
 		get_proposal: this.txFromJSON<Proposal>,
+		get_all_proposals: this.txFromJSON<Array<Proposal>>,
 	}
 }
