@@ -3,27 +3,24 @@
 import { Button } from '@/components/ui/button'
 import { useWallet } from '@/hooks/useWallet'
 import { LogOut, Wallet } from 'lucide-react'
-import { useState } from 'react'
+import { toast } from 'sonner'
 
 export function WalletConnectButton() {
 	const { connectWallet, disconnectWallet, isConnected, walletAddress, isConnecting } = useWallet()
-	const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
 	const handleConnect = async () => {
-		setErrorMessage(null)
 		const result = await connectWallet()
 		if (!result.success && result.error) {
-			setErrorMessage(result.error)
 			console.error(result.error)
+			toast.error(result.error)
 		}
 	}
 
 	const handleDisconnect = async () => {
-		setErrorMessage(null)
 		const result = await disconnectWallet()
 		if (!result.success && result.error) {
-			setErrorMessage(result.error)
 			console.error(result.error)
+			toast.error(result.error)
 		}
 	}
 

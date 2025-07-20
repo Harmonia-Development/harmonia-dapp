@@ -11,7 +11,6 @@ import type { CreateProposalFormValues } from '@/lib/types/proposals.types'
 import { logDev } from '@/lib/utils/logger'
 import { PlusCircle } from 'lucide-react'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import { ErrorBoundary } from '../common/ErrorBoundary'
 import { CreateProposalForm } from './CreateProposalForm'
 

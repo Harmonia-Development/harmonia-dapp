@@ -1,3 +1,4 @@
+/* eslint-disable */
 // biome-ignore lint/style/useNodejsImportProtocol: Buffer needs to work in both Node.js and browser environments
 import { Buffer } from 'buffer'
 import {

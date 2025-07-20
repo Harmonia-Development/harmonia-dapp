@@ -27,10 +27,6 @@ export function ProposalCategoryChart({ data, isLoading = false }: ProposalCateg
 		percentage: total > 0 ? ((entry.value / total) * 100).toFixed(0) : '0',
 	}))
 
-	if (isLoading) {
-		return <ChartSkeleton />
-	}
-
 	// Custom tooltip showing category and value
 	const renderTooltip = useCallback((props: TooltipProps<number, string>) => {
 		const { active, payload } = props
@@ -47,6 +43,10 @@ export function ProposalCategoryChart({ data, isLoading = false }: ProposalCateg
 		}
 		return null
 	}, [])
+
+	if (isLoading) {
+		return <ChartSkeleton />
+	}
 
 	return (
 		<Card className="w-full max-w-md mx-auto">
