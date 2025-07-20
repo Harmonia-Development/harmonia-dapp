@@ -8,7 +8,7 @@ import { ProposalStats } from '@/components/proposals/ProposalStats'
 import { LayoutWrapper } from '@/components/ui/layout-wrapper'
 import { ThemeWrapper } from '@/components/ui/theme-wrapper'
 import { useProposal } from '@/hooks/useProposal'
-import type { Proposal } from '@/lib/contracts/src'
+import type { Proposal } from '@/lib/contracts/proposal-contract'
 import type { VoteOption } from '@/lib/types/proposals.types'
 import { useEffect, useMemo, useState } from 'react'
 

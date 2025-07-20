@@ -2,7 +2,7 @@
 
 import { ProposalCardSkeleton } from '@/components/ui/loading-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Proposal } from '@/lib/contracts/src'
+import type { Proposal } from '@/lib/contracts/proposal-contract'
 import type { VoteOption } from '@/lib/types/proposals.types'
 import { useState } from 'react'
 import { CreateProposalButton } from './CreateProposalButton'

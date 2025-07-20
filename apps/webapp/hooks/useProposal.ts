@@ -1,7 +1,6 @@
 'use client'
 
-import { createProposalContract } from '@/lib/contracts/ProposalContract'
-import type { Proposal } from '@/lib/contracts/src'
+import { type Proposal, createProposalContract } from '@/lib/contracts/proposal-contract'
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { useSorobanContract } from './useSorobanContract'

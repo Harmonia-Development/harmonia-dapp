@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import type { Proposal } from '@/lib/contracts/src'
+import type { Proposal } from '@/lib/contracts/proposal-contract'
 import type { VoteOption } from '@/lib/types/proposals.types'
 import { categoryVariants, renderStatus } from '@/lib/utils/proposal'
 import { Calendar } from 'lucide-react'
