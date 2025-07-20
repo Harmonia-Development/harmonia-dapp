@@ -7,31 +7,51 @@ import { ProposalList } from '@/components/proposals/ProposalList'
 import { ProposalStats } from '@/components/proposals/ProposalStats'
 import { LayoutWrapper } from '@/components/ui/layout-wrapper'
 import { ThemeWrapper } from '@/components/ui/theme-wrapper'
-import { proposals as sampleProposals } from '@/lib/mock-data/proposals.mock'
+import { useProposal } from '@/hooks/useProposal'
+import type { Proposal } from '@/lib/contracts/src'
 import type { VoteOption } from '@/lib/types/proposals.types'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function ProposalsPage() {
-	const [proposals, setProposals] = useState(sampleProposals)
+	const { getAllProposals, castVote, state } = useProposal()
+	const [proposals, setProposals] = useState<Proposal[]>([])
+	const [isLoading, setIsLoading] = useState(true)
 
-	// Dynamically calculate category data based on current proposals
+	// Load proposals from contract
+	useEffect(() => {
+		const fetchProposals = async () => {
+			try {
+				setIsLoading(true)
+				const result = await getAllProposals()
+				setProposals(result)
+			} catch (err) {
+				console.error('Failed to load proposals:', err)
+			} finally {
+				setIsLoading(false)
+			}
+		}
+
+		fetchProposals()
+	}, [getAllProposals])
+
+	// Calculate category data for chart
 	const categoryData = useMemo(() => {
 		if (proposals.length === 0) return []
 
 		const categoryCounts = proposals.reduce(
 			(acc, proposal) => {
-				const category = proposal.category
-				acc[category] = (acc[category] || 0) + 1
+				const category = proposal.proposal_type
+				acc[category.tag] = (acc[category.tag] || 0) + 1
 				return acc
 			},
 			{} as Record<string, number>,
 		)
 
 		const categoryConfig = {
-			treasury: { name: 'Treasury', color: '#9333ea' },
-			governance: { name: 'Governance', color: '#3b82f6' },
-			community: { name: 'Community', color: '#22c55e' },
-			technical: { name: 'Technical', color: '#f59e0b' },
+			Treasury: { name: 'Treasury', color: '#9333ea' },
+			Governance: { name: 'Governance', color: '#3b82f6' },
+			Community: { name: 'Community', color: '#22c55e' },
+			Technical: { name: 'Technical', color: '#f59e0b' },
 		}
 
 		return Object.entries(categoryCounts)
@@ -47,21 +67,18 @@ export default function ProposalsPage() {
 	}, [proposals])
 
 	// Handle voting on proposals
-	const handleVote = (proposalId: string, vote: VoteOption) => {
+	const handleVote = async (proposalId: string, vote: VoteOption) => {
+		const success = await castVote(Number(proposalId), vote)
+		if (!success) return
+
 		setProposals((prevProposals) =>
 			prevProposals.map((proposal) => {
-				if (proposal.id === proposalId) {
-					// Create a new votes object with updated values
-					const updatedVotes = { ...proposal.votes }
-
-					// Increment the selected vote type
-					if (vote === 'for') updatedVotes.for += 1
-					else if (vote === 'against') updatedVotes.against += 1
-					else if (vote === 'abstain') updatedVotes.abstain += 1
-
+				if (proposal.id === Number(proposalId)) {
 					return {
 						...proposal,
-						votes: updatedVotes,
+						for_votes: vote === 'For' ? proposal.for_votes + 1 : proposal.for_votes,
+						against_votes: vote === 'Against' ? proposal.against_votes + 1 : proposal.against_votes,
+						abstain_votes: vote === 'Abstain' ? proposal.abstain_votes + 1 : proposal.abstain_votes,
 					}
 				}
 				return proposal
@@ -79,6 +96,7 @@ export default function ProposalsPage() {
 							Create, vote, and track governance proposals
 						</p>
 					</div>
+
 					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 						<div className="lg:col-span-2 space-y-6">
 							<ErrorBoundary>
@@ -89,12 +107,13 @@ export default function ProposalsPage() {
 									data={proposals}
 									onVote={handleVote}
 									onSelect={(id) => console.log(`Selected proposal: ${id}`)}
+									isLoading={isLoading}
 								/>
 							</ErrorBoundary>
 						</div>
 						<div className="space-y-6">
 							<ErrorBoundary>
-								<ProposalCategoryChart data={categoryData} />
+								<ProposalCategoryChart data={categoryData} isLoading={isLoading} />
 							</ErrorBoundary>
 							<ErrorBoundary>
 								<ProposalCalendar events={[]} />

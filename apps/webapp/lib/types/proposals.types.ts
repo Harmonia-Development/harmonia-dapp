@@ -3,7 +3,7 @@ import type { CreateProposalFormSchema } from '../schemas/proposals.schemas'
 
 export type ProposalStatus = 'active' | 'passed' | 'rejected' | 'pending' | 'expired'
 export type ProposalCategory = 'community' | 'technical' | 'treasury' | 'governance'
-export type VoteOption = 'for' | 'against' | 'abstain'
+export type VoteOption = 'For' | 'Against' | 'Abstain'
 export type CreateProposalFormValues = z.infer<typeof CreateProposalFormSchema>
 
 export interface ProposalVotes {

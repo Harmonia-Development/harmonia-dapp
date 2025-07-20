@@ -1,8 +1,9 @@
 'use client'
 
-import { ChartSkeleton, ProposalCardSkeleton } from '@/components/ui/loading-skeletons'
+import { ProposalCardSkeleton } from '@/components/ui/loading-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { Proposal, ProposalStatus, VoteOption } from '@/lib/types/proposals.types'
+import type { Proposal } from '@/lib/contracts/src'
+import type { VoteOption } from '@/lib/types/proposals.types'
 import { useState } from 'react'
 import { CreateProposalButton } from './CreateProposalButton'
 import { ProposalCard } from './ProposalCard'
@@ -19,12 +20,13 @@ interface ProposalListProps {
 const ITEMS_PER_PAGE = 5
 
 export function ProposalList({ data, onSelect, onVote, isLoading = false }: ProposalListProps) {
-	const [activeTab, setActiveTab] = useState<ProposalStatus | 'all'>('all')
+	const [activeTab, setActiveTab] = useState<'all' | Proposal['status']['tag']>('all')
 	const [currentPage, setCurrentPage] = useState(1)
 
+	// Filter proposals based on status tag
 	const filteredProposals = data.filter((proposal) => {
 		if (activeTab === 'all') return true
-		return proposal.status === activeTab
+		return proposal.status.tag === activeTab
 	})
 
 	// Paginate filtered proposals
@@ -34,24 +36,27 @@ export function ProposalList({ data, onSelect, onVote, isLoading = false }: Prop
 
 	if (isLoading) {
 		return (
-			<div className="container mx-auto py-6">
-				<div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-					<Skeleton className="h-8 w-64" />
+			<div className="rounded-xl border bg-card text-card-foreground shadow p-6 space-y-4">
+				{/* Header + Button */}
+				<div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-2">
+					<div>
+						<Skeleton className="h-8 w-48" />
+						<Skeleton className="h-5 w-64 mt-2" />
+					</div>
 					<Skeleton className="h-10 w-32" />
 				</div>
 
+				{/* Filter tabs */}
 				<div className="mb-6">
 					<Skeleton className="h-10 w-full" />
 				</div>
 
-				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-					{['a', 'b', 'c', 'd', 'e', 'f'].map((key) => (
-						<ProposalCardSkeleton key={`skeleton-${key}`} />
+				{/* Proposal cards */}
+				<div className="space-y-4">
+					{Array.from({ length: 3 }).map((_, i) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: using index is fine for static skeletons
+						<ProposalCardSkeleton key={`skeleton-${i}`} />
 					))}
-				</div>
-
-				<div className="mb-6">
-					<ChartSkeleton />
 				</div>
 			</div>
 		)
@@ -73,8 +78,17 @@ export function ProposalList({ data, onSelect, onVote, isLoading = false }: Prop
 
 			<div>
 				{paginatedProposals.length === 0 ? (
-					<div className="text-center py-12">
-						<p className="text-muted-foreground">No proposals found for this filter.</p>
+					<div className="text-center py-12 space-y-3">
+						{data.length === 0 ? (
+							<>
+								<h2 className="text-xl font-semibold">No proposals yet</h2>
+								<p className="text-muted-foreground">
+									There are currently no governance proposals. Be the first to create one!
+								</p>
+							</>
+						) : (
+							<p className="text-muted-foreground">No proposals found for this filter.</p>
+						)}
 					</div>
 				) : (
 					<div className="space-y-4">
@@ -85,7 +99,6 @@ export function ProposalList({ data, onSelect, onVote, isLoading = false }: Prop
 				)}
 			</div>
 
-			{/* Pagination */}
 			{totalPages > 1 && (
 				<ProposalPagination
 					currentPage={currentPage}

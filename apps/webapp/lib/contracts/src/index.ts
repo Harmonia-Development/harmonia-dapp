@@ -1,4 +1,5 @@
-import { Buffer } from 'node:buffer'
+// biome-ignore lint/style/useNodejsImportProtocol: Buffer needs to work in both Node.js and browser environments
+import { Buffer } from 'buffer'
 import {
 	type AssembledTransaction,
 	Client as ContractClient,
