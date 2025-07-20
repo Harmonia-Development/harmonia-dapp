@@ -1,60 +1,18 @@
 'use client'
 
-import { cva } from 'class-variance-authority'
-import { AlertTriangle, Calendar, Check, Clock, X } from 'lucide-react'
-
 // import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import type { Proposal } from '@/lib/contracts/src'
 import type { VoteOption } from '@/lib/types/proposals.types'
+import { categoryVariants, renderStatus } from '@/lib/utils/proposal'
+import { Calendar } from 'lucide-react'
 
 interface ProposalCardProps extends Proposal {
 	onSelect: (proposalId: string) => void
 	onVote: (proposalId: string, vote: VoteOption) => void
 	// creator: { initials: string }
-}
-
-const categoryVariants = cva('rounded-full', {
-	variants: {
-		category: {
-			Community: 'bg-emerald-500/10 text-emerald-500',
-			Technical: 'bg-amber-500/10 text-amber-500',
-			Treasury: 'bg-blue-500/10 text-blue-500',
-			Governance: 'bg-purple-500/10 text-purple-500',
-		},
-	},
-	defaultVariants: {
-		category: 'Community',
-	},
-})
-
-function renderStatus(status: Proposal['status']['tag']) {
-	switch (status) {
-		case 'Accepted':
-			return {
-				icon: <Check className="h-4 w-4 text-green-500" />,
-				label: 'Accepted',
-			}
-		case 'Rejected':
-			return {
-				icon: <X className="h-4 w-4 text-red-500" />,
-				label: 'Rejected',
-			}
-		case 'Open':
-			return {
-				icon: <Clock className="h-4 w-4 text-amber-500" />,
-				label: 'Open',
-			}
-		case 'Closed':
-			return {
-				icon: <AlertTriangle className="h-4 w-4 text-gray-400" />,
-				label: 'Closed',
-			}
-		default:
-			return { icon: null, label: status }
-	}
 }
 
 export function ProposalCard({

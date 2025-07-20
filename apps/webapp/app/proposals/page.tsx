@@ -13,7 +13,7 @@ import type { VoteOption } from '@/lib/types/proposals.types'
 import { useEffect, useMemo, useState } from 'react'
 
 export default function ProposalsPage() {
-	const { getAllProposals, castVote, state } = useProposal()
+	const { getAllProposals, castVote } = useProposal()
 	const [proposals, setProposals] = useState<Proposal[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 
