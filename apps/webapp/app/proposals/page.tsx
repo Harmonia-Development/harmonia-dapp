@@ -103,12 +103,7 @@ export default function ProposalsPage() {
 								<ProposalStats />
 							</ErrorBoundary>
 							<ErrorBoundary>
-								<ProposalList
-									data={proposals}
-									onVote={handleVote}
-									onSelect={(id) => console.log(`Selected proposal: ${id}`)}
-									isLoading={isLoading}
-								/>
+								<ProposalList data={proposals} onVote={handleVote} isLoading={isLoading} />
 							</ErrorBoundary>
 						</div>
 						<div className="space-y-6">

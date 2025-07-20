@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import type { Proposal } from '@/lib/contracts/src'
+import type { VoteOption } from '@/lib/types/proposals.types'
 import { cn } from '@/lib/utils'
 import {
 	categoryVariants,
@@ -32,13 +33,13 @@ import { useState } from 'react'
 
 interface ProposalDetailProps {
 	proposal: Proposal
-	onVote: (vote: 'for' | 'against' | 'abstain') => Promise<void>
+	onVote: (vote: VoteOption) => Promise<void>
+	userVote: VoteOption | null
 }
 
-export function ProposalDetail({ proposal, onVote }: ProposalDetailProps) {
+export function ProposalDetail({ proposal, onVote, userVote }: ProposalDetailProps) {
 	const router = useRouter()
 	const [isVoting, setIsVoting] = useState(false)
-	const [userVote, setUserVote] = useState<'for' | 'against' | 'abstain' | null>(null)
 
 	const totalVotes = proposal.for_votes + proposal.against_votes + proposal.abstain_votes
 	const forPercentage = totalVotes > 0 ? Math.round((proposal.for_votes / totalVotes) * 100) : 0
@@ -50,28 +51,19 @@ export function ProposalDetail({ proposal, onVote }: ProposalDetailProps) {
 	const timeRemaining = getTimeRemaining(proposal.deadline)
 	const isOpen = proposal.status.tag === 'Open' && !timeRemaining.isExpired
 
-	const handleVote = async (vote: 'for' | 'against' | 'abstain') => {
+	const handleVote = async (vote: VoteOption) => {
 		if (!isOpen || isVoting) return
 
 		try {
 			setIsVoting(true)
 			await onVote(vote)
-			setUserVote(vote)
-
-			// toast({
-			//   title: "Vote Submitted",
-			//   description: `Your ${vote} vote has been recorded successfully.`,
-			// })
-		} catch (error) {
-			// toast({
-			//   title: "Vote Failed",
-			//   description: "There was an error submitting your vote. Please try again.",
-			//   variant: "destructive",
-			// })
+		} catch {
 		} finally {
 			setIsVoting(false)
 		}
 	}
+
+	console.log(proposal.status.tag)
 
 	return (
 		<motion.div
@@ -81,7 +73,7 @@ export function ProposalDetail({ proposal, onVote }: ProposalDetailProps) {
 			className="space-y-6"
 		>
 			{/* Back Button */}
-			<Button variant="ghost" onClick={() => router.back()} className="mb-4">
+			<Button variant="ghost" onClick={() => router.push('/proposals')} className="mb-4">
 				<ArrowLeft className="h-4 w-4 mr-2" />
 				Back to Proposals
 			</Button>
@@ -214,7 +206,6 @@ export function ProposalDetail({ proposal, onVote }: ProposalDetailProps) {
 						<div className="space-y-3">
 							<div className="text-sm font-medium">Vote distribution</div>
 
-							{/* Barra apilada */}
 							<div className="h-2 w-full overflow-hidden rounded-full">
 								<div className="flex h-full gap-1">
 									<div className="bg-green-500" style={{ width: `${forPercentage}%` }} />
@@ -263,29 +254,29 @@ export function ProposalDetail({ proposal, onVote }: ProposalDetailProps) {
 									<Button
 										variant="outline"
 										className="font-semibold flex justify-center gap-2"
-										onClick={() => handleVote('against')}
+										onClick={() => handleVote('Against')}
 										disabled={isVoting}
 									>
 										Vote Against
-										{userVote === 'against' && <Check className="h-4 w-4" />}
+										{userVote === 'Against' && <Check className="h-4 w-4" />}
 									</Button>
 									<Button
 										variant="default"
 										className="font-semibold flex justify-center gap-2"
-										onClick={() => handleVote('for')}
+										onClick={() => handleVote('For')}
 										disabled={isVoting}
 									>
 										Vote For
-										{userVote === 'for' && <Check className="h-4 w-4" />}
+										{userVote === 'For' && <Check className="h-4 w-4" />}
 									</Button>
 									<Button
 										variant="secondary"
 										className="font-semibold flex justify-center gap-2"
-										onClick={() => handleVote('abstain')}
+										onClick={() => handleVote('Abstain')}
 										disabled={isVoting}
 									>
 										Abstain
-										{userVote === 'abstain' && <Check className="h-4 w-4" />}
+										{userVote === 'Abstain' && <Check className="h-4 w-4" />}
 									</Button>
 								</div>
 

@@ -1,6 +1,5 @@
 'use client'
 
-// import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
@@ -8,11 +7,11 @@ import type { Proposal } from '@/lib/contracts/src'
 import type { VoteOption } from '@/lib/types/proposals.types'
 import { categoryVariants, renderStatus } from '@/lib/utils/proposal'
 import { Calendar } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import type { MouseEvent } from 'react'
 
 interface ProposalCardProps extends Proposal {
-	onSelect: (proposalId: string) => void
 	onVote: (proposalId: string, vote: VoteOption) => void
-	// creator: { initials: string }
 }
 
 export function ProposalCard({
@@ -25,25 +24,33 @@ export function ProposalCard({
 	status,
 	proposal_type,
 	created_at,
-	// creator,
-	onSelect,
 	onVote,
 }: ProposalCardProps) {
-	const totalVotes = for_votes + against_votes + abstain_votes
+	const router = useRouter()
+	const proposalId = id.toString()
 
+	const totalVotes = for_votes + against_votes + abstain_votes
 	const forPercentage = totalVotes > 0 ? Math.round((for_votes / totalVotes) * 100) : 33
 	const againstPercentage = totalVotes > 0 ? Math.round((against_votes / totalVotes) * 100) : 33
 	const abstainPercentage = totalVotes > 0 ? Math.round((abstain_votes / totalVotes) * 100) : 33
 
-	const handleVote = (vote: VoteOption) => {
-		onSelect(id.toString())
-		onVote(id.toString(), vote)
+	const handleCardClick = () => {
+		router.push(`/proposals/${proposalId}`)
+	}
+
+	const handleVote = (e: MouseEvent, vote: VoteOption) => {
+		e.stopPropagation()
+		onVote(proposalId, vote)
 	}
 
 	const statusInfo = renderStatus(status.tag)
+	console.log(statusInfo)
 
 	return (
-		<Card className="w-full overflow-hidden hover:bg-muted/50">
+		<Card
+			className="w-full overflow-hidden hover:bg-muted/50 cursor-pointer"
+			onClick={handleCardClick}
+		>
 			<CardHeader className="p-3 sm:p-4">
 				<div className="flex items-start justify-between">
 					<div className="space-y-1">
@@ -62,12 +69,6 @@ export function ProposalCard({
 						</div>
 						<p className="text-sm text-muted-foreground">{description}</p>
 					</div>
-
-					{/*
-					<Avatar className="h-7 w-7 sm:h-8 sm:w-8">
-						<AvatarFallback>{creator.initials}</AvatarFallback>
-					</Avatar>
-					*/}
 				</div>
 			</CardHeader>
 
@@ -104,16 +105,20 @@ export function ProposalCard({
 
 			{status.tag === 'Open' && (
 				<CardFooter className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 p-3 sm:p-4 pt-0">
-					<Button variant="outline" className="font-semibold" onClick={() => handleVote('Against')}>
+					<Button
+						variant="outline"
+						className="font-semibold"
+						onClick={(e) => handleVote(e, 'Against')}
+					>
 						Vote Against
 					</Button>
-					<Button variant="default" className="font-semibold" onClick={() => handleVote('For')}>
+					<Button variant="default" className="font-semibold" onClick={(e) => handleVote(e, 'For')}>
 						Vote For
 					</Button>
 					<Button
 						variant="secondary"
 						className="font-semibold"
-						onClick={() => handleVote('Abstain')}
+						onClick={(e) => handleVote(e, 'Abstain')}
 					>
 						Abstain
 					</Button>

@@ -12,14 +12,13 @@ import { ProposalPagination } from './ProposalPagination'
 
 interface ProposalListProps {
 	data: Proposal[]
-	onSelect: (proposalId: string) => void
 	onVote: (proposalId: string, vote: VoteOption) => void
 	isLoading?: boolean
 }
 
 const ITEMS_PER_PAGE = 5
 
-export function ProposalList({ data, onSelect, onVote, isLoading = false }: ProposalListProps) {
+export function ProposalList({ data, onVote, isLoading = false }: ProposalListProps) {
 	const [activeTab, setActiveTab] = useState<'all' | Proposal['status']['tag']>('all')
 	const [currentPage, setCurrentPage] = useState(1)
 
@@ -93,7 +92,7 @@ export function ProposalList({ data, onSelect, onVote, isLoading = false }: Prop
 				) : (
 					<div className="space-y-4">
 						{paginatedProposals.map((proposal) => (
-							<ProposalCard key={proposal.id} {...proposal} onSelect={onSelect} onVote={onVote} />
+							<ProposalCard key={proposal.id} {...proposal} onVote={onVote} />
 						))}
 					</div>
 				)}
