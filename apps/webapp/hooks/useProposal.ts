@@ -3,6 +3,7 @@
 import { createProposalContract } from '@/lib/contracts/ProposalContract'
 import type { Proposal } from '@/lib/contracts/src'
 import { useCallback } from 'react'
+import { toast } from 'sonner'
 import { useSorobanContract } from './useSorobanContract'
 
 export interface UseProposalReturn {
@@ -40,7 +41,12 @@ export function useProposal(): UseProposalReturn {
 			type: string,
 			quorum: number | null = null,
 		): Promise<boolean> => {
-			if (!title.trim() || !description.trim() || !walletAddress || !contract) {
+			if (!title.trim() || !description.trim() || !contract) {
+				return false
+			}
+
+			if (!walletAddress) {
+				toast.error('Wallet not connected')
 				return false
 			}
 
@@ -67,7 +73,12 @@ export function useProposal(): UseProposalReturn {
 
 	const castVote = useCallback(
 		async (proposalId: number, choice: 'For' | 'Against' | 'Abstain'): Promise<boolean> => {
-			if (!walletAddress || !contract) return false
+			if (!contract) return false
+
+			if (!walletAddress) {
+				toast.error('Wallet not connected')
+				return false
+			}
 
 			const result = await executeContract(() => contract.vote(walletAddress, proposalId, choice), {
 				successMessage: 'Vote cast successfully!',

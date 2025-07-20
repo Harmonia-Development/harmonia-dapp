@@ -34,11 +34,6 @@ export function CreateProposalButton() {
 
 		if (success) {
 			setOpen(false)
-			toast.success(
-				`Your proposal has been created and will be active for ${values.timeLeft} days.`,
-			)
-		} else {
-			toast.error('Failed to create proposal')
 		}
 	}
 
