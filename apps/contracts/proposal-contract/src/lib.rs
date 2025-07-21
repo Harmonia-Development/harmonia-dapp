@@ -1,6 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, Env, Symbol, symbol_short, Address, String};
+use soroban_sdk::{contract, contractimpl, symbol_short, Address, Env, String, Symbol, Vec};
 
 mod datatypes;
 use datatypes::{Proposal, ProposalStatus, ProposalType};
@@ -33,18 +33,19 @@ impl ProposalContract {
         let now = env.ledger().timestamp();
 
         if deadline <= now {
-            return Err(ProposalError::InvalidDeadline.into());
+            return Err(ProposalError::InvalidDeadline);
         }
 
-        if title.len() == 0 || title.len() > 100 {
-            return Err(ProposalError::InvalidTitleLength.into());
+        if title.is_empty() || title.len() > 100 {
+            return Err(ProposalError::InvalidTitleLength);
         }
 
         let proposal_type = match proposal_type_symbol {
             s if s == Symbol::new(&env, "treasury") => ProposalType::Treasury,
             s if s == Symbol::new(&env, "governance") => ProposalType::Governance,
-            s if s == Symbol::new(&env, "system") => ProposalType::System,
-            _ => return Err(ProposalError::InvalidProposalType.into()),
+            s if s == Symbol::new(&env, "community") => ProposalType::Community,
+            s if s == Symbol::new(&env, "technical") => ProposalType::Technical,
+            _ => return Err(ProposalError::InvalidProposalType),
         };
 
         let id = Self::next_id(&env);
@@ -85,7 +86,7 @@ impl ProposalContract {
 
         let vote_key = (symbol_short!("vote"), proposal_id, user.clone());
         if env.storage().persistent().has(&vote_key) {
-            return Err(ProposalError::AlreadyVoted.into());
+            return Err(ProposalError::AlreadyVoted);
         }
 
         let mut proposal: Proposal = env
@@ -95,11 +96,11 @@ impl ProposalContract {
             .ok_or(ProposalError::ProposalNotFound)?;
 
         if proposal.status != ProposalStatus::Open {
-            return Err(ProposalError::ProposalNotOpen.into());
+            return Err(ProposalError::ProposalNotOpen);
         }
 
         if env.ledger().timestamp() > proposal.deadline {
-            return Err(ProposalError::VotingClosed.into());
+            return Err(ProposalError::VotingClosed);
         }
 
         let vote_choice_clone = vote_choice.clone();
@@ -108,7 +109,7 @@ impl ProposalContract {
             s if s == symbol_short!("For") => proposal.for_votes += 1,
             s if s == symbol_short!("Against") => proposal.against_votes += 1,
             s if s == symbol_short!("Abstain") => proposal.abstain_votes += 1,
-            _ => return Err(ProposalError::InvalidVoteChoice.into()),
+            _ => return Err(ProposalError::InvalidVoteChoice),
         }
 
         env.storage().persistent().set(&Self::proposal_key(proposal_id), &proposal);
@@ -129,11 +130,11 @@ impl ProposalContract {
             .ok_or(ProposalError::ProposalNotFound)?;
 
         if proposal.status != ProposalStatus::Open {
-            return Err(ProposalError::AlreadyFinalized.into());
+            return Err(ProposalError::AlreadyFinalized);
         }
 
         if env.ledger().timestamp() < proposal.deadline {
-            return Err(ProposalError::DeadlineNotReached.into());
+            return Err(ProposalError::DeadlineNotReached);
         }
 
         let total_votes = proposal.for_votes + proposal.against_votes + proposal.abstain_votes;
@@ -147,14 +148,12 @@ impl ProposalContract {
             } else {
                 ProposalStatus::Rejected
             }
+        } else if effective_votes == 0 {
+            ProposalStatus::Rejected
+        } else if proposal.for_votes > proposal.against_votes && proposal.for_votes > 0 {
+            ProposalStatus::Accepted
         } else {
-            if effective_votes == 0 {
-                ProposalStatus::Rejected
-            } else if proposal.for_votes > proposal.against_votes && proposal.for_votes > 0 {
-                ProposalStatus::Accepted
-            } else {
-                ProposalStatus::Rejected
-            }
+            ProposalStatus::Rejected
         };
 
         env.storage().persistent().set(&Self::proposal_key(proposal_id), &proposal);
@@ -180,6 +179,21 @@ impl ProposalContract {
             .persistent()
             .get(&Self::proposal_key(proposal_id))
             .unwrap_or_else(|| panic!("Proposal not found"))
+    }
+
+    /// Returns all proposals stored in persistent storage.
+    /// Iterates from 1 to the current next_id (exclusive) and collects all existing proposals.
+    pub fn get_all_proposals(env: Env) -> Vec<Proposal> {
+        let mut proposals = Vec::new(&env);
+        let next_id = Self::next_id(&env);
+
+        for id in 1..next_id {
+            if let Some(proposal) = env.storage().persistent().get::<_, Proposal>(&Self::proposal_key(id)) {
+                proposals.push_back(proposal);
+            }
+        }
+
+        proposals
     }
 
     /// Returns the next available proposal ID from storage, starting at 1.
