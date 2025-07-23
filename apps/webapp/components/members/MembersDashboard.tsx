@@ -1,21 +1,27 @@
-'use client'
-import GovernanceWeight from '@/components/members/GovernanceWeightChart'
-import MemberDirectory from '@/components/members/MemberDirectoryTable'
-import MemberStats from '@/components/members/MemberStats'
-import { ChartSkeleton, StatsSkeleton, TableSkeleton } from '@/components/ui/loading-skeletons'
-import { Skeleton } from '@/components/ui/skeleton'
-import { UserPlus } from 'lucide-react'
-import { useState } from 'react'
-import { Button } from '../ui/button'
-import { InviteMemberModal } from './modals/InviteMemberModal'
-import { ReferralStatsTabs } from './referrals/ReferralStatsTabs'
+"use client";
+import GovernanceWeight from "@/components/members/GovernanceWeightChart";
+import MemberDirectory from "@/components/members/MemberDirectoryTable";
+import MemberStats from "@/components/members/MemberStats";
+import {
+  ChartSkeleton,
+  StatsSkeleton,
+  TableSkeleton,
+} from "@/components/ui/loading-skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
+import { UserPlus } from "lucide-react";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import { InviteMemberModal } from "./modals/InviteMemberModal";
+import { ReferralStatsTabs } from "./referrals/ReferralStatsTabs";
 
 interface MembersDashboardProps {
-  isLoading?: boolean
+  isLoading?: boolean;
 }
 
-const MembersDashboard: React.FC<MembersDashboardProps> = ({ isLoading = false }) => {
-  const [open, setOpen] = useState(false)
+const MembersDashboard: React.FC<MembersDashboardProps> = ({
+  isLoading = false,
+}) => {
+  const [open, setOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -33,7 +39,7 @@ const MembersDashboard: React.FC<MembersDashboardProps> = ({ isLoading = false }
           <ChartSkeleton />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -41,11 +47,13 @@ const MembersDashboard: React.FC<MembersDashboardProps> = ({ isLoading = false }
       <div className="w-full flex justify-between items-center">
         <div>
           <h2 className="text-white text-2xl font-bold">Members</h2>
-          <span className="text-gray-400 mt-1">Manage and explore DAO membership</span>
+          <span className="text-gray-400 mt-1">
+            Manage and explore DAO membership
+          </span>
         </div>
         <Button
           onClick={() => setOpen(true)}
-          className="bg-[#723DCA] text-white font-semibold rounded-md px-4 py-2 flex items-center hover:bg-[#5b2f9e]"
+          className="bg-primary text-white font-semibold rounded-md px-4 py-2 flex items-center hover:bg-primary-hover"
         >
           <UserPlus className="h-4 w-4" />
           Invite Member
@@ -62,7 +70,7 @@ const MembersDashboard: React.FC<MembersDashboardProps> = ({ isLoading = false }
 
       <InviteMemberModal open={open} onOpenChange={setOpen} />
     </div>
-  )
-}
+  );
+};
 
-export default MembersDashboard
+export default MembersDashboard;
