@@ -29,7 +29,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
 import { logDev } from "@/lib/utils/logger";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -43,6 +42,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 // Form schema for validation
@@ -104,7 +104,6 @@ export function InviteMemberModal({
   const [activeTab, setActiveTab] = useState("create");
   const [copied, setCopied] = useState(false);
   // const [_isSubmitting, _setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   // const _modalRef = useRef<HTMLDivElement>(null);
   // const _firstFocusableRef = useRef<HTMLInputElement>(null);
   // const _lastFocusableRef = useRef<HTMLButtonElement>(null);
@@ -117,11 +116,7 @@ export function InviteMemberModal({
   function onSubmit(data: InviteFormValues) {
     logDev("Invitation data:", data);
 
-    toast({
-      title: "Invitation created",
-      description: `Invitation sent to ${data.email}`,
-      variant: "default_",
-    });
+    toast.success(`Invitation sent to ${data.email}`)
 
     // Reset form and close modal
     form.reset(defaultValues);

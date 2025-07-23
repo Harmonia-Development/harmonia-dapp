@@ -6,23 +6,38 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import { useToast } from '@/hooks/use-toast'
+import { useProposal } from '@/hooks/useProposal'
+import type { CreateProposalFormValues } from '@/lib/types/proposals.types'
 import { logDev } from '@/lib/utils/logger'
 import { PlusCircle } from 'lucide-react'
 import { useState } from 'react'
 import { ErrorBoundary } from '../common/ErrorBoundary'
+import { CreateProposalForm } from './CreateProposalForm'
 
 export function CreateProposalButton() {
+	const { createProposal } = useProposal()
 	const [open, setOpen] = useState(false)
-	const { toast } = useToast()
 
-	const handleCreateProposal = () => {
-		logDev('Create proposal button clicked')
+	const handleSubmit = async (values: CreateProposalFormValues) => {
+		logDev('Submitting proposal:', values)
+
+		const deadlineInSeconds = Math.floor(Date.now() / 1000) + Number(values.timeLeft) * 86400
+
+		const success = await createProposal(
+			values.title,
+			values.description,
+			BigInt(deadlineInSeconds),
+			values.category,
+			10,
+		)
+
+		if (success) {
+			setOpen(false)
+		}
+	}
+
+	const handleCancel = () => {
 		setOpen(false)
-		toast({
-			title: 'Create Proposal',
-			description: 'This functionality will be implemented in a future update.',
-		})
 	}
 
 	return (
@@ -39,13 +54,7 @@ export function CreateProposalButton() {
 						<DialogTitle>Create New Proposal</DialogTitle>
 					</DialogHeader>
 					<div className="py-4">
-						<p className="text-muted-foreground">
-							The proposal creation form will be implemented in a future update. This is just a
-							placeholder.
-						</p>
-					</div>
-					<div className="flex justify-end">
-						<Button onClick={handleCreateProposal}>Continue</Button>
+						<CreateProposalForm onSubmit={handleSubmit} onCancel={handleCancel} />
 					</div>
 				</DialogContent>
 			</Dialog>

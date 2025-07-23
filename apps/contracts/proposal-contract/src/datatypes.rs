@@ -5,7 +5,8 @@ use soroban_sdk::{contracttype, Address, String};
 pub enum ProposalType {
     Treasury,
     Governance,
-    System,
+    Community,
+    Technical
 }
 
 #[derive(Clone, PartialEq)]
