@@ -9,7 +9,6 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
-apps/contracts/proposal-contract/test_snapshots
 test_snapshots/
 
 # Caches
@@ -60,6 +59,11 @@ build/Release
 
 node_modules/
 jspm_packages/
+
+# Lockfiles
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Snowpack dependency directory (https://snowpack.dev/)
 
