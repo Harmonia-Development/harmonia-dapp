@@ -6,10 +6,15 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --passWithNoTests",
+    "lint": "eslint --no-error-on-unmatched-pattern \"src/**/*.{js,ts}\" \"tests/**/*.{js,ts}\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Stellar wallet service for managing accounts and transactions"
+  "description": "Stellar wallet service for managing accounts and transactions",
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "jest": "^30.0.5"
+  }
 }
