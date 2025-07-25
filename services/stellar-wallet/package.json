@@ -1,20 +1,31 @@
 {
-  "name": "stellar-wallet",
-  "version": "1.0.0",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
-  "scripts": {
-    "test": "jest --passWithNoTests",
-    "lint": "eslint --no-error-on-unmatched-pattern \"src/**/*.{js,ts}\" \"tests/**/*.{js,ts}\""
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "Stellar wallet service for managing accounts and transactions",
-  "devDependencies": {
-    "eslint": "^8.57.1",
-    "jest": "^30.0.5"
-  }
+	"name": "stellar-wallet",
+	"version": "1.0.0",
+	"main": "src/index.ts",
+	"type": "module",
+	"directories": {
+		"test": "tests"
+	},
+	"scripts": {
+		"test": "jest --passWithNoTests",
+		"lint": "eslint . --ext .ts,.tsx",
+		"format": "prettier --write \"**/*.{ts,tsx}\""
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "Stellar wallet service for managing accounts and transactions",
+	"devDependencies": {
+		"@types/express": "^5.0.3",
+		"@types/node": "^24.1.0",
+		"@typescript-eslint/eslint-plugin": "^8.38.0",
+		"@typescript-eslint/parser": "^8.38.0",
+		"eslint": "^9.32.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-prettier": "^5.5.3",
+		"jest": "^30.0.5",
+		"prettier": "^3.6.2",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.8.3"
+	}
 }
