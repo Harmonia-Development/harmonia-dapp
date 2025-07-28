@@ -49,11 +49,11 @@ export function CreateProposalButton() {
 						Create Proposal
 					</Button>
 				</DialogTrigger>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Create New Proposal</DialogTitle>
+				<DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+					<DialogHeader className="pb-4">
+						<DialogTitle className="text-lg sm:text-xl">Create New Proposal</DialogTitle>
 					</DialogHeader>
-					<div className="py-4">
+					<div className="py-2 sm:py-4">
 						<CreateProposalForm onSubmit={handleSubmit} onCancel={handleCancel} />
 					</div>
 				</DialogContent>

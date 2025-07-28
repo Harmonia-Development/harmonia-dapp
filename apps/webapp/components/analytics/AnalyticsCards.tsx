@@ -37,7 +37,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
 
 	return (
 		<div
-			className="p-4 rounded-xl shadow-md w-full space-y-3 transition-all duration-300 hover:transform hover:scale-105 hover:shadow-lg"
+			className="p-4 rounded-xl shadow-md w-full space-y-3 transition-all duration-300 hover:transform hover:scale-[1.02] hover:shadow-lg overflow-hidden"
 			style={{ backgroundColor: color }}
 		>
 			<div className="flex justify-between items-center">
@@ -54,21 +54,21 @@ const MetricCard: React.FC<MetricCardProps> = ({
 			<div className="w-full bg-gray-700 h-1 rounded-full overflow-hidden">
 				<div className="bg-purple-500 h-full rounded-full" style={{ width: percent }} />
 			</div>
-			<div className="text-sm text-white text-right">{percent}</div>
+			<div className="text-sm text-white text-right mb-1">{percent}</div>
 		</div>
 	)
 }
 
 export default function AnalyticsCard() {
 	return (
-		<Card className="mb-4">
+		<Card className="mb-4 overflow-hidden">
 			<CardHeader className="pb-2">
 				<CardTitle className="text-2xl font-bold">Analytics Dashboard</CardTitle>
 				<CardDescription>
 					Comprehensive insights and data visualisation for your DAO
 				</CardDescription>
 			</CardHeader>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-black">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-black">
 				<MetricCard
 					title="Governance Score"
 					value="92/100"
