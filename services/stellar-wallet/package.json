@@ -1,20 +1,42 @@
 {
 	"name": "stellar-wallet",
 	"version": "1.0.0",
-	"main": "index.js",
+	"main": "src/index.ts",
 	"directories": {
 		"test": "tests"
 	},
 	"scripts": {
+		"dev": "nodemon",
+		"build": "tsc",
+		"start": "npm run build && node dist/index.js",
 		"test": "jest --passWithNoTests",
-		"lint": "eslint --no-error-on-unmatched-pattern \"src/**/*.{js,ts}\" \"tests/**/*.{js,ts}\""
+		"lint": "eslint . --ext .ts",
+		"format": "prettier --write ."
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"description": "Stellar wallet service for managing accounts and transactions",
 	"devDependencies": {
-		"eslint": "^8.57.1",
-		"jest": "^30.0.5"
+		"@types/cors": "^2.8.19",
+		"@types/express": "^5.0.3",
+		"@types/node": "^24.1.0",
+		"@typescript-eslint/eslint-plugin": "^8.38.0",
+		"@typescript-eslint/parser": "^8.38.0",
+		"eslint": "^9.32.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-prettier": "^5.5.3",
+		"jest": "^30.0.5",
+		"jiti": "^2.5.1",
+		"nodemon": "^3.1.10",
+		"prettier": "^3.6.2",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"cors": "^2.8.5",
+		"dotenv": "^17.2.1",
+		"express": "^5.1.0",
+		"zod": "^4.0.11"
 	}
 }

@@ -3,3 +3,4 @@ config/db.sqlite
 dist
 .env
 coverage
+package-lock.json
