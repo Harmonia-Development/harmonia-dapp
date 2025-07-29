@@ -76,6 +76,7 @@ export default [
 			'.env',
 			'coverage/**',
 			'package-lock.json',
+			'jest.config.js',
 		],
 	},
 ]
