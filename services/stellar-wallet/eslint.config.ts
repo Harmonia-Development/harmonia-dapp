@@ -36,6 +36,8 @@ export default [
 			eqeqeq: ['error', 'always'],
 			// Enforce a maximum line length (usually 80 or 100 characters)
 			'max-len': ['error', { code: 100 }],
+			// Allow unused function arguments if their name starts with an underscore
+			'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
 			// Enable Prettier as a lint rule
 			'prettier/prettier': [
 				'error',
