@@ -17,6 +17,9 @@ export default [
 			globals: {
 				process: 'readonly',
 				console: 'readonly',
+				fetch: 'readonly',
+				global: 'readonly',
+				globalThis: 'readonly',
 			},
 		},
 		plugins: {
@@ -63,6 +66,9 @@ export default [
 				afterEach: 'readonly',
 				beforeAll: 'readonly',
 				afterAll: 'readonly',
+				fetch: 'readonly',
+				global: 'readonly',
+				globalThis: 'readonly',
 			},
 		},
 	},
