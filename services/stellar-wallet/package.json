@@ -9,7 +9,7 @@
 		"dev": "nodemon",
 		"build": "tsc",
 		"start": "npm run build && node dist/index.js",
-		"test": "jest --passWithNoTests",
+		"test": "jest --coverage",
 		"lint": "eslint . --ext .ts",
 		"format": "prettier --write ."
 	},
@@ -20,6 +20,7 @@
 	"devDependencies": {
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.3",
+		"@types/jest": "^30.0.0",
 		"@types/node": "^24.1.0",
 		"@typescript-eslint/eslint-plugin": "^8.38.0",
 		"@typescript-eslint/parser": "^8.38.0",
@@ -30,10 +31,12 @@
 		"jiti": "^2.5.1",
 		"nodemon": "^3.1.10",
 		"prettier": "^3.6.2",
+		"ts-jest": "^29.4.0",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
+		"@stellar/stellar-sdk": "^14.0.0-rc.3",
 		"cors": "^2.8.5",
 		"dotenv": "^17.2.1",
 		"express": "^5.1.0",

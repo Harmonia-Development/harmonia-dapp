@@ -1,0 +1,8 @@
+{
+	"extends": "./tsconfig.json",
+	"include": ["src/**/*.ts", "tests/**/*.test.ts"],
+	"exclude": ["node_modules", "dist", "coverage", "jest.config.ts"],
+	"compilerOptions": {
+		"noEmit": true
+	}
+}

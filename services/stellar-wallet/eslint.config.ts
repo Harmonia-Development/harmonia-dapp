@@ -12,11 +12,14 @@ export default [
 			parserOptions: {
 				ecmaVersion: 'latest',
 				sourceType: 'module',
-				project: './tsconfig.json',
+				project: './tsconfig.eslint.json',
 			},
 			globals: {
 				process: 'readonly',
 				console: 'readonly',
+				fetch: 'readonly',
+				global: 'readonly',
+				globalThis: 'readonly',
 			},
 		},
 		plugins: {
@@ -48,6 +51,28 @@ export default [
 			],
 		},
 	},
+
+	// Allow Jest globals like describe, it, expect, etc. in test files
+	{
+		files: ['**/*.test.ts', '**/__tests__/**/*.ts'],
+		languageOptions: {
+			globals: {
+				jest: 'readonly',
+				describe: 'readonly',
+				it: 'readonly',
+				test: 'readonly',
+				expect: 'readonly',
+				beforeEach: 'readonly',
+				afterEach: 'readonly',
+				beforeAll: 'readonly',
+				afterAll: 'readonly',
+				fetch: 'readonly',
+				global: 'readonly',
+				globalThis: 'readonly',
+			},
+		},
+	},
+
 	{
 		ignores: [
 			'**/*.config.ts',
@@ -57,6 +82,7 @@ export default [
 			'.env',
 			'coverage/**',
 			'package-lock.json',
+			'jest.config.js',
 		],
 	},
 ]
