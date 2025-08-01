@@ -32,6 +32,11 @@ export function useProposal(): UseProposalReturn {
 	const { state, contract, isConnected, walletAddress, executeContract, readContract } =
 		useSorobanContract(createProposalContract)
 
+	// Log a helpful message when contract is not available in development
+	if (!contract && process.env.NODE_ENV === 'development') {
+		console.log('Proposal contract not available. Using mock data for development.')
+	}
+
 	const createProposal = useCallback(
 		async (
 			title: string,

@@ -1,53 +1,46 @@
-import { FileText, Users, Wallet } from "lucide-react";
-import NotificationItem from "./NotificationItem";
+import { FileText, Users, Wallet } from 'lucide-react'
+import NotificationItem from './NotificationItem'
 
 const Notifications: React.FC = () => {
-  return (
-    <div className="rounded-lg border border-gray-dark w-full">
-      <div className="border-b border-gray-dark p-4">
-        <div className="flex justify-between items-center  ">
-          <div className="flex items-center space-x-2">
-            <h2 className="text-white text-xl font-semibold">Notifications</h2>
-            <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
-              2 new
-            </span>
-          </div>
-          <button
-            type="button"
-            className="text-gray-400 hover:text-white text-xs"
-          >
-            Mark all read
-          </button>
-        </div>
+	return (
+		<div className="rounded-lg border border-gray-dark w-full">
+			<div className="border-b border-gray-dark p-4">
+				<div className="flex justify-between items-center  ">
+					<div className="flex items-center space-x-2">
+						<h2 className="text-white text-xl font-semibold">Notifications</h2>
+						<span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">2 new</span>
+					</div>
+					<button type="button" className="text-gray-400 hover:text-white text-xs">
+						Mark all read
+					</button>
+				</div>
 
-        <p className="text-base text-gray-400">
-          Stay update on important DAO activites
-        </p>
-      </div>
+				<p className="text-base text-gray-400">Stay update on important DAO activites</p>
+			</div>
 
-      <div className="divide-y divide-gray-dark px-4">
-        <NotificationItem
-          icon={FileText}
-          title="Proposal Ending Soon"
-          description="Community Garden Initiative voting ends in 24 hours"
-          timestamp="1 hour ago"
-          isNew
-        />
-        <NotificationItem
-          icon={Wallet}
-          title="Treasury Update"
-          description="Monthly treasury report is now available"
-          timestamp="3 hours ago"
-        />
-        <NotificationItem
-          icon={Users}
-          title="New Member Joined"
-          description="stellar.dev has joined the DAO"
-          timestamp="1 day ago"
-        />
-      </div>
-    </div>
-  );
-};
+			<div className="divide-y divide-gray-dark px-4">
+				<NotificationItem
+					icon={FileText}
+					title="Proposal Ending Soon"
+					description="Community Garden Initiative voting ends in 24 hours"
+					timestamp="1 hour ago"
+					isNew
+				/>
+				<NotificationItem
+					icon={Wallet}
+					title="Treasury Update"
+					description="Monthly treasury report is now available"
+					timestamp="3 hours ago"
+				/>
+				<NotificationItem
+					icon={Users}
+					title="New Member Joined"
+					description="stellar.dev has joined the DAO"
+					timestamp="1 day ago"
+				/>
+			</div>
+		</div>
+	)
+}
 
-export default Notifications;
+export default Notifications

@@ -35,7 +35,7 @@ const channelData = [
  */
 export function ReferralPerformanceChart() {
 	return (
-		<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+		<div className="space-y-6">
 			{/* Donut Chart - Conversion Breakdown */}
 			<Card className="bg-[#070709] border-[#1a1a1d]">
 				<CardHeader>
@@ -45,17 +45,17 @@ export function ReferralPerformanceChart() {
 					</p>
 				</CardHeader>
 				<CardContent>
-					<div className="flex items-center justify-between">
+					<div className="flex items-center justify-center">
 						{/* Donut Chart */}
 						<div className="relative">
-							<ResponsiveContainer width={200} height={200}>
+							<ResponsiveContainer width={300} height={300}>
 								<PieChart>
 									<Pie
 										data={conversionData}
-										cx={100}
-										cy={100}
-										innerRadius={60}
-										outerRadius={90}
+										cx={150}
+										cy={150}
+										innerRadius={80}
+										outerRadius={120}
 										paddingAngle={2}
 										dataKey="value"
 									>
@@ -73,19 +73,19 @@ export function ReferralPerformanceChart() {
 								</div>
 							</div>
 						</div>
+					</div>
 
-						{/* Legend */}
-						<div className="space-y-3">
+					{/* Legend */}
+					<div className="flex justify-center mt-6">
+						<div className="flex gap-2">
 							{conversionData.map((item) => (
-								<div key={item.name} className="flex items-center justify-between min-w-[120px]">
-									<div className="flex items-center">
-										<div
-											className="w-3 h-3 rounded-full mr-2"
-											style={{ backgroundColor: item.color }}
-										/>
-										<span className="text-sm text-gray-300">{item.name}</span>
-									</div>
-									<span className="text-sm font-medium text-white">{item.value}%</span>
+								<div key={item.name} className="flex items-center">
+									<div
+										className="w-3 h-3 rounded-full mr-2"
+										style={{ backgroundColor: item.color }}
+									/>
+									<span className="text-sm text-gray-300">{item.name}</span>
+									<span className="text-sm font-medium text-white ml-2">{item.value}%</span>
 								</div>
 							))}
 						</div>

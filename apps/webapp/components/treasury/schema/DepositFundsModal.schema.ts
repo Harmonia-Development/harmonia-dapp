@@ -2,15 +2,15 @@ import { z } from 'zod'
 
 export const depositFundsSchema = z.object({
 	asset: z.string({
-		required_error: 'Please select an asset',
+		required_error: 'Select an asset',
 	}),
 	amount: z.coerce
 		.number({
-			required_error: 'Amount is required',
-			invalid_type_error: 'Amount must be a number',
+			required_error: 'Amount required',
+			invalid_type_error: 'Must be a number',
 		})
 		.positive('Amount must be positive'),
-	source: z.string().min(1, 'Source wallet address is required'),
+	source: z.string().min(1, 'Source wallet required'),
 	memo: z.string().optional(),
 })
 

@@ -15,7 +15,7 @@ export default function NetworkDashboard() {
 	if (!mounted) return null
 
 	return (
-		<div className="w-full max-w-4xl mx-auto flex flex-col justify-center items-center px-4 py-6">
+		<div className="w-full max-w-4xl mx-auto flex flex-col justify-center items-center py-6">
 			<div className="w-full aspect-square max-h-[500px] mb-4">
 				<NetworkVisualization />
 			</div>

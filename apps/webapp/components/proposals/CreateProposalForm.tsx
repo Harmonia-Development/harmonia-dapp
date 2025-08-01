@@ -24,6 +24,7 @@ import { useForm } from 'react-hook-form'
 
 import { CreateProposalFormSchema } from '@/lib/schemas/proposals.schemas'
 import type { CreateProposalFormValues } from '@/lib/types/proposals.types'
+import { sanitizeString } from '@/lib/utils/sanitize'
 
 interface CreateProposalFormProps {
 	onSubmit: (values: CreateProposalFormValues) => void
@@ -43,22 +44,38 @@ export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormPro
 
 	const categoryValue = form.watch('category')
 
+	const handleSubmit = (values: CreateProposalFormValues) => {
+		// Sanitize inputs before submission
+		const sanitizedValues = {
+			...values,
+			title: sanitizeString(values.title),
+			description: sanitizeString(values.description),
+		}
+
+		onSubmit(sanitizedValues)
+	}
+
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+			<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 sm:space-y-6">
 				<FormField
 					control={form.control}
 					name="title"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Title</FormLabel>
+							<FormLabel className="text-sm sm:text-base">Title</FormLabel>
 							<FormControl>
-								<Input placeholder="Enter proposal title" {...field} />
+								<Input
+									placeholder="Enter proposal title"
+									{...field}
+									maxLength={100}
+									className="text-sm sm:text-base"
+								/>
 							</FormControl>
-							<FormDescription className="text-sm text-muted-foreground">
-								A clear, concise title for your proposal
+							<FormDescription className="text-xs sm:text-sm text-muted-foreground">
+								A clear, concise title for your proposal (max 100 characters)
 							</FormDescription>
-							<FormMessage className="text-sm font-medium" />
+							<FormMessage className="text-red-500 text-sm font-medium" />
 						</FormItem>
 					)}
 				/>
@@ -68,10 +85,10 @@ export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormPro
 					name="category"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Category</FormLabel>
+							<FormLabel className="text-sm sm:text-base">Category</FormLabel>
 							<Select value={categoryValue} onValueChange={field.onChange}>
 								<FormControl>
-									<SelectTrigger>
+									<SelectTrigger className="text-sm sm:text-base">
 										<SelectValue placeholder="Select a category" />
 									</SelectTrigger>
 								</FormControl>
@@ -82,10 +99,10 @@ export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormPro
 									<SelectItem value="governance">Governance</SelectItem>
 								</SelectContent>
 							</Select>
-							<FormDescription className="text-sm text-muted-foreground">
+							<FormDescription className="text-xs sm:text-sm text-muted-foreground">
 								The category helps members understand the proposal&apos;s focus
 							</FormDescription>
-							<FormMessage className="text-sm font-medium" />
+							<FormMessage className="text-red-500 text-sm font-medium" />
 						</FormItem>
 					)}
 				/>
@@ -95,18 +112,19 @@ export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormPro
 					name="description"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Description</FormLabel>
+							<FormLabel className="text-sm sm:text-base">Description</FormLabel>
 							<FormControl>
 								<Textarea
-									className="min-h-[120px] resize-y"
 									placeholder="Describe your proposal in detail..."
+									className="min-h-[100px] sm:min-h-[120px] text-sm sm:text-base"
 									{...field}
+									maxLength={1000}
 								/>
 							</FormControl>
-							<FormDescription className="text-sm text-muted-foreground">
-								Provide a detailed explanation of what you&apos;re proposing and why
+							<FormDescription className="text-xs sm:text-sm text-muted-foreground">
+								Provide a detailed explanation of your proposal (max 1000 characters)
 							</FormDescription>
-							<FormMessage className="text-sm font-medium" />
+							<FormMessage className="text-red-500 text-sm font-medium" />
 						</FormItem>
 					)}
 				/>
@@ -116,24 +134,31 @@ export function CreateProposalForm({ onSubmit, onCancel }: CreateProposalFormPro
 					name="timeLeft"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Voting Duration (days)</FormLabel>
+							<FormLabel className="text-sm sm:text-base">Voting Duration (days)</FormLabel>
 							<FormControl>
-								<Input type="number" min="1" max="90" placeholder="7" {...field} />
+								<Input
+									type="number"
+									placeholder="7"
+									min="1"
+									max="90"
+									{...field}
+									className="text-sm sm:text-base"
+								/>
 							</FormControl>
-							<FormDescription className="text-sm text-muted-foreground">
-								How many days the proposal will be open for voting (1-90 days)
+							<FormDescription className="text-xs sm:text-sm text-muted-foreground">
+								How long should voting be open? (1-90 days)
 							</FormDescription>
-							<FormMessage className="text-sm font-medium" />
+							<FormMessage className="text-red-500 text-sm font-medium" />
 						</FormItem>
 					)}
 				/>
 
-				<div className="flex justify-end space-x-2 pt-4">
-					<Button type="button" variant="outline" onClick={onCancel} className="font-semibold">
+				<div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 sm:pt-6">
+					<Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
 						Cancel
 					</Button>
-					<Button type="submit" className="font-semibold">
-						Save
+					<Button type="submit" className="w-full sm:w-auto">
+						Create Proposal
 					</Button>
 				</div>
 			</form>

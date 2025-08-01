@@ -49,7 +49,7 @@ export function ProposalCategoryChart({ data, isLoading = false }: ProposalCateg
 	}
 
 	return (
-		<Card className="w-full max-w-md mx-auto">
+		<Card className="w-full max-w-md ">
 			<CardHeader>
 				<CardTitle className="text-xl font-bold">Proposal Categories</CardTitle>
 				<CardDescription>Distribution by proposal type</CardDescription>
