@@ -44,3 +44,7 @@ jobs:
         working-directory: services/stellar-wallet
       - run: npm run test
         working-directory: services/stellar-wallet
+        env:
+          HORIZON_URL: https://horizon-testnet.stellar.org
+          SOROBAN_RPC_URL: https://rpc-futura.stellar.org
+          PORT: 3001
