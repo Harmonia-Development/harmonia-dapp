@@ -74,7 +74,6 @@ const mockProposals: Proposal[] = [
 		creator: {
 			id: '3',
 			initials: 'ML',
-		},
 	},
 	{
 		id: '4',

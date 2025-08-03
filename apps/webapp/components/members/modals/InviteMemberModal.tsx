@@ -57,7 +57,6 @@ function generateReferralCode(): string {
 	}
 	return result
 }
-
 interface InviteMemberModalProps {
 	open: boolean
 	onOpenChange: (open: boolean) => void
