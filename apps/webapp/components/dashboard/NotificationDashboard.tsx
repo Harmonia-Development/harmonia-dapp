@@ -118,12 +118,12 @@ const TabNavigation = ({
 	const tabs = ['All', 'Governance', 'Community', 'Treasury', 'System']
 
 	return (
-		<div className="flex bg-gray-800 rounded-lg">
+		<div className="flex bg-gray-800 rounded-lg p-1 overflow-x-auto">
 			{tabs.map((tab) => (
 				// biome-ignore lint/a11y/useButtonType: <explanation>
 				<button
 					key={tab}
-					className={`py-1 m-1 px-4 text-center flex-1 text-sm ${
+					className={`py-2 px-3 sm:px-4 text-center flex-1 text-xs sm:text-sm whitespace-nowrap ${
 						activeTab === tab
 							? 'bg-black rounded-lg text-white font-medium'
 							: 'text-gray-400 hover:bg-gray-700'
@@ -145,20 +145,20 @@ const SearchBar = ({
 	setSearchQuery: (query: string) => void
 }) => {
 	return (
-		<div className="relative mt-3">
+		<div className="relative">
 			<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-				<Search className="h-5 w-5 text-gray-400" />
+				<Search className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
 			</div>
 			<input
 				type="text"
-				className="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-md bg-black text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2  focus:border-transparent"
+				className="block w-full pl-10 pr-10 py-2 sm:py-2.5 border border-gray-700 rounded-md bg-black text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
 				placeholder="Search notifications..."
 				value={searchQuery}
 				onChange={(e) => setSearchQuery(e.target.value)}
 			/>
 			{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 			<button className="absolute inset-y-0 right-0 pr-3 flex items-center">
-				<Menu className="h-5 w-5 text-gray-400" />
+				<Menu className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
 			</button>
 		</div>
 	)
@@ -181,23 +181,25 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
 	}
 
 	return (
-		<div className="p-4 bg-gradient-to-r from-purple-900/30 to-purple-950/40 rounded-lg flex gap-3">
-			<div className="flex-shrink-0 mt-1">
-				<Icon className={`h-5 w-5 ${getPriorityColor(notification.priority)}`} />
+		<div className="p-3 sm:p-4 bg-gradient-to-r from-purple-900/30 to-purple-950/40 rounded-lg flex gap-2 sm:gap-3">
+			<div className="flex-shrink-0 mt-0.5 sm:mt-1">
+				<Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${getPriorityColor(notification.priority)}`} />
 			</div>
 			<div className="flex-grow min-w-0">
-				<div className="flex items-center justify-between gap-3 mb-1">
-					<div className="flex items-center gap-3 overflow-hidden">
-						<h3 className="font-medium text-white text-sm truncate">{notification.title}</h3>
+				<div className="flex items-center justify-between gap-2 sm:gap-3 mb-1">
+					<div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+						<h3 className="font-medium text-white text-xs sm:text-sm truncate">
+							{notification.title}
+						</h3>
 						<PriorityBadge priority={notification.priority} />
 					</div>
 					{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
 					<button className="text-gray-400 flex-shrink-0">
-						<MoreVertical className="h-5 w-5" />
+						<MoreVertical className="h-4 w-4 sm:h-5 sm:w-5" />
 					</button>
 				</div>
-				<p className="text-gray-300 text-sm mb-2">{notification.message}</p>
-				<div className="flex justify-between text-xs text-gray-400">
+				<p className="text-gray-300 text-xs sm:text-sm mb-2">{notification.message}</p>
+				<div className="flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-0 text-xs text-gray-400">
 					<span>{notification.time}</span>
 					<span className="flex items-center gap-1">
 						From:
@@ -209,7 +211,7 @@ const NotificationItem = ({ notification }: { notification: Notification }) => {
 						{!notification.from.includes('@') && notification.from === 'stellar.dev' && (
 							<span className="inline-flex items-center">
 								{/* biome-ignore lint/style/useSelfClosingElements: <explanation> */}
-								<span className="w-4 h-4 rounded-full bg-gray-600 inline-block ml-1"></span>
+								<span className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-gray-600 inline-block ml-1"></span>
 							</span>
 						)}
 					</span>
@@ -258,19 +260,19 @@ const Pagination = ({
 				type="button"
 				onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
 				disabled={currentPage === 1}
-				className={`px-4 py-2 text-sm ${
-					currentPage === 1 ? 'text-gray-600' : 'text-white hover:bg-gray-800'
+				className={`px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md ${
+					currentPage === 1 ? 'text-gray-600 cursor-not-allowed' : 'text-white hover:bg-gray-800'
 				}`}
 			>
 				Previous
 			</button>
-			<div className="flex gap-2">
+			<div className="flex gap-1 sm:gap-2">
 				{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
 					<button
 						type="button"
 						key={page}
 						onClick={() => onPageChange(page)}
-						className={`w-8 h-8 text-sm flex items-center justify-center rounded-md ${
+						className={`w-7 h-7 sm:w-8 sm:h-8 text-xs sm:text-sm flex items-center justify-center rounded-md ${
 							currentPage === page ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-800'
 						}`}
 					>
@@ -282,8 +284,10 @@ const Pagination = ({
 				type="button"
 				onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
 				disabled={currentPage === totalPages}
-				className={`px-4 py-2 text-sm ${
-					currentPage === totalPages ? 'text-gray-600' : 'text-white hover:bg-gray-800'
+				className={`px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md ${
+					currentPage === totalPages
+						? 'text-gray-600 cursor-not-allowed'
+						: 'text-white hover:bg-gray-800'
 				}`}
 			>
 				Next
@@ -335,25 +339,23 @@ export default function NotificationDashboard() {
 	const totalPages = Math.ceil(filteredNotifications.length / itemsPerPage)
 
 	return (
-		<div className="bg-black  p-4">
-			<div className="mx-auto">
-				<div className="rounded-lg shadow-lg overflow-hidden">
-					<div className="border p-4 m-3 rounded-xl shadow-lg">
-						<TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
-						<SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-						<div className="mt-4">
-							<NotificationList notifications={currentItems} />
-						</div>
-						{totalPages > 1 && (
-							<div className="mt-6">
-								<Pagination
-									currentPage={currentPage}
-									totalPages={totalPages}
-									onPageChange={setCurrentPage}
-								/>
-							</div>
-						)}
+		<div className="bg-black rounded-lg shadow-lg overflow-hidden">
+			<div className="p-3 sm:p-4">
+				<div className="space-y-4">
+					<TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+					<SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+					<div className="mt-4">
+						<NotificationList notifications={currentItems} />
 					</div>
+					{totalPages > 1 && (
+						<div className="mt-6">
+							<Pagination
+								currentPage={currentPage}
+								totalPages={totalPages}
+								onPageChange={setCurrentPage}
+							/>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

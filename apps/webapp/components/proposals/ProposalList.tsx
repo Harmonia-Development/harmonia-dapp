@@ -3,95 +3,123 @@
 import { EmptyState } from '@/components/ui/EmptyState'
 import { ChartSkeleton, ProposalCardSkeleton } from '@/components/ui/loading-skeletons'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useState } from 'react'
+import type { Proposal } from '@/lib/types/proposals.types'
+import type { ProposalStatus } from '@/lib/types/proposals.types'
+import { Suspense, lazy, useState } from 'react'
 import { CreateProposalButton } from './CreateProposalButton'
-import ProposalCategoryChart from './ProposalCategoryChart'
-import { ProposalFilterTabs, type ProposalStatus } from './ProposalFilterTabs'
-import { type Proposal, ProposalItemCard } from './ProposalItemCard'
+import { ProposalCard } from './ProposalCard'
+import { ProposalFilterTabs } from './ProposalFilterTabs'
+type FilterStatus = ProposalStatus | 'all'
+
+// Lazy load heavy components
+const ProposalCategoryChart = lazy(() =>
+	import('./ProposalCategoryChart').then((module) => ({
+		default: module.ProposalCategoryChart,
+	})),
+)
 
 const mockProposals: Proposal[] = [
 	{
 		id: '1',
 		title: 'Increase Developer Grants Budget',
-		summary:
+		description:
 			'Proposal to increase the budget allocated for developer grants by 20% to support ecosystem growth.',
-		category: 'Treasury',
+		category: 'treasury',
 		status: 'active',
 		votes: {
 			for: 7500,
 			against: 2200,
 			abstain: 300,
 		},
-		startDate: '2025-04-20',
-		endDate: '2025-04-30',
+		timeLeft: '10 days',
+		createdAt: '2025-04-20',
+		creator: {
+			id: '1',
+			initials: 'JD',
+		},
 	},
 	{
 		id: '2',
 		title: 'Protocol Fee Adjustment',
-		summary:
+		description:
 			'Reduce protocol fees from 0.3% to 0.25% to improve competitiveness with other platforms.',
-		category: 'Governance',
+		category: 'governance',
 		status: 'pending',
 		votes: {
 			for: 0,
 			against: 0,
 			abstain: 0,
 		},
-		startDate: '2025-05-01',
-		endDate: '2025-05-10',
+		timeLeft: '15 days',
+		createdAt: '2025-05-01',
+		creator: {
+			id: '2',
+			initials: 'AS',
+		},
 	},
 	{
 		id: '3',
 		title: 'Add New Liquidity Incentives',
-		summary:
+		description:
 			'Propose new liquidity mining incentives for stable pairs to increase TVL on the platform.',
-		category: 'Treasury',
+		category: 'treasury',
 		status: 'passed',
 		votes: {
 			for: 8900,
 			against: 1000,
 			abstain: 100,
 		},
-		startDate: '2025-03-15',
-		endDate: '2025-03-25',
+		timeLeft: '0 days',
+		createdAt: '2025-03-15',
+		creator: {
+			id: '3',
+			initials: 'ML',
 	},
 	{
 		id: '4',
 		title: 'Emergency Security Upgrade',
-		summary:
+		description:
 			"Critical security upgrade for the protocol's smart contracts to patch potential vulnerabilities.",
-		category: 'Technical',
+		category: 'technical',
 		status: 'rejected',
 		votes: {
 			for: 3500,
 			against: 6400,
 			abstain: 100,
 		},
-		startDate: '2025-03-01',
-		endDate: '2025-03-10',
+		timeLeft: '0 days',
+		createdAt: '2025-03-01',
+		creator: {
+			id: '4',
+			initials: 'SK',
+		},
 	},
 	{
 		id: '5',
 		title: 'Community Fund Allocation',
-		summary:
+		description:
 			'Allocate 100,000 tokens from the community fund to support education and marketing initiatives.',
-		category: 'Treasury',
+		category: 'treasury',
 		status: 'active',
 		votes: {
 			for: 5200,
 			against: 4700,
 			abstain: 100,
 		},
-		startDate: '2025-04-15',
-		endDate: '2025-04-25',
+		timeLeft: '5 days',
+		createdAt: '2025-04-15',
+		creator: {
+			id: '5',
+			initials: 'RJ',
+		},
 	},
 ]
 
 const categoryColors: Record<string, string> = {
-	Treasury: 'chart-blue',
-	Governance: 'chart-purple',
-	Community: 'chart-green',
-	Technical: 'warning',
+	treasury: 'chart-blue',
+	governance: 'chart-purple',
+	community: 'chart-green',
+	technical: 'warning',
 }
 
 interface ProposalListProps {
@@ -99,7 +127,7 @@ interface ProposalListProps {
 }
 
 export function ProposalList({ isLoading = false }: ProposalListProps) {
-	const [activeTab, setActiveTab] = useState<ProposalStatus>('all')
+	const [activeTab, setActiveTab] = useState<FilterStatus>('all')
 
 	const filteredProposals = mockProposals.filter((proposal) => {
 		if (activeTab === 'all') return true
@@ -119,12 +147,12 @@ export function ProposalList({ isLoading = false }: ProposalListProps) {
 	const chartData = Object.entries(categoryCounts).map(([name, value]) => ({
 		name,
 		value,
-		color: categoryColors[name] || 'gray-dark', // Fallback color si no está definido
+		color: categoryColors[name] || 'gray-dark',
 	}))
 
 	if (isLoading) {
 		return (
-			<div className="container mx-auto py-6">
+			<div className="w-full px-4 sm:px-6 lg:px-8 py-6">
 				<div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
 					<Skeleton className="h-8 w-64" />
 					<Skeleton className="h-10 w-32" />
@@ -148,7 +176,7 @@ export function ProposalList({ isLoading = false }: ProposalListProps) {
 	}
 
 	return (
-		<div className="container mx-auto py-6">
+		<div className="w-full  lg:px-8 py-6">
 			<div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
 				<h1 className="text-2xl font-bold">Governance Proposals</h1>
 				<CreateProposalButton />
@@ -168,13 +196,23 @@ export function ProposalList({ isLoading = false }: ProposalListProps) {
 				) : (
 					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 						{filteredProposals.map((proposal) => (
-							<ProposalItemCard key={proposal.id} proposal={proposal} />
+							<ProposalCard
+								key={proposal.id}
+								proposal={proposal}
+								onVote={(proposalId, vote) => {
+									console.log(`Voting ${vote} on proposal ${proposalId}`)
+									// TODO: Implement actual voting logic
+								}}
+							/>
 						))}
 					</div>
 				)}
 			</div>
-			<div className="mb-6">
-				<ProposalCategoryChart data={chartData} />
+
+			<div className="mt-6">
+				<Suspense fallback={<ChartSkeleton />}>
+					<ProposalCategoryChart data={chartData} />
+				</Suspense>
 			</div>
 		</div>
 	)

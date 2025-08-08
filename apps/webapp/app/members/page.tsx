@@ -9,7 +9,7 @@ export default function Page() {
 		<ErrorBoundary>
 			<ThemeWrapper>
 				<LayoutWrapper>
-					<div className="min-w-screen flex justify-between items-center">
+					<div className="w-full  lg:px-8">
 						<MembersDashboard />
 					</div>
 				</LayoutWrapper>

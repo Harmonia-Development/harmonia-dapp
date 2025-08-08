@@ -99,14 +99,14 @@ export function ComparativeDashboard() {
 						<div className="w-full h-[300px]">
 							<ResponsiveContainer width="100%" height="100%">
 								<LineChart data={data}>
-									<CartesianGrid strokeDasharray="3 3" stroke={`${strokeNeutral700}`} />
-									<XAxis dataKey="name" stroke={`${strokeNeutral600}`} />
-									<YAxis stroke={`${strokeNeutral600}`} />
+									<CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+									<XAxis dataKey="name" stroke="#6B7280" />
+									<YAxis stroke="#6B7280" />
 									<Tooltip content={<CustomTooltip />} />
 									<Line
 										type="monotone"
 										dataKey="value"
-										stroke={`${strokePurpleBrand}`}
+										stroke="#8B5CF6"
 										dot={true}
 										activeDot={{ r: 8 }}
 									/>
@@ -124,25 +124,15 @@ export function ComparativeDashboard() {
 									layout="vertical"
 									margin={{ top: 10, right: 30, left: 100, bottom: 5 }}
 								>
-									<XAxis type="number" stroke={`${strokeNeutral600}`} />
-									<YAxis type="category" dataKey="name" stroke={`${strokeNeutral600}`} />
+									<XAxis type="number" stroke="#6B7280" />
+									<YAxis type="category" dataKey="name" stroke="#6B7280" />
 									<Tooltip content={<CustomAlocationTooltip />} />
 									<Legend
 										wrapperStyle={{ color: 'white' }}
 										formatter={(value) => <span className="text-sm text-white">{value}</span>}
 									/>
-									<Bar
-										dataKey="current"
-										fill={`${fillPurpleBrand}`}
-										name="Current Quarter"
-										barSize={20}
-									/>
-									<Bar
-										dataKey="previous"
-										fill={`${fillChartPurple}`}
-										name="Previous Quarter"
-										barSize={20}
-									/>
+									<Bar dataKey="current" fill="#8B5CF6" name="Current Quarter" barSize={20} />
+									<Bar dataKey="previous" fill="#A855F7" name="Previous Quarter" barSize={20} />
 								</BarChart>
 							</ResponsiveContainer>
 						</div>
@@ -152,14 +142,14 @@ export function ComparativeDashboard() {
 						<div className="w-full h-96 bg-black p-4 rounded-lg">
 							<ResponsiveContainer width="100%" height="100%">
 								<LineChart data={doa}>
-									<CartesianGrid strokeDasharray="3 3" stroke={`${strokeNeutral700}`} />
-									<XAxis dataKey="month" stroke={`${strokeNeutral400}`} />
-									<YAxis stroke={`${strokeNeutral400}`} />
+									<CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+									<XAxis dataKey="month" stroke="#9CA3AF" />
+									<YAxis stroke="#9CA3AF" />
 									<Tooltip content={<CustomEfficiencyTooltip />} />
 									<Line
 										type="monotone"
 										dataKey="efficiency"
-										stroke={`${fillGreenBrand}`}
+										stroke="#10B981"
 										strokeWidth={2}
 										dot={{
 											r: 4,

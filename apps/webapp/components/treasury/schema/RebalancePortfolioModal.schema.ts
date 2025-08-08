@@ -2,22 +2,10 @@ import { z } from 'zod'
 
 export const rebalancePortfolioSchema = z
 	.object({
-		xlm: z.coerce
-			.number()
-			.min(0, 'Percentage cannot be negative')
-			.max(100, 'Percentage cannot exceed 100'),
-		usdc: z.coerce
-			.number()
-			.min(0, 'Percentage cannot be negative')
-			.max(100, 'Percentage cannot exceed 100'),
-		eth: z.coerce
-			.number()
-			.min(0, 'Percentage cannot be negative')
-			.max(100, 'Percentage cannot exceed 100'),
-		btc: z.coerce
-			.number()
-			.min(0, 'Percentage cannot be negative')
-			.max(100, 'Percentage cannot exceed 100'),
+		xlm: z.coerce.number().min(0, 'Cannot be negative').max(100, 'Cannot exceed 100'),
+		usdc: z.coerce.number().min(0, 'Cannot be negative').max(100, 'Cannot exceed 100'),
+		eth: z.coerce.number().min(0, 'Cannot be negative').max(100, 'Cannot exceed 100'),
+		btc: z.coerce.number().min(0, 'Cannot be negative').max(100, 'Cannot exceed 100'),
 	})
 	.refine(
 		(data) => {
@@ -25,7 +13,7 @@ export const rebalancePortfolioSchema = z
 			return total === 100
 		},
 		{
-			message: 'Total allocation must equal 100%',
+			message: 'Total must equal 100%',
 			path: ['xlm'],
 		},
 	)

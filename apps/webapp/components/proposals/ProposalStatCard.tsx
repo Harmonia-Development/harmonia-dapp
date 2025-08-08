@@ -16,7 +16,7 @@ export interface StatCardProps {
 	variant?: 'default' | 'success' | 'error' | 'info'
 }
 
-const iconContainerVariants = cva('rounded-full p-2 absolute top-4 right-4', {
+const iconContainerVariants = cva('rounded-full p-2 flex-shrink-0', {
 	variants: {
 		variant: {
 			default: 'bg-gray-500/20',
@@ -99,8 +99,10 @@ export const ProposalStatCard: React.FC<StatCardProps> = ({
 				'shadow-sm hover:shadow-md transition-all duration-300',
 			)}
 		>
-			<div className="flex justify-between items-start mb-2">
-				<span className="text-gray-400 text-sm font-medium">{title}</span>
+			<div className="flex justify-between items-start gap-3 mb-3">
+				<div className="flex-1 min-w-0">
+					<span className="text-gray-400 text-sm font-medium">{title}</span>
+				</div>
 				{icon && renderIcon(icon, variant)}
 			</div>
 

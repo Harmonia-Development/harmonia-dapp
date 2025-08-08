@@ -68,12 +68,20 @@ export class ProposalContract {
 	}
 }
 
-export function createProposalContract(): ProposalContract {
+export function createProposalContract(): ProposalContract | null {
 	const contractId = process.env.NEXT_PUBLIC_CONTRACT_ID_PROPOSAL
 	const network = process.env.NEXT_PUBLIC_STELLAR_NETWORK || 'testnet'
 	const rpcUrl = process.env.NEXT_PUBLIC_SOROBAN_RPC_URL || 'https://soroban-testnet.stellar.org'
 
 	if (!contractId) {
+		// In development, return null instead of throwing an error
+		// This allows the app to work with mock data
+		if (process.env.NODE_ENV === 'development') {
+			console.warn(
+				'NEXT_PUBLIC_CONTRACT_ID_PROPOSAL is not configured. Using mock data for development.',
+			)
+			return null
+		}
 		throw new Error('NEXT_PUBLIC_CONTRACT_ID_PROPOSAL is not configured')
 	}
 
