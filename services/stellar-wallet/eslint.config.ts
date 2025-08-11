@@ -2,6 +2,7 @@ import js from '@eslint/js'
 import ts from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import prettier from 'eslint-plugin-prettier'
+import globals from 'globals'
 
 export default [
 	js.configs.recommended,
@@ -15,11 +16,8 @@ export default [
 				project: './tsconfig.eslint.json',
 			},
 			globals: {
-				process: 'readonly',
-				console: 'readonly',
-				fetch: 'readonly',
-				global: 'readonly',
-				globalThis: 'readonly',
+				...globals.node,
+				...globals.es2021,
 			},
 		},
 		plugins: {
@@ -30,17 +28,22 @@ export default [
 			// Enforce consistent indentation (2 spaces in this case)
 			indent: ['error', 'tab'],
 			// Enforce the use of single quotes for strings
-			quotes: ['error', 'single'],
+			quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
 			// Enforce semicolons at the end of statements
 			semi: ['error', 'never'],
 			// Enforce consistent line breaks (LF for Unix)
 			'linebreak-style': ['error', 'unix'],
 			// Require the use of === and !== (no implicit type conversions)
 			eqeqeq: ['error', 'always'],
-			// Enforce a maximum line length (usually 80 or 100 characters)
-			'max-len': ['error', { code: 100 }],
-			// Allow unused function arguments if their name starts with an underscore
-			'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+			// Disable max-len in ESLint to avoid conflicts with Biome's lineWidth setting
+			'max-len': 'off',
+			// Disable the base no-unused-vars (doesn't handle TypeScript properly)
+			'no-unused-vars': 'off',
+			// Use TypeScript's no-unused-vars rule, allow args/vars starting with "_"
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{ argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+			],
 			// Enable Prettier as a lint rule
 			'prettier/prettier': [
 				'error',
