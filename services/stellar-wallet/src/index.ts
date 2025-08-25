@@ -1,8 +1,9 @@
 import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
 import envs from './config/envs'
+import { kycRouter } from './routes/kyc'
 
-const app = express()
+export const app = express()
 
 // Middlewares
 app.use(cors())
@@ -17,9 +18,7 @@ app.post('/auth', (_req: Request, res: Response) => {
 	res.status(200).json({})
 })
 
-app.post('/kyc', (_req: Request, res: Response) => {
-	res.status(200).json({})
-})
+app.use('/kyc', kycRouter)
 
 app.post('/wallet', (_req: Request, res: Response) => {
 	res.status(200).json({})
