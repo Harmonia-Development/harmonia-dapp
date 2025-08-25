@@ -60,6 +60,7 @@ export async function initializeKycTable(db?: sqlite3.Database): Promise<void> {
     );
   `
 	await run(conn, sql)
+	await run(conn, 'CREATE UNIQUE INDEX IF NOT EXISTS idx_kyc_document ON kyc (document);')
 }
 
 /**
