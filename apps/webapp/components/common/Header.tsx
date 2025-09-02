@@ -29,7 +29,7 @@ const navItems = [
 	{ name: 'Members', path: '/members', icon: <Users size={20} /> },
 ]
 
-const Header: React.FC = () => {
+const Header = () => {
 	const pathname = usePathname() // Get the current path
 	const [isSearchExpanded, setIsSearchExpanded] = useState(false)
 	const [searchQuery, setSearchQuery] = useState('')

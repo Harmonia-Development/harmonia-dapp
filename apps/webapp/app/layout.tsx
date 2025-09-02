@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import Header from '@/components/dashboard/Header'
+import Header from '@/components/common/Header'
 import { Toaster } from '@/components/ui/sonner'
 import { TrustlessWorkProvider } from '@/lib/trustless-work/provider'
 import { GoogleAnalytics } from '@next/third-parties/google'
