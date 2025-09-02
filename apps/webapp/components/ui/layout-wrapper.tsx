@@ -8,6 +8,8 @@ interface LayoutWrapperProps {
 
 export function LayoutWrapper({ children, className }: LayoutWrapperProps) {
 	return (
-		<div className={clsx('max-w-7xl mx-auto px-6 py-4 sm:px-8 sm:py-6', className)}>{children}</div>
+		<div className={clsx('max-w-[1440px] mx-auto px-6 py-4 sm:px-8 sm:py-6', className)}>
+			{children}
+		</div>
 	)
 }
