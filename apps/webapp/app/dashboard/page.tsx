@@ -1,6 +1,6 @@
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
-import DAODashboard from '@/components/dashboard/DAODashboard'
 import DashBoardMain from '@/components/dashboard/DashBoardMain'
+import { DashboardMetrics } from '@/components/dashboard/DashboardMetrics'
 import { LayoutWrapper } from '@/components/ui/layout-wrapper'
 import { ThemeWrapper } from '@/components/ui/theme-wrapper'
 import React from 'react'
@@ -30,7 +30,7 @@ export default function Page() {
 						</div>
 
 						<ErrorBoundary>
-							<DAODashboard />
+							<DashboardMetrics />
 						</ErrorBoundary>
 						<ErrorBoundary>
 							<DashBoardMain />
