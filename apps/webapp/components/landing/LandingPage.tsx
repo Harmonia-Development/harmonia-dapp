@@ -4,6 +4,7 @@ import { DashboardMetrics } from '@/components/dashboard/DashboardMetrics'
 import { NotificationPanel } from '@/components/notifications/NotificationPanel'
 import { LayoutWrapper } from '@/components/ui/layout-wrapper'
 import { ThemeWrapper } from '@/components/ui/theme-wrapper'
+import { ActiveProposals } from '../proposals/ActiveProposals'
 
 export function LandingPage() {
 	return (
@@ -17,6 +18,9 @@ export function LandingPage() {
 							</ErrorBoundary>
 							<ErrorBoundary>
 								<AnalyticsDashboard />
+							</ErrorBoundary>
+							<ErrorBoundary>
+								<ActiveProposals />
 							</ErrorBoundary>
 						</section>
 

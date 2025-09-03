@@ -1,4 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { Proposal } from '@/lib/contracts/proposal-contract'
 import type { ProposalStatus } from '@/lib/types/proposals.types'
 
 type FilterStatus = ProposalStatus | 'all'
@@ -6,19 +7,22 @@ type FilterStatus = ProposalStatus | 'all'
 export type { ProposalStatus }
 
 interface ProposalFilterTabsProps {
-	activeTab: FilterStatus
-	onTabChange: (tab: FilterStatus) => void
+	activeTab: Proposal['status']['tag'] | 'All'
+	onTabChange: (tab: Proposal['status']['tag'] | 'All') => void
 }
 
 export function ProposalFilterTabs({ activeTab, onTabChange }: ProposalFilterTabsProps) {
 	return (
-		<Tabs value={activeTab} onValueChange={(value) => onTabChange(value as FilterStatus)}>
+		<Tabs
+			value={activeTab}
+			onValueChange={(value) => onTabChange(value as Proposal['status']['tag'] | 'All')}
+		>
 			<TabsList className="grid grid-cols-5 md:w-auto w-full">
 				<TabsTrigger value="all">All</TabsTrigger>
-				<TabsTrigger value="active">Active</TabsTrigger>
-				<TabsTrigger value="passed">Passed</TabsTrigger>
-				<TabsTrigger value="rejected">Rejected</TabsTrigger>
-				<TabsTrigger value="pending">Pending</TabsTrigger>
+				<TabsTrigger value="Open">Open</TabsTrigger>
+				<TabsTrigger value="Accepted">Accepted</TabsTrigger>
+				<TabsTrigger value="Rejected">Rejected</TabsTrigger>
+				<TabsTrigger value="Closed">Closed</TabsTrigger>
 			</TabsList>
 		</Tabs>
 	)
