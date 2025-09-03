@@ -1,10 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { Proposal } from '@/lib/contracts/proposal-contract'
-import type { ProposalStatus } from '@/lib/types/proposals.types'
-
-type FilterStatus = ProposalStatus | 'all'
-
-export type { ProposalStatus }
 
 interface ProposalFilterTabsProps {
 	activeTab: Proposal['status']['tag'] | 'All'

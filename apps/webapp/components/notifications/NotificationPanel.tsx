@@ -42,26 +42,34 @@ export function NotificationPanel() {
 		setItems((prev) => prev.map((i) => (i.id === id ? { ...i, unread: !i.unread } : i)))
 
 	return (
-		<Card>
+		<Card className="w-full">
 			<CardHeader className="pb-3">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-3">
-						<CardTitle className="text-white">Notifications</CardTitle>
-						<Badge>{unreadCount} new</Badge>
+				<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+					<div className="min-w-0 flex items-center gap-2">
+						<CardTitle className="text-white truncate">Notifications</CardTitle>
+						<Badge className="rounded-full px-2 py-0.5 text-xs shrink-0">{unreadCount} new</Badge>
 					</div>
-					<Button variant="ghost" size="sm" onClick={markAllRead} disabled={unreadCount === 0}>
+
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={markAllRead}
+						disabled={unreadCount === 0}
+						className="self-start sm:self-auto"
+					>
 						<Check className="mr-1 h-4 w-4" />
 						Mark all read
 					</Button>
 				</div>
-				<CardDescription className="text-white/60">
+
+				<CardDescription className="text-white/60 text-sm">
 					Stay updated on important DAO activities
 				</CardDescription>
 			</CardHeader>
 
-			<CardContent>
-				<ScrollArea className="h-[360px] pr-2">
-					<ul className="space-y-3">
+			<CardContent className="pt-0">
+				<ScrollArea className="max-h-[60vh] sm:max-h-[420px]">
+					<ul className="space-y-3 pr-2">
 						{items.map((n) => (
 							<li key={n.id}>
 								<NotificationItem {...n} onToggleRead={toggleOne} />
