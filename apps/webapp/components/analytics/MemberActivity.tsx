@@ -88,14 +88,14 @@ export function MemberActivity({ data, title, xLabel, yLabel }: MemberActivityPr
 						<Bar
 							dataKey="activeMembers"
 							name="Active Members"
-							fill="purple-dark"
+							fill="#9333ea"
 							radius={[4, 4, 0, 0]}
 							barSize={24}
 						/>
 						<Bar
 							dataKey="newMembers"
 							name="New Members"
-							fill="blue-brand"
+							fill="#3b82f6"
 							radius={[4, 4, 0, 0]}
 							barSize={24}
 						/>

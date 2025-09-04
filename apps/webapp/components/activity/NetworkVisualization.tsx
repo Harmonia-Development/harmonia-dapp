@@ -5,6 +5,7 @@ import { Html, OrbitControls } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { Card, CardContent } from '../ui/card'
 
 type NetworkNode = {
 	id: string
@@ -228,7 +229,7 @@ function Network({
 	)
 }
 
-export default function NetworkVisualization({
+export function NetworkVisualization({
 	data,
 	nodeSize = 0.15,
 	className,
@@ -239,24 +240,28 @@ export default function NetworkVisualization({
 	const safeData = data && data.length > 0 ? data : []
 
 	return (
-		<div className={cn('relative w-full h-[500px] md:h-[600px]', className)}>
-			{/* Title and subtitle overlay */}
-			<div className="absolute top-0 left-0 z-10 p-4 mb-3 text-white">
-				<h2 className="text-2xl font-bold">{title}</h2>
-				<p className="text-gray-400">{subtitle}</p>
-			</div>
+		<Card className={cn('mt-6', className)}>
+			<CardContent className="p-4">
+				{/* Title and subtitle overlay */}
+				<div className="mb-3 text-white">
+					<h2 className="text-2xl font-bold">{title}</h2>
+					<p className="text-gray-400">{subtitle}</p>
+				</div>
 
-			<Canvas camera={{ position: [0, 0, 12], fov: 50 }}>
-				<Network data={safeData} nodeSize={nodeSize} />
-				<OrbitControls
-					enablePan={false}
-					minDistance={8}
-					maxDistance={16}
-					rotateSpeed={0.4}
-					autoRotate
-					autoRotateSpeed={0.4}
-				/>
-			</Canvas>
-		</div>
+				<div className="relative w-full h-[420px] md:h-[520px]">
+					<Canvas camera={{ position: [0, 0, 14], fov: 45 }}>
+						<Network data={safeData} nodeSize={nodeSize} />
+						<OrbitControls
+							enablePan={false}
+							minDistance={10}
+							maxDistance={20}
+							rotateSpeed={0.4}
+							autoRotate
+							autoRotateSpeed={0.4}
+						/>
+					</Canvas>
+				</div>
+			</CardContent>
+		</Card>
 	)
 }

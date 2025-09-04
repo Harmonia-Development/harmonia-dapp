@@ -43,14 +43,14 @@ const activityIcons: Record<ActivityType, LucideIcon> = {
 
 // Map activity types to their respective colors
 const activityColors: Record<ActivityType, string> = {
-	'treasury-transfer': 'bg-background-dark text-chart-blue',
-	'proposal-approved': 'bg-background-dark text-white',
-	'new-member': 'bg-background-dark text-chart-purple',
-	'new-proposal': 'bg-background-dark text-white',
-	'funds-received': 'bg-background-dark text-chart-blue',
+	'treasury-transfer': 'bg-primary/20 text-chart-blue',
+	'proposal-approved': 'bg-primary/20 text-white',
+	'new-member': 'bg-primary/20 text-chart-purple',
+	'new-proposal': 'bg-primary/20 text-white',
+	'funds-received': 'bg-primary/20 text-chart-blue',
 }
 
-export default function RecentActivity({
+export function RecentActivity({
 	data,
 	onClick,
 	className,
@@ -78,7 +78,7 @@ export default function RecentActivity({
 	}
 
 	return (
-		<Card className={cn('bg-background-dark border-gray-800 m-3', className)}>
+		<Card className={cn('mt-6', className)}>
 			<CardHeader className="pb-3">
 				<CardTitle className="text-2xl font-bold text-white">{title}</CardTitle>
 				<CardDescription className="text-gray-400 text-base">{subtitle}</CardDescription>
