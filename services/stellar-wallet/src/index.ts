@@ -2,7 +2,7 @@ import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
 import envs from './config/envs'
 import { kycRouter } from './routes/kyc'
-import walletRouter from './routes/wallet'
+import { walletRouter } from './routes/wallet'
 
 export const app = express()
 
