@@ -1,7 +1,17 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import type sqlite3 from 'sqlite3'
-import { all, closeDB, connectDB, initializeKycTable, run } from '../../src/db/kyc'
+import {
+	type KycRow,
+	all,
+	closeDB,
+	connectDB,
+	findKycById,
+	initializeAccountsTable,
+	initializeKycTable,
+	insertAccount,
+	run,
+} from '../../src/db/kyc'
 
 const DB_FILE = path.resolve(__dirname, '../../src/config/db.test.sqlite')
 
@@ -94,5 +104,123 @@ describe('KYC SQLite module', () => {
 		expect(rows.length).toBe(1)
 		expect(rows[0].document).toBe('DOC-001')
 		expect(rows[0].status).toBe('pending') // default value
+	})
+
+	test('initializeAccountsTable creates accounts schema with FK/indexes and is idempotent', async () => {
+		await expect(initializeAccountsTable(db)).resolves.toBeUndefined()
+		// call again to verify idempotency
+		await expect(initializeAccountsTable(db)).resolves.toBeUndefined()
+
+		type PragmaCol = {
+			cid: number
+			name: string
+			type: string
+			notnull: number
+			dflt_value: string | null
+			pk: number
+		}
+		const cols = await all<PragmaCol>(db, "PRAGMA table_info('accounts');")
+		const byName = Object.fromEntries(cols.map((c) => [c.name, c]))
+
+		expect(byName.id).toBeDefined()
+		expect(byName.id.type.toUpperCase()).toBe('INTEGER')
+		expect(byName.id.pk).toBe(1)
+
+		expect(byName.user_id).toBeDefined()
+		expect(byName.user_id.type.toUpperCase()).toBe('INTEGER')
+		expect(byName.user_id.notnull).toBe(1)
+
+		expect(byName.public_key).toBeDefined()
+		expect(byName.public_key.type.toUpperCase()).toBe('TEXT')
+		expect(byName.public_key.notnull).toBe(1)
+
+		expect(byName.private_key).toBeDefined()
+		expect(byName.private_key.type.toUpperCase()).toBe('TEXT')
+		expect(byName.private_key.notnull).toBe(1)
+
+		// verify FK user_id -> kyc(id) with ON DELETE CASCADE
+		type FK = {
+			id: number
+			seq: number
+			table: string
+			from: string
+			to: string
+			on_update: string
+			on_delete: string
+			match: string
+		}
+		const fks = await all<FK>(db, "PRAGMA foreign_key_list('accounts');")
+		const fkUser = fks.find((f) => f.from === 'user_id')
+		expect(fkUser).toBeDefined()
+		expect(fkUser?.table.toLowerCase()).toBe('kyc')
+		expect(fkUser?.to.toLowerCase()).toBe('id')
+		expect((fkUser?.on_delete ?? '').toUpperCase()).toBe('CASCADE')
+
+		// index metadata assertions
+		type Idx = { seq: number; name: string; unique: number; origin: string; partial: number }
+		const idx = await all<Idx>(db, "PRAGMA index_list('accounts');")
+		const names = idx.map((i) => i.name)
+		expect(names).toEqual(
+			expect.arrayContaining(['idx_accounts_public_key', 'idx_accounts_user_id']),
+		)
+		const pkIdx = idx.find((i) => i.name === 'idx_accounts_public_key')
+		expect(pkIdx?.unique).toBe(1)
+		const uidIdx = idx.find((i) => i.name === 'idx_accounts_user_id')
+		expect(uidIdx?.unique).toBe(0)
+
+		type IdxInfo = { seqno: number; cid: number; name: string }
+		const pkCols = await all<IdxInfo>(db, "PRAGMA index_info('idx_accounts_public_key');")
+		expect(pkCols.map((c) => c.name)).toEqual(['public_key'])
+		const uidCols = await all<IdxInfo>(db, "PRAGMA index_info('idx_accounts_user_id');")
+		expect(uidCols.map((c) => c.name)).toEqual(['user_id'])
+	})
+
+	test('findKycById returns null for missing and row for existing', async () => {
+		// should return null when no KYC row matches
+		const miss = await findKycById(db, 999999)
+		expect(miss).toBeNull()
+
+		// insert a KYC row and ensure it can be retrieved by id
+		await run(db, 'INSERT INTO kyc (name, document, status) VALUES (?, ?, ?)', [
+			'Carol',
+			'DOC-FIND-1',
+			'approved',
+		])
+		const rows = await all<KycRow>(db, 'SELECT * FROM kyc WHERE document = ?', ['DOC-FIND-1'])
+		const carol = rows[0]
+		const found = await findKycById(db, carol.id)
+		expect(found?.id).toBe(carol.id)
+		expect(found?.name).toBe('Carol')
+	})
+
+	test('insertAccount inserts, enforces UNIQUE(public_key) and FK CASCADE', async () => {
+		// create a KYC row to associate accounts with
+		await run(db, 'INSERT INTO kyc (name, document, status) VALUES (?, ?, ?)', [
+			'Dave',
+			'DOC-ACC-UNIQ',
+			'approved',
+		])
+		const kycRows = await all<KycRow>(db, 'SELECT * FROM kyc WHERE document = ?', ['DOC-ACC-UNIQ'])
+		const userId = kycRows[0].id
+
+		const publicKey = 'GTESTPUBLICKEYUNIQUE0000000000000000000000000000000000000'
+		const enc = 'AAAAAA==:BBBBBBBBBBBBBBBBBBBBBQ==:CCCCCCCCCC=='
+
+		// first insert should succeed
+		await expect(
+			insertAccount(db, { user_id: userId, public_key: publicKey, private_key_encrypted: enc }),
+		).resolves.toBeUndefined()
+
+		// inserting the same public_key should violate the UNIQUE constraint
+		await expect(
+			insertAccount(db, { user_id: userId, public_key: publicKey, private_key_encrypted: enc }),
+		).rejects.toThrow()
+
+		// deleting the KYC row should cascade and remove dependent accounts
+		await run(db, 'DELETE FROM kyc WHERE id = ?', [userId])
+		const accounts = await all<{ id: number }>(db, 'SELECT id FROM accounts WHERE user_id = ?', [
+			userId,
+		])
+		expect(accounts.length).toBe(0)
 	})
 })
