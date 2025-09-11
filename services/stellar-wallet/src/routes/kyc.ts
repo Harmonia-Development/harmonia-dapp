@@ -1,15 +1,8 @@
 import { type Request, type Response, Router } from 'express'
-import { all, connectDB, initializeKycTable, run } from '../db/kyc'
+import { type KycRow, all, connectDB, initializeKycTable, run } from '../db/kyc'
 import { validateKycData } from '../kyc/validate'
 
 export const kycRouter = Router()
-
-interface KycRow {
-	id: number
-	name: string
-	document: string
-	status: string
-}
 
 // POST /kyc/submit: validate input, create if not exists (idempotent by `document`), return stored record
 kycRouter.post('/submit', async (req: Request, res: Response) => {

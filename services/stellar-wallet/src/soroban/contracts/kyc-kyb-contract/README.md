@@ -13,20 +13,23 @@ The KYC/KYB contract provides a secure way to store and retrieve verification st
 Stores or updates a KYC/KYB record with the provided information.
 
 **Parameters:**
+
 - `kyc_id`: Unique identifier for the KYC/KYB record (e.g., user ID hash, UUID)
-- `data_hash`: Cryptographic hash of the KYC/KYB data 
+- `data_hash`: Cryptographic hash of the KYC/KYB data
 - `status`: Verification status (e.g., "approved", "rejected", "pending")
 
 **Behavior:**
+
 - Idempotent operation: overwrites existing records with the same `kyc_id`
 - Emits a `kyc_reg` event with the kyc_id and status
 - Uses persistent storage for data durability
 
 **Example:**
+
 ```rust
 contract.register_kyc(
     "user_123_hash".to_string(),
-    "sha256_hash_of_kyc_data".to_string(), 
+    "sha256_hash_of_kyc_data".to_string(),
     "approved".to_string()
 );
 ```
@@ -36,13 +39,16 @@ contract.register_kyc(
 Retrieves the verification status for a given KYC/KYB record.
 
 **Parameters:**
+
 - `kyc_id`: The unique identifier to look up
 
 **Returns:**
+
 - `Some(String)`: The verification status if the record exists
 - `None`: If no record exists for the given kyc_id
 
 **Example:**
+
 ```rust
 let status = contract.get_kyc_status("user_123_hash".to_string());
 match status {
@@ -93,13 +99,14 @@ make clean
 ## Security Considerations
 
 - **Data Privacy**: Only cryptographic hashes of KYC data are stored, not the raw data
-- **Access Control**: Consider implementing authorization mechanisms in future versions  
+- **Access Control**: Consider implementing authorization mechanisms in future versions
 - **Immutability**: Records are stored on-chain and cannot be deleted, only updated
 - **Gas Optimization**: Simple data structures minimize transaction costs
 
 ## Integration
 
 This contract is designed for integration with:
+
 - Stellar wallet services
 - KYC/KYB verification systems
 - Identity management platforms

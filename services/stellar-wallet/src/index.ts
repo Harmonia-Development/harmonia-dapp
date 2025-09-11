@@ -2,6 +2,7 @@ import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
 import envs from './config/envs'
 import { kycRouter } from './routes/kyc'
+import { walletRouter } from './routes/wallet'
 
 export const app = express()
 
@@ -20,9 +21,7 @@ app.post('/auth', (_req: Request, res: Response) => {
 
 app.use('/kyc', kycRouter)
 
-app.post('/wallet', (_req: Request, res: Response) => {
-	res.status(200).json({})
-})
+app.use('/wallet', walletRouter)
 
 // 404 Not Found Handler
 app.use((_req: Request, res: Response) => {
