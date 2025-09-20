@@ -20,6 +20,14 @@ export type KycRow = {
 	status: string
 }
 
+export type AccountRow = {
+	id: number
+	user_id: number
+	public_key: string
+	/** Encrypted seed in the format "iv:tag:ciphertext" (all Base64) */
+	private_key: string
+}
+
 /**
  * Returns a single shared SQLite database instance (singleton).
  * Creates the file/directory if missing and applies PRAGMAs once.
@@ -147,4 +155,18 @@ export async function insertAccount(
 ): Promise<void> {
 	const sql = 'INSERT INTO accounts (user_id, public_key, private_key) VALUES (?, ?, ?);'
 	await run(db, sql, [args.user_id, args.public_key, args.private_key_encrypted])
+}
+
+/**
+ * Finds an account row by user_id or returns null.
+ * Reads from `accounts` table created by `initializeAccountsTable`.
+ */
+export async function findAccountByUserId(
+	db: sqlite3.Database,
+	userId: number,
+): Promise<AccountRow | null> {
+	const rows = await all<AccountRow>(db, 'SELECT * FROM accounts WHERE user_id = ? LIMIT 1;', [
+		userId,
+	])
+	return rows.length ? rows[0] : null
 }
