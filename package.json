@@ -37,7 +37,13 @@
 			"**/wagmi",
 			"**/pino-pretty",
 			"**/wagmi/**",
-			"**/pino-pretty/**"
+			"**/pino-pretty/**",
+			"**/@stellar/stellar-sdk",
+			"**/@stellar/stellar-sdk/**",
+			"**/@stellar/js-xdr",
+			"**/@stellar/js-xdr/**",
+			"**/@stellar/stellar-base",
+			"**/@stellar/stellar-base/**"
 		]
 	},
 	"dependencies": {
