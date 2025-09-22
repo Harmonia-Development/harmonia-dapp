@@ -1,7 +1,9 @@
 import request from 'supertest'
+import jwt from 'jsonwebtoken'
 
-// Deterministic 32-byte key (Base64)
+// Deterministic 32-byte key (Base64) and JWT secret
 process.env.ENCRYPTION_KEY = Buffer.alloc(32, 7).toString('base64')
+process.env.JWT_SECRET = 'test-jwt-secret-key-for-wallet-tests'
 
 import type { KycRow } from '../../src/db/kyc'
 import { app } from '../../src/index'
@@ -62,13 +64,17 @@ jest.mock('../../src/db/kyc', () => {
 	}
 })
 
+// Quick JWT helper for tests
+function generateValidJWT(user_id: number): string {
+	return jwt.sign({ user_id }, process.env.JWT_SECRET!, { expiresIn: '1h' })
+}
+
 describe('POST /wallet/create', () => {
 	beforeEach(() => {
 		jest.clearAllMocks()
 	})
 
-	it('returns 201 and persists encrypted secret on success', async () => {
-		// KYC exists
+	it('returns 201 and persists encrypted secret on success with valid JWT', async () => {
 		findKycByIdMock.mockResolvedValueOnce({
 			id: 1,
 			name: 'Alice',
@@ -76,12 +82,16 @@ describe('POST /wallet/create', () => {
 			status: 'approved',
 		})
 
-		const res = await request(app).post('/wallet/create').send({ user_id: 1 })
+		const validJWT = generateValidJWT(1)
+		const res = await request(app)
+			.post('/wallet/create')
+			.set('Authorization', `Bearer ${validJWT}`)
+			.send({ user_id: 1 })
 
 		expect(res.status).toBe(201)
 		expect(res.body).toEqual({ user_id: 1, public_key: VALID_PUBLIC_KEY })
 
-		// Insert called with encrypted private_key (not leaking plaintext)
+		// Make sure private key is encrypted
 		expect(insertAccountMock).toHaveBeenCalledTimes(1)
 		const args = secondArg<unknown, InsertAccountArgs>(insertAccountMock)
 		expect(args.user_id).toBe(1)
@@ -91,10 +101,54 @@ describe('POST /wallet/create', () => {
 		expect(args.private_key_encrypted.includes(MOCK_SECRET)).toBe(false)
 	})
 
+	it('returns 401 when no JWT token is provided', async () => {
+		const res = await request(app).post('/wallet/create').send({ user_id: 1 })
+
+		expect(res.status).toBe(401)
+		expect(res.body).toEqual({ error: 'Unauthorized' })
+		expect(findKycByIdMock).not.toHaveBeenCalled()
+		expect(insertAccountMock).not.toHaveBeenCalled()
+	})
+
+	it('returns 401 when invalid JWT token is provided', async () => {
+		const res = await request(app)
+			.post('/wallet/create')
+			.set('Authorization', 'Bearer invalid-token')
+			.send({ user_id: 1 })
+
+		expect(res.status).toBe(401)
+		expect(res.body).toEqual({ error: 'Unauthorized' })
+		expect(findKycByIdMock).not.toHaveBeenCalled()
+		expect(insertAccountMock).not.toHaveBeenCalled()
+	})
+
+	it('returns 403 when JWT user_id does not match request user_id', async () => {
+		findKycByIdMock.mockResolvedValueOnce({
+			id: 1,
+			name: 'Alice',
+			document: 'DOC',
+			status: 'approved',
+		})
+
+		const validJWT = generateValidJWT(1) // JWT for user_id 1
+		const res = await request(app)
+			.post('/wallet/create')
+			.set('Authorization', `Bearer ${validJWT}`)
+			.send({ user_id: 2 }) // But requesting for user_id 2
+
+		expect(res.status).toBe(403)
+		expect(res.body).toEqual({ error: 'Forbidden' })
+		expect(insertAccountMock).not.toHaveBeenCalled()
+	})
+
 	it('returns 400 when user_id does not exist in kyc', async () => {
 		findKycByIdMock.mockResolvedValueOnce(null)
 
-		const res = await request(app).post('/wallet/create').send({ user_id: 999 })
+		const validJWT = generateValidJWT(999)
+		const res = await request(app)
+			.post('/wallet/create')
+			.set('Authorization', `Bearer ${validJWT}`)
+			.send({ user_id: 999 })
 
 		expect(res.status).toBe(400)
 		expect(res.body).toEqual({ error: 'Invalid user ID' })
@@ -110,7 +164,11 @@ describe('POST /wallet/create', () => {
 		})
 		fundMock.mockRejectedValueOnce(new Error('friendbot down'))
 
-		const res = await request(app).post('/wallet/create').send({ user_id: 2 })
+		const validJWT = generateValidJWT(2)
+		const res = await request(app)
+			.post('/wallet/create')
+			.set('Authorization', `Bearer ${validJWT}`)
+			.send({ user_id: 2 })
 
 		expect(res.status).toBe(400)
 		expect(res.body).toEqual({ error: 'Failed to create account' })
@@ -128,7 +186,11 @@ describe('POST /wallet/create', () => {
 			status: 'approved',
 		})
 
-		const res = await request(app).post('/wallet/create').send({ user_id: 3 })
+		const validJWT = generateValidJWT(3)
+		const res = await request(app)
+			.post('/wallet/create')
+			.set('Authorization', `Bearer ${validJWT}`)
+			.send({ user_id: 3 })
 
 		// restore key for next tests
 		process.env.ENCRYPTION_KEY = original

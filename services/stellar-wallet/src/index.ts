@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
+import { jwtMiddleware } from './auth/jwt'
 import envs from './config/envs'
 import { kycRouter } from './routes/kyc'
 import { walletRouter } from './routes/wallet'
@@ -21,7 +22,7 @@ app.post('/auth', (_req: Request, res: Response) => {
 
 app.use('/kyc', kycRouter)
 
-app.use('/wallet', walletRouter)
+app.use('/wallet', jwtMiddleware, walletRouter)
 
 // 404 Not Found Handler
 app.use((_req: Request, res: Response) => {
