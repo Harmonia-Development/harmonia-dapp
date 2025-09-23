@@ -37,11 +37,18 @@
 			"**/wagmi",
 			"**/pino-pretty",
 			"**/wagmi/**",
-			"**/pino-pretty/**"
+			"**/pino-pretty/**",
+			"**/@stellar/stellar-sdk",
+			"**/@stellar/stellar-sdk/**",
+			"**/@stellar/js-xdr",
+			"**/@stellar/js-xdr/**",
+			"**/@stellar/stellar-base",
+			"**/@stellar/stellar-base/**"
 		]
 	},
 	"dependencies": {
 		"@creit.tech/stellar-wallets-kit": "^1.7.3",
+		"@epic-web/invariant": "^1.0.0",
 		"@next/swc-wasm-nodejs": "^15.4.4",
 		"@next/third-parties": "^15.3.1",
 		"@react-three/drei": "^10.0.7",
