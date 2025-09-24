@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken'
 import type { NextFunction, Request, Response } from 'express'
+import jwt from 'jsonwebtoken'
 
 // TODO: maybe use a proper validation library later
 interface JWTPayload {
@@ -24,13 +24,19 @@ export function jwtMiddleware(req: Request, res: Response, next: NextFunction) {
 	}
 
 	const token = authHeader.split(' ')[1]
+	// FIXME: this probably needs better validation
 	if (!token) {
 		res.status(401).json({ error: 'Unauthorized' })
 		return
 	}
 
 	try {
-		const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload
+		const jwtSecret = process.env.JWT_SECRET
+		if (!jwtSecret) {
+			res.status(500).json({ error: 'Internal server error' })
+			return
+		}
+		const decoded = jwt.verify(token, jwtSecret) as JWTPayload
 
 		// Quick validation - just check if user_id exists and is a number
 		if (!decoded.user_id || typeof decoded.user_id !== 'number') {

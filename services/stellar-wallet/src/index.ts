@@ -37,5 +37,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 // Start server
 app.listen(envs.PORT, () => {
-	console.log(`🚀 Server running at http://localhost:${envs.PORT}`)
+	console.log(`Server running at http://localhost:${envs.PORT}`)
 })

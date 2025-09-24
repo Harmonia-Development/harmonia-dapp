@@ -1,6 +1,6 @@
+import express from 'express'
 import jwt from 'jsonwebtoken'
 import request from 'supertest'
-import express from 'express'
 import { jwtMiddleware, requireMatchingUserId } from '../../src/auth/jwt'
 
 // Set JWT secret for tests
@@ -21,7 +21,8 @@ app.post('/protected-user', jwtMiddleware, requireMatchingUserId, (req, res) => 
 
 describe('JWT Middleware', () => {
 	const validPayload = { user_id: 123 }
-	const validToken = jwt.sign(validPayload, process.env.JWT_SECRET!, { expiresIn: '1h' })
+	const jwtSecret = process.env.JWT_SECRET || 'test-secret'
+	const validToken = jwt.sign(validPayload, jwtSecret, { expiresIn: '1h' })
 
 	describe('jwtMiddleware', () => {
 		it('should allow access with valid JWT', async () => {
@@ -53,7 +54,7 @@ describe('JWT Middleware', () => {
 		})
 
 		it('should reject request with expired JWT', async () => {
-			const expiredToken = jwt.sign(validPayload, process.env.JWT_SECRET!, { expiresIn: '-1h' })
+			const expiredToken = jwt.sign(validPayload, jwtSecret, { expiresIn: '-1h' })
 
 			const res = await request(app)
 				.get('/protected')

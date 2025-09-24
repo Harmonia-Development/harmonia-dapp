@@ -51,11 +51,9 @@ walletRouter.post('/create', requireMatchingUserId, async (req: Request, res: Re
 			private_key_encrypted: encrypted,
 		})
 
-		// respond
-		return res.status(201).json({ user_id, public_key: publicKey })
+		res.status(201).json({ user_id, public_key: publicKey })
 	} catch (err) {
-		// Never leak secrets
 		console.error('wallet/create error:', err)
-		return res.status(500).json({ error: 'Failed to create account' })
+		res.status(500).json({ error: 'Failed to create account' })
 	}
 })
