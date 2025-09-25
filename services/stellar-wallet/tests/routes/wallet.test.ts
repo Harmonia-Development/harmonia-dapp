@@ -56,12 +56,12 @@ function generateValidJWT(user_id: number): string {
 }
 
 // Helper to get second argument from mock calls
-function getSecondArg(mockFn: { mock: { calls: unknown[][] } }): unknown {
+function getSecondArg(mockFn: { mock: { calls: unknown[][] } }): InsertAccountArgs {
 	const calls = mockFn.mock.calls
 	if (!calls || calls.length === 0 || calls[0].length < 2) {
 		throw new Error('Mock was not called with two arguments')
 	}
-	return calls[0][1]
+	return calls[0][1] as InsertAccountArgs
 }
 
 describe('POST /wallet/create', () => {
