@@ -2,6 +2,7 @@ import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
 import { jwtMiddleware } from './auth/jwt'
 import envs from './config/envs'
+import { authLimiter, kycLimiter, walletLimiter } from './middlewares/rate-limit'
 import { kycRouter } from './routes/kyc'
 import { walletRouter } from './routes/wallet'
 
@@ -16,13 +17,14 @@ app.get('/health', (_req: Request, res: Response) => {
 	res.status(200).json({ status: 'ok' })
 })
 
-app.post('/auth', (_req: Request, res: Response) => {
+app.post('/auth', authLimiter, (_req: Request, res: Response) => {
 	res.status(200).json({})
 })
 
-app.use('/kyc', kycRouter)
+app.use('/kyc', kycLimiter, kycRouter)
 
 app.use('/wallet', jwtMiddleware, walletRouter)
+app.use('/wallet', walletLimiter, walletRouter)
 
 // 404 Not Found Handler
 app.use((_req: Request, res: Response) => {
