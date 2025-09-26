@@ -3,6 +3,7 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import envs from './config/envs'
 import { authLimiter, kycLimiter, walletLimiter } from './middlewares/rate-limit'
 import { kycRouter } from './routes/kyc'
+import { kycVerifyRouter } from './routes/kyc-verify'
 import { walletRouter } from './routes/wallet'
 
 export const app = express()
@@ -21,6 +22,7 @@ app.post('/auth', authLimiter, (_req: Request, res: Response) => {
 })
 
 app.use('/kyc', kycLimiter, kycRouter)
+app.use('/kyc', kycLimiter, kycVerifyRouter)
 
 app.use('/wallet', walletLimiter, walletRouter)
 

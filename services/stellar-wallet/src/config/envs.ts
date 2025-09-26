@@ -9,6 +9,8 @@ const envSchema = z.object({
 	PORT: z.coerce.number().default(3000), // Parses PORT to number and defaults to 3000
 	HORIZON_URL: z.url().default('https://horizon-testnet.stellar.org'), // Must be a valid URL
 	SOROBAN_RPC_URL: z.url().default('https://soroban-testnet.stellar.org'), // Must be a valid URL
+	STELLAR_SECRET_KEY: z.string().min(1, 'STELLAR_SECRET_KEY is required'), // Deployer account secret key
+	SOROBAN_CONTRACT_ID: z.string().min(1, 'SOROBAN_CONTRACT_ID is required'), // Contract address from deployment
 })
 
 // Validate and parse environment variables
