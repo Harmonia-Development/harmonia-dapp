@@ -1,5 +1,6 @@
 import { type Request, type Response, Router } from 'express'
 import { z } from 'zod'
+import { requireMatchingUserId } from '../auth/jwt'
 import { connectDB, findKycById, initializeAccountsTable, insertAccount } from '../db/kyc'
 import { fundAccount } from '../stellar/fund'
 import { generateKeyPair } from '../stellar/keys'
@@ -11,13 +12,8 @@ const CreateWalletBody = z.object({
 	user_id: z.number().int().positive(),
 })
 
-/**
- * POST /wallet/create
- * Body: { user_id: number }
- * Flow: validate -> ensure KYC exists -> generate keys -> fund via friendbot -> encrypt secret -> persist -> 201
- */
-walletRouter.post('/create', async (req: Request, res: Response) => {
-	// validate body
+// Create new wallet for user
+walletRouter.post('/create', requireMatchingUserId, async (req: Request, res: Response) => {
 	const parsed = CreateWalletBody.safeParse(req.body)
 	if (!parsed.success) {
 		return res.status(400).json({ error: 'Invalid user ID' })
@@ -26,27 +22,26 @@ walletRouter.post('/create', async (req: Request, res: Response) => {
 
 	try {
 		const db = await connectDB()
-		await initializeAccountsTable(db) // safe if already created
+		await initializeAccountsTable(db)
 
-		// ensure user exists in kyc
+		// Make sure user exists in KYC first
 		const kyc = await findKycById(db, user_id)
 		if (!kyc) {
 			return res.status(400).json({ error: 'Invalid user ID' })
 		}
 
-		// generate keypair
+		// Generate keys and fund account
 		const { publicKey, privateKey } = generateKeyPair()
 
-		// fund account on testnet via friendbot
+		// TODO: should probably check if account already exists first
 		try {
 			await fundAccount(publicKey)
 		} catch (err) {
-			// Funding or network error → client can retry later
 			console.error('friendbot funding failed:', err)
 			return res.status(400).json({ error: 'Failed to create account' })
 		}
 
-		// encrypt and save
+		// Encrypt the private key for storage
 		const key = getEncryptionKey()
 		const encrypted = encryptPrivateKey(privateKey, key)
 
@@ -56,11 +51,9 @@ walletRouter.post('/create', async (req: Request, res: Response) => {
 			private_key_encrypted: encrypted,
 		})
 
-		// respond
-		return res.status(201).json({ user_id, public_key: publicKey })
+		res.status(201).json({ user_id, public_key: publicKey })
 	} catch (err) {
-		// Never leak secrets
 		console.error('wallet/create error:', err)
-		return res.status(500).json({ error: 'Failed to create account' })
+		res.status(500).json({ error: 'Failed to create account' })
 	}
 })

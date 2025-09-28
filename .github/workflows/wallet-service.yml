@@ -11,12 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 18.x
-          cache: "npm"
-      - run: npm ci
+          bun-version: latest
+      - run: bun install
         working-directory: services/stellar-wallet
 
   lint:
@@ -24,12 +23,13 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 18.x
-      - run: npm ci
+          bun-version: latest
+      - run: bun install
         working-directory: services/stellar-wallet
-      - run: npm run lint
+      - run: bun run lint
         working-directory: services/stellar-wallet
 
   test:
@@ -37,19 +37,22 @@ jobs:
     needs: install
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: 18.x
-      - run: npm ci
+          bun-version: latest
+      - run: bun install
         working-directory: services/stellar-wallet
-      - run: npm run test
+      - run: bun run test
         working-directory: services/stellar-wallet
         env:
           HORIZON_URL: https://horizon-testnet.stellar.org
           SOROBAN_RPC_URL: https://rpc-futura.stellar.org
           PORT: 3001
+          ENCRYPTION_KEY: dGVzdC1lbmNyeXB0aW9uLWtleS0zMi1ieXRlcw==
+          JWT_SECRET: test-jwt-secret-for-ci
 
-# Smart contract
+  # Smart contract
   build-smart-contract:
     runs-on: macos-latest
 

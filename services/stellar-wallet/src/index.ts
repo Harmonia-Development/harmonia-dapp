@@ -1,5 +1,6 @@
 import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
+import { jwtMiddleware } from './auth/jwt'
 import envs from './config/envs'
 import { authLimiter, kycLimiter, walletLimiter } from './middlewares/rate-limit'
 import { kycRouter } from './routes/kyc'
@@ -24,6 +25,7 @@ app.post('/auth', authLimiter, (_req: Request, res: Response) => {
 app.use('/kyc', kycLimiter, kycRouter)
 app.use('/kyc', kycLimiter, kycVerifyRouter)
 
+app.use('/wallet', jwtMiddleware, walletRouter)
 app.use('/wallet', walletLimiter, walletRouter)
 
 // 404 Not Found Handler
@@ -39,5 +41,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 // Start server
 app.listen(envs.PORT, () => {
-	console.log(`🚀 Server running at http://localhost:${envs.PORT}`)
+	console.log(`Server running at http://localhost:${envs.PORT}`)
 })
