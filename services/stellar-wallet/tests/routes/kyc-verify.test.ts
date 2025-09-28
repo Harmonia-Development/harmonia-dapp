@@ -1,6 +1,6 @@
 import type sqlite3 from 'sqlite3'
 import request from 'supertest'
-import { closeDB, connectDB, initializeKycTable, run } from '../../src/db/kyc'
+import { closeDB, connectDB, initializeKycTable, run, all } from '../../src/db/kyc'
 
 // Create a clean app instance for testing without rate limiting
 import express from 'express'
@@ -194,7 +194,7 @@ describe('POST /kyc/verify', () => {
 		expect(response.body).toHaveProperty('status', 'approved')
 		expect(response.body.data_hash).toMatch(/^[a-f0-9]{64}$/) // SHA-256 hash format
 
-		// Verify contract was called
+		// Verify contract was called with correct parameters
 		expect(mockContract.call).toHaveBeenCalledWith(
 			'register_kyc',
 			{}, // mocked nativeToScVal return
@@ -202,10 +202,11 @@ describe('POST /kyc/verify', () => {
 			{}, // mocked nativeToScVal return
 		)
 
-		// Verify database was updated
+		// Verify database status was actually updated
 		const db = await connectDB()
-		const updatedRecord = await run(db, 'SELECT status FROM kyc WHERE id = 1')
-		// Note: run doesn't return data, so we'd need to use all() to verify
+		const rows = await all(db, 'SELECT status FROM kyc WHERE id = 1')
+		expect(rows).toHaveLength(1)
+		expect(rows[0]).toEqual({ status: 'approved' })
 	})
 
 	it('should return 400 for missing kyc_id', async () => {

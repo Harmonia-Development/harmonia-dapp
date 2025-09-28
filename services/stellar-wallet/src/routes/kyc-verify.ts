@@ -46,7 +46,10 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 		}
 
 		// Generate hash of KYC data
-		const kycDataString = JSON.stringify({ name: validation.data!.name, document: validation.data!.document })
+		const kycDataString = JSON.stringify({
+			name: validation.data!.name,
+			document: validation.data!.document,
+		})
 		const dataHash = createHash('sha256').update(kycDataString).digest('hex')
 
 		// Connect to Soroban and prepare contract call
@@ -60,7 +63,7 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 			'register_kyc',
 			StellarSdk.nativeToScVal(kyc_id, { type: 'string' }),
 			StellarSdk.nativeToScVal(dataHash, { type: 'string' }),
-			StellarSdk.nativeToScVal('approved', { type: 'string' })
+			StellarSdk.nativeToScVal('approved', { type: 'string' }),
 		)
 
 		const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
@@ -82,7 +85,7 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 		// Wait for transaction confirmation
 		let txResponse = await sorobanServer.getTransaction(response.hash)
 		while (txResponse.status === 'NOT_FOUND') {
-			await new Promise(resolve => setTimeout(resolve, 1000))
+			await new Promise((resolve) => setTimeout(resolve, 1000))
 			txResponse = await sorobanServer.getTransaction(response.hash)
 		}
 
@@ -97,11 +100,10 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 		const verifyResponse: VerifyKycResponse = {
 			kyc_id,
 			data_hash: dataHash,
-			status: 'approved'
+			status: 'approved',
 		}
 
 		return res.status(201).json(verifyResponse)
-
 	} catch (error) {
 		console.error('KYC verification error:', error)
 		return res.status(500).json({ error: 'Failed to register KYC' })
