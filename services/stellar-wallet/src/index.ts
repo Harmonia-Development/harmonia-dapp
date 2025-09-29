@@ -2,6 +2,7 @@ import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
 import envs from './config/envs'
 import { authLimiter, kycLimiter, walletLimiter } from './middlewares/rate-limit'
+import { authLoginRouter } from './routes/auth-login'
 import { kycRouter } from './routes/kyc'
 import { kycVerifyRouter } from './routes/kyc-verify'
 import { walletRouter } from './routes/wallet'
@@ -21,6 +22,10 @@ app.post('/auth', authLimiter, (_req: Request, res: Response) => {
 	res.status(200).json({})
 })
 
+// Mount auth login routes
+app.use('/auth', authLoginRouter)
+
+// Protected routes - require JWT authentication
 app.use('/kyc', kycLimiter, kycRouter)
 app.use('/kyc', kycLimiter, kycVerifyRouter)
 
