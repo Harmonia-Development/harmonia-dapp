@@ -2,6 +2,7 @@ import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
 import envs from './config/envs'
 import { authLimiter, kycLimiter, walletLimiter } from './middlewares/rate-limit'
+import { authVerifyRouter } from './routes/auth-verify'
 import { kycRouter } from './routes/kyc'
 import { kycVerifyRouter } from './routes/kyc-verify'
 import { walletRouter } from './routes/wallet'
@@ -20,6 +21,8 @@ app.get('/health', (_req: Request, res: Response) => {
 app.post('/auth', authLimiter, (_req: Request, res: Response) => {
 	res.status(200).json({})
 })
+
+app.use('/auth/verify', authLimiter, authVerifyRouter)
 
 app.use('/kyc', kycLimiter, kycRouter)
 app.use('/kyc', kycLimiter, kycVerifyRouter)

@@ -28,6 +28,15 @@ export type AccountRow = {
 	private_key: string
 }
 
+export type CredentialRow = {
+	id: number
+	kyc_id: number
+	credential_id: string
+	public_key: string
+	counter: number
+	created_at: string
+}
+
 /**
  * Returns a single shared SQLite database instance (singleton).
  * Creates the file/directory if missing and applies PRAGMAs once.
@@ -168,5 +177,53 @@ export async function findAccountByUserId(
 	const rows = await all<AccountRow>(db, 'SELECT * FROM accounts WHERE user_id = ? LIMIT 1;', [
 		userId,
 	])
+	return rows.length ? rows[0] : null
+}
+
+/**
+ * Creates the `credentials` table if not exist (idempotent).
+ * FK: credentials.kyc_id → kyc(id) ON DELETE CASCADE
+ */
+export async function initializeCredentialsTable(db?: sqlite3.Database): Promise<void> {
+	const conn = db ?? (await connectDB())
+	await run(
+		conn,
+		`
+		CREATE TABLE IF NOT EXISTS credentials (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			kyc_id INTEGER NOT NULL,
+			credential_id TEXT NOT NULL UNIQUE,
+			public_key TEXT NOT NULL,
+			counter INTEGER DEFAULT 0,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (kyc_id) REFERENCES kyc(id) ON DELETE CASCADE
+		);
+	`,
+	)
+	await run(conn, 'CREATE INDEX IF NOT EXISTS idx_credentials_kyc_id ON credentials (kyc_id);')
+}
+
+/**
+ * Finds credentials for a specific KYC user.
+ */
+export async function findCredentialsByKycId(
+	db: sqlite3.Database,
+	kycId: number,
+): Promise<CredentialRow[]> {
+	return await all<CredentialRow>(db, 'SELECT * FROM credentials WHERE kyc_id = ?;', [kycId])
+}
+
+/**
+ * Finds a single credential by credential_id.
+ */
+export async function findCredentialById(
+	db: sqlite3.Database,
+	credentialId: string,
+): Promise<CredentialRow | null> {
+	const rows = await all<CredentialRow>(
+		db,
+		'SELECT * FROM credentials WHERE credential_id = ? LIMIT 1;',
+		[credentialId],
+	)
 	return rows.length ? rows[0] : null
 }

@@ -1,6 +1,6 @@
 import type sqlite3 from 'sqlite3'
 import request from 'supertest'
-import { closeDB, connectDB, initializeKycTable, run, all } from '../../src/db/kyc'
+import { all, closeDB, connectDB, initializeKycTable, run } from '../../src/db/kyc'
 
 // Create a clean app instance for testing without rate limiting
 import express from 'express'
