@@ -3,6 +3,7 @@ import type sqlite3 from 'sqlite3'
 import { connectDB } from '../db/kyc'
 import { findAccountByUserId } from '../db/kyc'
 import { decryptPrivateKey, getEncryptionKey } from '../utils/encryption'
+import { logger, logError } from '../middlewares/logger'
 
 /** Union type for Stellar base transaction types we can sign. */
 export type StellarTx = Transaction | FeeBumpTransaction
@@ -19,6 +20,7 @@ export type StellarTx = Transaction | FeeBumpTransaction
 export async function getPrivateKey(userId: number, db?: sqlite3.Database): Promise<string> {
 	const conn = db ?? (await connectDB())
 	const row = await findAccountByUserId(conn, userId)
+	logger.debug({ message: 'get_private_key_lookup', user_id: userId, found: Boolean(row) })
 
 	if (!row) {
 		throw new Error('Account not found')
@@ -30,8 +32,10 @@ export async function getPrivateKey(userId: number, db?: sqlite3.Database): Prom
 	let secret: string
 	try {
 		secret = decryptPrivateKey(encrypted, key)
-	} catch {
+		logger.debug({ message: 'private_key_decrypted', user_id: userId })
+	} catch (err) {
 		// Normalize all decryption/format errors to the required message
+		logError(err, { user_id: userId, context: 'decrypt_private_key' })
 		throw new Error('Decryption failed')
 	}
 
@@ -56,10 +60,16 @@ export async function signTransaction(
 	tx: StellarTx,
 	db?: sqlite3.Database,
 ): Promise<StellarTx> {
+	logger.debug({ message: 'sign_transaction_start', user_id: userId })
 	const secret = await getPrivateKey(userId, db)
 	const keypair = Keypair.fromSecret(secret)
 
 	// Side-effect: signs the instance in-place (SDK API)
 	tx.sign(keypair)
+	logger.debug({
+		message: 'sign_transaction_success',
+		user_id: userId,
+		tx_hash: (tx as any).hash?.().toString('hex'),
+	})
 	return tx
 }

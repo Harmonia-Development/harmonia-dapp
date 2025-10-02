@@ -5,6 +5,7 @@ import { connectDB, findKycById, run } from '../db/kyc'
 import { validateKycData } from '../kyc/validate'
 import { connectSoroban } from '../soroban/client'
 import envs from '../config/envs'
+import { logger, logError } from '../middlewares/logger'
 
 export const kycVerifyRouter = Router()
 
@@ -103,9 +104,10 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 			status: 'approved',
 		}
 
+		logger.info({ message: 'kyc_registered_soroban', kyc_id, data_hash: dataHash })
 		return res.status(201).json(verifyResponse)
 	} catch (error) {
-		console.error('KYC verification error:', error)
+		logError(error, { route: '/kyc/verify' })
 		return res.status(500).json({ error: 'Failed to register KYC' })
 	}
 })

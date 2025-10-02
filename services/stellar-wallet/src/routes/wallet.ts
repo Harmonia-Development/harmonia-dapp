@@ -4,6 +4,7 @@ import { connectDB, findKycById, initializeAccountsTable, insertAccount } from '
 import { fundAccount } from '../stellar/fund'
 import { generateKeyPair } from '../stellar/keys'
 import { encryptPrivateKey, getEncryptionKey } from '../utils/encryption'
+import { logger, logError } from '../middlewares/logger'
 
 export const walletRouter = Router()
 
@@ -42,7 +43,7 @@ walletRouter.post('/create', async (req: Request, res: Response) => {
 			await fundAccount(publicKey)
 		} catch (err) {
 			// Funding or network error → client can retry later
-			console.error('friendbot funding failed:', err)
+			logError(err, { route: '/wallet/create', stage: 'friendbot_fund' })
 			return res.status(400).json({ error: 'Failed to create account' })
 		}
 
@@ -57,10 +58,11 @@ walletRouter.post('/create', async (req: Request, res: Response) => {
 		})
 
 		// respond
+		logger.info({ message: 'wallet_created', user_id, public_key: publicKey })
 		return res.status(201).json({ user_id, public_key: publicKey })
 	} catch (err) {
 		// Never leak secrets
-		console.error('wallet/create error:', err)
+		logError(err, { route: '/wallet/create' })
 		return res.status(500).json({ error: 'Failed to create account' })
 	}
 })

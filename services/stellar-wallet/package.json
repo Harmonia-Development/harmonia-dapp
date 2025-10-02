@@ -45,6 +45,7 @@
 		"express-rate-limit": "^8.1.0",
 		"sqlite3": "^5.1.7",
 		"supertest": "^7.1.4",
+		"winston": "3.18.3",
 		"zod": "^4.1.1"
 	}
 }
