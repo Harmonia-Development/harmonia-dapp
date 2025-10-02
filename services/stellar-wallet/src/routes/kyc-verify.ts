@@ -108,6 +108,7 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 		return res.status(201).json(verifyResponse)
 	} catch (error) {
 		logError(error, { route: '/kyc/verify' })
+		console.log('KYC verification error:', error)
 		return res.status(500).json({ error: 'Failed to register KYC' })
 	}
 })
