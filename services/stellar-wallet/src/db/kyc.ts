@@ -15,7 +15,7 @@ let dbInstance: sqlite3.Database | null = null
 
 export type KycRow = {
 	id: number
-	name: string
+	email: string
 	document: string
 	status: string
 }
@@ -69,13 +69,14 @@ export async function initializeKycTable(db?: sqlite3.Database): Promise<void> {
 	const sql = `
     CREATE TABLE IF NOT EXISTS kyc (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      document TEXT NOT NULL,
+      email TEXT NOT NULL,
+      name TEXT,
+      document TEXT,
       status TEXT NOT NULL DEFAULT 'pending'
     );
   `
 	await run(conn, sql)
-	await run(conn, 'CREATE UNIQUE INDEX IF NOT EXISTS idx_kyc_document ON kyc (document);')
+	await run(conn, 'CREATE UNIQUE INDEX IF NOT EXISTS idx_kyc_email ON kyc (email);')
 }
 
 /**

@@ -37,6 +37,8 @@
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
+		"@simplewebauthn/server": "^13.2.1",
+		"@simplewebauthn/types": "^12.0.0",
 		"@stellar/stellar-sdk": "^14.0.0-rc.3",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/supertest": "^6.0.3",
@@ -47,6 +49,7 @@
 		"jsonwebtoken": "^9.0.2",
 		"sqlite3": "^5.1.7",
 		"supertest": "^7.1.4",
+		"yn": "^3.1.1",
 		"zod": "^4.1.1"
 	}
 }

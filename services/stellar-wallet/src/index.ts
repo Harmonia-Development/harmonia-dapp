@@ -6,12 +6,24 @@ import { authLoginRouter } from './routes/auth-login'
 import { kycRouter } from './routes/kyc'
 import { kycVerifyRouter } from './routes/kyc-verify'
 import { walletRouter } from './routes/wallet'
+import { webauthnRegisterRouter } from './routes/webauthn-register'
+import { webauthnAuthenticateRouter } from './routes/webauthn-authenticate'
+import { initializeDatabase } from './db/init'
 
 export const app = express()
 
 // Middlewares
 app.use(cors())
 app.use(express.json())
+
+initializeDatabase()
+	.then(() => {
+		console.log('Database initialized successfully')
+	})
+	.catch((err) => {
+		console.error('Failed to initialize database:', err)
+		process.exit(1)
+	})
 
 // Routes
 app.get('/health', (_req: Request, res: Response) => {
@@ -21,6 +33,9 @@ app.get('/health', (_req: Request, res: Response) => {
 app.post('/auth', authLimiter, (_req: Request, res: Response) => {
 	res.status(200).json({})
 })
+
+app.use('/api/webauthn', authLimiter, webauthnRegisterRouter)
+app.use('/api/webauthn', authLimiter, webauthnAuthenticateRouter)
 
 // Mount auth login routes
 app.use('/auth', authLoginRouter)
