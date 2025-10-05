@@ -1,16 +1,20 @@
 import request from 'supertest'
+import type { KycRow } from '../../src/db/kyc'
 
 // Deterministic 32-byte key (Base64)
 process.env.ENCRYPTION_KEY = Buffer.alloc(32, 7).toString('base64')
-
-import type { KycRow } from '../../src/db/kyc'
-import { app } from '../../src/index'
 
 // Types for mocks
 type InsertAccountArgs = {
 	user_id: number
 	public_key: string
 	private_key_encrypted: string
+}
+
+type InsertTransactionArgs = {
+	user_id: number
+	transaction_hash: string
+	status: string
 }
 
 // Helper to take the second argument typed from a mock
@@ -23,12 +27,112 @@ function secondArg<T1, T2>(m: jest.Mock<unknown, [T1, T2]>): T2 {
 	return call[1]
 }
 
-// ---- Mocks ----
-
-// Mock keypair generation
+// Constants
 const VALID_PUBLIC_KEY = 'GCCGMBN46TNVH2WL732DYB5WWBEJG5S4UDXAJGB7O3GPQJVVHVQOP5E7'
 const MOCK_SECRET = 'SA2XMOCKSECRETPRIVATEKEYFORTESTS01234567'
 
+// Test control variables
+let JWT_BEHAVIOR: 'success' | 'fail' = 'success'
+let AUTH_USER_ID = '1'
+
+// Mock rate limiting middleware
+jest.mock('../../src/middlewares/rate-limit', () => ({
+	walletLimiter: jest.fn((req: Request, res: Response, next: NextFunction) => next()),
+	authLimiter: jest.fn((req: Request, res: Response, next: NextFunction) => next()),
+	kycLimiter: jest.fn((req: Request, res: Response, next: NextFunction) => next()),
+}))
+
+// Mock auth JWT
+import type { NextFunction, Request, Response } from 'express'
+
+interface JwtPayload {
+	user_id: string
+	role: string
+	iat?: number
+	exp?: number
+}
+
+interface AuthenticatedRequest extends Request {
+	user?: JwtPayload
+}
+
+jest.mock('../../src/auth/jwt', () => ({
+	jwtMiddleware: jest.fn((req: Request, res: Response, next: NextFunction) => {
+		if (JWT_BEHAVIOR === 'fail') {
+			return res.status(401).json({ error: 'unauthorized' })
+		}
+		const authReq = req as AuthenticatedRequest
+		authReq.user = { user_id: AUTH_USER_ID, role: 'user' }
+		next()
+	}),
+}))
+
+// Mock stellar-sdk
+const mockTransaction = { __signed: false }
+
+const StrKeyMock = {
+	isValidEd25519PublicKey: jest.fn().mockReturnValue(true),
+}
+
+const TransactionBuilderMock = jest.fn().mockImplementation(() => ({
+	addOperation: jest.fn().mockReturnThis(),
+	addMemo: jest.fn().mockReturnThis(),
+	setTimeout: jest.fn().mockReturnThis(),
+	build: jest.fn().mockReturnValue(mockTransaction),
+}))
+
+const OperationMock = {
+	payment: jest.fn().mockReturnValue({ type: 'payment' }),
+}
+
+const AssetMock = {
+	native: jest.fn().mockReturnValue({ type: 'native' }),
+}
+
+const MemoMock = {
+	text: jest.fn().mockReturnValue({ type: 'text' }),
+}
+
+const NetworksMock = {
+	TESTNET: 'Test SDF Network ; September 2015',
+}
+
+jest.mock('@stellar/stellar-sdk', () => ({
+	StrKey: StrKeyMock,
+	TransactionBuilder: TransactionBuilderMock,
+	Operation: OperationMock,
+	Asset: AssetMock,
+	Memo: MemoMock,
+	Networks: NetworksMock,
+}))
+
+// Mock stellar client
+const loadAccountMock = jest.fn().mockResolvedValue({ accountId: 'SOURCE', sequence: '1' })
+const fetchBaseFeeMock = jest.fn().mockResolvedValue(100)
+const submitTransactionMock = jest.fn().mockResolvedValue({ hash: 'TXHASH_SUCCESS' })
+
+const connectMock = jest.fn().mockReturnValue({
+	loadAccount: loadAccountMock,
+	fetchBaseFee: fetchBaseFeeMock,
+	submitTransaction: submitTransactionMock,
+})
+
+jest.mock('../../src/stellar/client', () => ({
+	connect: connectMock,
+}))
+
+// Mock stellar signing
+import type { Transaction } from '@stellar/stellar-sdk'
+
+const signTransactionMock = jest.fn().mockImplementation((userId: number, tx: Transaction) => {
+	return Promise.resolve(tx)
+})
+
+jest.mock('../../src/stellar/sign', () => ({
+	signTransaction: signTransactionMock,
+}))
+
+// Mock stellar keys
 jest.mock('../../src/stellar/keys', () => ({
 	generateKeyPair: jest.fn((): { publicKey: string; privateKey: string } => ({
 		publicKey: VALID_PUBLIC_KEY,
@@ -42,7 +146,8 @@ jest.mock('../../src/stellar/fund', () => ({
 	fundAccount: (publicKey: string): Promise<void> => fundMock(publicKey),
 }))
 
-// Mock DB helpers used by the route
+// Mock DB helpers
+const connectDBMock = jest.fn().mockResolvedValue({})
 const findKycByIdMock: jest.Mock<Promise<KycRow | null>, [unknown, number]> = jest.fn()
 const insertAccountMock: jest.Mock<Promise<void>, [unknown, InsertAccountArgs]> = jest
 	.fn<Promise<void>, [unknown, InsertAccountArgs]>()
@@ -50,17 +155,34 @@ const insertAccountMock: jest.Mock<Promise<void>, [unknown, InsertAccountArgs]> 
 const initializeAccountsTableMock: jest.Mock<Promise<void>, [unknown?]> = jest
 	.fn<Promise<void>, [unknown?]>()
 	.mockResolvedValue(undefined)
+const initializeTransactionsTableMock = jest.fn().mockResolvedValue(undefined)
+const findAccountByUserIdMock = jest.fn().mockResolvedValue({
+	id: 10,
+	user_id: 1,
+	public_key: VALID_PUBLIC_KEY,
+	private_key: 'iv:tag:cipher',
+})
+const insertTransactionMock: jest.Mock<Promise<void>, [unknown, InsertTransactionArgs]> = jest
+	.fn<Promise<void>, [unknown, InsertTransactionArgs]>()
+	.mockResolvedValue(undefined)
 
 jest.mock('../../src/db/kyc', () => {
 	const actual = jest.requireActual('../../src/db/kyc')
 	return {
 		...actual,
+		connectDB: connectDBMock,
 		findKycById: (db: unknown, id: number): Promise<KycRow | null> => findKycByIdMock(db, id),
 		insertAccount: (db: unknown, args: InsertAccountArgs): Promise<void> =>
 			insertAccountMock(db, args),
 		initializeAccountsTable: (db?: unknown): Promise<void> => initializeAccountsTableMock(db),
+		initializeTransactionsTable: initializeTransactionsTableMock,
+		findAccountByUserId: findAccountByUserIdMock,
+		insertTransaction: (db: unknown, args: InsertTransactionArgs): Promise<void> =>
+			insertTransactionMock(db, args),
 	}
 })
+
+import { app } from '../../src/index'
 
 describe('POST /wallet/create', () => {
 	beforeEach(() => {
@@ -135,5 +257,192 @@ describe('POST /wallet/create', () => {
 
 		expect([500, 400]).toContain(res.status)
 		expect(res.body).toHaveProperty('error')
+	})
+})
+
+describe('POST /wallet/send', () => {
+	beforeEach(() => {
+		jest.clearAllMocks()
+		JWT_BEHAVIOR = 'success'
+		AUTH_USER_ID = '1'
+
+		// Reset default mocks
+		StrKeyMock.isValidEd25519PublicKey.mockReturnValue(true)
+		findAccountByUserIdMock.mockResolvedValue({
+			id: 10,
+			user_id: 1,
+			public_key: VALID_PUBLIC_KEY,
+			private_key: 'iv:tag:cipher',
+		})
+		loadAccountMock.mockResolvedValue({ accountId: 'SOURCE', sequence: '1' })
+		fetchBaseFeeMock.mockResolvedValue(100)
+		submitTransactionMock.mockResolvedValue({ hash: 'TXHASH_SUCCESS' })
+	})
+
+	it('should reject requests without JWT', async () => {
+		JWT_BEHAVIOR = 'fail'
+
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 123,
+			destination: VALID_PUBLIC_KEY,
+			amount: '10',
+		})
+
+		expect(res.status).toBe(401)
+		expect(res.body).toEqual({ error: 'unauthorized' })
+	})
+
+	it('returns 201 on successful transaction', async () => {
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: VALID_PUBLIC_KEY,
+			amount: '12.3456',
+			asset: 'native',
+			memo: 'hello',
+		})
+
+		expect(res.status).toBe(201)
+		expect(res.body).toEqual({
+			user_id: 1,
+			transaction_hash: 'TXHASH_SUCCESS',
+			status: 'success',
+		})
+
+		// Verify stellar calls
+		expect(loadAccountMock).toHaveBeenCalledWith(VALID_PUBLIC_KEY)
+		expect(fetchBaseFeeMock).toHaveBeenCalled()
+		expect(submitTransactionMock).toHaveBeenCalled()
+
+		// Verify transaction persistence
+		expect(insertTransactionMock).toHaveBeenCalledWith(expect.anything(), {
+			user_id: 1,
+			transaction_hash: 'TXHASH_SUCCESS',
+			status: 'success',
+		})
+	})
+
+	it('returns 400 when user_id does not match token', async () => {
+		AUTH_USER_ID = '99'
+
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: VALID_PUBLIC_KEY,
+			amount: '10',
+		})
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'user_id does not match token' })
+	})
+
+	it('returns 400 for invalid destination', async () => {
+		StrKeyMock.isValidEd25519PublicKey.mockReturnValue(false)
+
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: 'invalid-destination',
+			amount: '10',
+		})
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'invalid destination' })
+	})
+
+	it('returns 400 for amount with >7 decimals', async () => {
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: VALID_PUBLIC_KEY,
+			amount: '1.23456789', // 8 decimals
+		})
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'amount must be a positive decimal with up to 7 decimals' })
+	})
+
+	it('returns 400 for amount = 0', async () => {
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: VALID_PUBLIC_KEY,
+			amount: '0',
+		})
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'amount must be > 0 and ≤ 1000' })
+	})
+
+	it('returns 400 for amount > 1000', async () => {
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: VALID_PUBLIC_KEY,
+			amount: '1000.0000001',
+		})
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'amount must be > 0 and ≤ 1000' })
+	})
+
+	it('returns 400 for unsupported asset', async () => {
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: VALID_PUBLIC_KEY,
+			amount: '10',
+			asset: 'USDC',
+		})
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'only native asset supported' })
+	})
+
+	it('returns 400 for memo > 28 bytes', async () => {
+		const res = await request(app)
+			.post('/wallet/send')
+			.send({
+				user_id: 1,
+				destination: VALID_PUBLIC_KEY,
+				amount: '10',
+				memo: 'x'.repeat(29), // 29 bytes
+			})
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'memo must be ≤ 28 bytes' })
+	})
+
+	it('returns 400 when user account not found', async () => {
+		findAccountByUserIdMock.mockResolvedValue(null)
+
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: VALID_PUBLIC_KEY,
+			amount: '10',
+		})
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'user account not found' })
+	})
+
+	it('returns 500 when Horizon rejects transaction with hash', async () => {
+		const horizonError = {
+			response: {
+				data: {
+					hash: 'FAILHASH_123',
+				},
+			},
+		}
+		submitTransactionMock.mockRejectedValue(horizonError)
+
+		const res = await request(app).post('/wallet/send').send({
+			user_id: 1,
+			destination: VALID_PUBLIC_KEY,
+			amount: '10',
+		})
+
+		expect(res.status).toBe(500)
+		expect(res.body).toEqual({ error: 'Transaction failed' })
+
+		// Verify failed transaction persistence
+		expect(insertTransactionMock).toHaveBeenCalledWith(expect.anything(), {
+			user_id: 1,
+			transaction_hash: 'unknown', // Since error doesn't have direct hash property
+			status: 'failed',
+		})
 	})
 })

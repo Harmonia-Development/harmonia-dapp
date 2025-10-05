@@ -1,5 +1,5 @@
+import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { type Request, type Response, type NextFunction } from 'express'
 import envs from '../config/envs'
 
 export interface JwtPayload {
@@ -15,7 +15,7 @@ export interface JwtPayload {
  * @param role - The user role (defaults to 'user')
  * @returns JWT token string
  */
-export const generateToken = (user_id: string, role: string = 'user'): string => {
+export const generateToken = (user_id: string, role = 'user'): string => {
 	const payload: JwtPayload = {
 		user_id,
 		role,

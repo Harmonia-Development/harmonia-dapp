@@ -1,9 +1,9 @@
-import { Router, type Request, type Response } from 'express'
+import { type Request, type Response, Router } from 'express'
 import { generateToken } from '../auth/jwt'
 import {
-	verifyWebAuthnAuthentication,
-	getUserCredentials,
 	type WebAuthnAuthenticationResponse,
+	getUserCredentials,
+	verifyWebAuthnAuthentication,
 } from '../auth/webauthn'
 
 export const authLoginRouter = Router()

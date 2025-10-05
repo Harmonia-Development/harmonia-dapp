@@ -13,7 +13,7 @@ jest.mock('winston', () => {
 	}
 })
 
-import { loggerMiddleware, logError } from '../../src/middlewares/logger'
+import { logError, loggerMiddleware } from '../../src/middlewares/logger'
 
 describe('logger middleware', () => {
 	let app: express.Application

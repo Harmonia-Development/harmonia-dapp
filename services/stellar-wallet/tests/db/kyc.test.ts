@@ -3,13 +3,16 @@ import path from 'node:path'
 import type sqlite3 from 'sqlite3'
 import {
 	type KycRow,
+	type TransactionRow,
 	all,
 	closeDB,
 	connectDB,
 	findKycById,
 	initializeAccountsTable,
 	initializeKycTable,
+	initializeTransactionsTable,
 	insertAccount,
+	insertTransaction,
 	run,
 } from '../../src/db/kyc'
 
@@ -222,5 +225,160 @@ describe('KYC SQLite module', () => {
 			userId,
 		])
 		expect(accounts.length).toBe(0)
+	})
+
+	test('initializeTransactionsTable creates transactions schema with FK/indexes and is idempotent', async () => {
+		await expect(initializeTransactionsTable(db)).resolves.toBeUndefined()
+		// call again to verify idempotency
+		await expect(initializeTransactionsTable(db)).resolves.toBeUndefined()
+
+		type PragmaCol = {
+			cid: number
+			name: string
+			type: string
+			notnull: number
+			dflt_value: string | null
+			pk: number
+		}
+		const cols = await all<PragmaCol>(db, "PRAGMA table_info('transactions');")
+		const byName = Object.fromEntries(cols.map((c) => [c.name, c]))
+
+		// id
+		expect(byName.id).toBeDefined()
+		expect(byName.id.type.toUpperCase()).toBe('INTEGER')
+		expect(byName.id.pk).toBe(1)
+
+		// user_id
+		expect(byName.user_id).toBeDefined()
+		expect(byName.user_id.type.toUpperCase()).toBe('INTEGER')
+		expect(byName.user_id.notnull).toBe(1)
+
+		// transaction_hash
+		expect(byName.transaction_hash).toBeDefined()
+		expect(byName.transaction_hash.type.toUpperCase()).toBe('TEXT')
+		expect(byName.transaction_hash.notnull).toBe(1)
+
+		// status
+		expect(byName.status).toBeDefined()
+		expect(byName.status.type.toUpperCase()).toBe('TEXT')
+		expect(byName.status.notnull).toBe(1)
+
+		// verify FK user_id -> kyc(id) with ON DELETE CASCADE
+		type FK = {
+			id: number
+			seq: number
+			table: string
+			from: string
+			to: string
+			on_update: string
+			on_delete: string
+			match: string
+		}
+		const fks = await all<FK>(db, "PRAGMA foreign_key_list('transactions');")
+		const fkUser = fks.find((f) => f.from === 'user_id')
+		expect(fkUser).toBeDefined()
+		expect(fkUser?.table.toLowerCase()).toBe('kyc')
+		expect(fkUser?.to.toLowerCase()).toBe('id')
+		expect((fkUser?.on_delete ?? '').toUpperCase()).toBe('CASCADE')
+
+		// index metadata assertions
+		type Idx = { seq: number; name: string; unique: number; origin: string; partial: number }
+		const idx = await all<Idx>(db, "PRAGMA index_list('transactions');")
+		const names = idx.map((i) => i.name)
+		expect(names).toEqual(
+			expect.arrayContaining(['idx_transactions_user_id', 'idx_transactions_hash']),
+		)
+		const userIdx = idx.find((i) => i.name === 'idx_transactions_user_id')
+		expect(userIdx?.unique).toBe(0)
+		const hashIdx = idx.find((i) => i.name === 'idx_transactions_hash')
+		expect(hashIdx?.unique).toBe(1)
+
+		type IdxInfo = { seqno: number; cid: number; name: string }
+		const userCols = await all<IdxInfo>(db, "PRAGMA index_info('idx_transactions_user_id');")
+		expect(userCols.map((c) => c.name)).toEqual(['user_id'])
+		const hashCols = await all<IdxInfo>(db, "PRAGMA index_info('idx_transactions_hash');")
+		expect(hashCols.map((c) => c.name)).toEqual(['transaction_hash'])
+	})
+
+	test('insertTransaction inserts, enforces UNIQUE(transaction_hash) and FK CASCADE', async () => {
+		// create a KYC row to associate transactions with
+		await run(db, 'INSERT INTO kyc (name, document, status) VALUES (?, ?, ?)', [
+			'Eve',
+			'DOC-TX-UNIQ',
+			'approved',
+		])
+		const kycRows = await all<KycRow>(db, 'SELECT * FROM kyc WHERE document = ?', ['DOC-TX-UNIQ'])
+		const userId = kycRows[0].id
+
+		const txHash = 'TX_HASH_UNIQUE_TEST_12345678901234567890'
+		const status = 'success'
+
+		// first insert should succeed
+		await expect(
+			insertTransaction(db, { user_id: userId, transaction_hash: txHash, status }),
+		).resolves.toBeUndefined()
+
+		// verify the transaction was inserted correctly
+		const transactions = await all<TransactionRow>(
+			db,
+			'SELECT * FROM transactions WHERE transaction_hash = ?',
+			[txHash],
+		)
+		expect(transactions.length).toBe(1)
+		expect(transactions[0].user_id).toBe(userId)
+		expect(transactions[0].transaction_hash).toBe(txHash)
+		expect(transactions[0].status).toBe(status)
+
+		// inserting the same transaction_hash should violate the UNIQUE constraint
+		await expect(
+			insertTransaction(db, { user_id: userId, transaction_hash: txHash, status: 'failed' }),
+		).rejects.toThrow()
+
+		// deleting the KYC row should cascade and remove dependent transactions
+		await run(db, 'DELETE FROM kyc WHERE id = ?', [userId])
+		const remainingTransactions = await all<{ id: number }>(
+			db,
+			'SELECT id FROM transactions WHERE user_id = ?',
+			[userId],
+		)
+		expect(remainingTransactions.length).toBe(0)
+	})
+
+	test('can INSERT multiple transactions for same user with different hashes', async () => {
+		// create a KYC row
+		await run(db, 'INSERT INTO kyc (name, document, status) VALUES (?, ?, ?)', [
+			'Frank',
+			'DOC-TX-MULTI',
+			'approved',
+		])
+		const kycRows = await all<KycRow>(db, 'SELECT * FROM kyc WHERE document = ?', ['DOC-TX-MULTI'])
+		const userId = kycRows[0].id
+
+		// insert multiple transactions for the same user
+		const transactions = [
+			{ hash: 'TX_HASH_1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', status: 'success' },
+			{ hash: 'TX_HASH_2_BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB', status: 'failed' },
+			{ hash: 'TX_HASH_3_CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC', status: 'pending' },
+		]
+
+		for (const tx of transactions) {
+			await expect(
+				insertTransaction(db, { user_id: userId, transaction_hash: tx.hash, status: tx.status }),
+			).resolves.toBeUndefined()
+		}
+
+		// verify all transactions were inserted
+		const allUserTransactions = await all<TransactionRow>(
+			db,
+			'SELECT * FROM transactions WHERE user_id = ? ORDER BY transaction_hash',
+			[userId],
+		)
+		expect(allUserTransactions.length).toBe(3)
+		expect(allUserTransactions.map((t) => t.status)).toEqual(['success', 'failed', 'pending'])
+		expect(allUserTransactions.map((t) => t.transaction_hash)).toEqual([
+			'TX_HASH_1_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+			'TX_HASH_2_BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+			'TX_HASH_3_CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC',
+		])
 	})
 })

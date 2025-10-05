@@ -1,7 +1,7 @@
 import cors from 'cors'
 import express, { type NextFunction, type Request, type Response } from 'express'
 import envs from './config/envs'
-import { logger, loggerMiddleware, logError } from './middlewares/logger'
+import { logError, logger, loggerMiddleware } from './middlewares/logger'
 import { authLimiter, kycLimiter, walletLimiter } from './middlewares/rate-limit'
 import { authLoginRouter } from './routes/auth-login'
 import { kycRouter } from './routes/kyc'
