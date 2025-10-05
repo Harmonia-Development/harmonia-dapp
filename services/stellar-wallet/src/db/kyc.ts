@@ -211,3 +211,17 @@ export async function insertTransaction(
 	const sql = 'INSERT INTO transactions (user_id, transaction_hash, status) VALUES (?, ?, ?);'
 	await run(db, sql, [args.user_id, args.transaction_hash, args.status])
 }
+
+/**
+ * Retrieves all transactions for a given user, ordered by id DESC (newest first).
+ */
+export async function getTransactionsByUserId(
+	db: sqlite3.Database,
+	userId: number,
+): Promise<TransactionRow[]> {
+	return all<TransactionRow>(
+		db,
+		'SELECT id, user_id, transaction_hash, status FROM transactions WHERE user_id = ? ORDER BY id DESC;',
+		[userId],
+	)
+}
