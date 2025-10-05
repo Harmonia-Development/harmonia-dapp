@@ -1,8 +1,8 @@
 // Set environment variable for testing
 process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-purposes-only-32-chars-long'
 
-import { generateToken, verifyToken, jwtMiddleware } from '../../src/auth/jwt'
-import { type Request, type Response, type NextFunction } from 'express'
+import type { NextFunction, Request, Response } from 'express'
+import { generateToken, jwtMiddleware, verifyToken } from '../../src/auth/jwt'
 
 describe('JWT Authentication', () => {
 	describe('generateToken', () => {

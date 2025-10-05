@@ -1,6 +1,6 @@
-import type { NextFunction, Request, Response } from 'express'
 import fs from 'node:fs'
 import path from 'node:path'
+import type { NextFunction, Request, Response } from 'express'
 import winston from 'winston'
 
 const logsDir = path.join(process.cwd(), 'services', 'stellar-wallet', 'logs')

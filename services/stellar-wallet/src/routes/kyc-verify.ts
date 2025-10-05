@@ -1,11 +1,11 @@
 import { createHash } from 'node:crypto'
-import { Router, type Request, type Response } from 'express'
 import * as StellarSdk from '@stellar/stellar-sdk'
+import { type Request, type Response, Router } from 'express'
+import envs from '../config/envs'
 import { connectDB, findKycById, run } from '../db/kyc'
 import { validateKycData } from '../kyc/validate'
+import { logError, logger } from '../middlewares/logger'
 import { connectSoroban } from '../soroban/client'
-import envs from '../config/envs'
-import { logger, logError } from '../middlewares/logger'
 
 export const kycVerifyRouter = Router()
 
@@ -41,7 +41,7 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 
 		// Connect to database and verify kyc_id exists
 		const db = await connectDB()
-		const kycRecord = await findKycById(db, parseInt(kyc_id))
+		const kycRecord = await findKycById(db, Number.parseInt(kyc_id))
 		if (!kycRecord) {
 			return res.status(400).json({ error: 'Invalid kyc_id' })
 		}
@@ -95,7 +95,7 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 		}
 
 		// Update database status to approved
-		await run(db, 'UPDATE kyc SET status = ? WHERE id = ?', ['approved', parseInt(kyc_id)])
+		await run(db, 'UPDATE kyc SET status = ? WHERE id = ?', ['approved', Number.parseInt(kyc_id)])
 
 		// Return success response
 		const verifyResponse: VerifyKycResponse = {

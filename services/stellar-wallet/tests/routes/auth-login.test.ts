@@ -1,3 +1,4 @@
+import type { NextFunction, Request, Response } from 'express'
 import request from 'supertest'
 import { app } from '../../src/index'
 
@@ -10,10 +11,11 @@ jest.mock('../../src/auth/webauthn', () => ({
 // Mock the JWT module
 jest.mock('../../src/auth/jwt', () => ({
 	generateToken: jest.fn(),
+	jwtMiddleware: jest.fn((req: Request, res: Response, next: NextFunction) => next()),
 }))
 
-import { verifyWebAuthnAuthentication, getUserCredentials } from '../../src/auth/webauthn'
 import { generateToken } from '../../src/auth/jwt'
+import { getUserCredentials, verifyWebAuthnAuthentication } from '../../src/auth/webauthn'
 
 const mockVerifyWebAuthnAuthentication = verifyWebAuthnAuthentication as jest.MockedFunction<
 	typeof verifyWebAuthnAuthentication

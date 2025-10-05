@@ -1,7 +1,7 @@
 import { type Request, type Response, Router } from 'express'
 import { type KycRow, all, connectDB, initializeKycTable, run } from '../db/kyc'
 import { validateKycData } from '../kyc/validate'
-import { logger, logError } from '../middlewares/logger'
+import { logError, logger } from '../middlewares/logger'
 
 export const kycRouter = Router()
 
