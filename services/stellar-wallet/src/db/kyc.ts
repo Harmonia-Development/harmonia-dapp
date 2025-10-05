@@ -28,6 +28,13 @@ export type AccountRow = {
 	private_key: string
 }
 
+export type TransactionRow = {
+	id: number
+	user_id: number
+	transaction_hash: string
+	status: string
+}
+
 /**
  * Returns a single shared SQLite database instance (singleton).
  * Creates the file/directory if missing and applies PRAGMAs once.
@@ -169,4 +176,38 @@ export async function findAccountByUserId(
 		userId,
 	])
 	return rows.length ? rows[0] : null
+}
+
+/**
+ * Creates the `transactions` table if it doesn't exist (idempotent).
+ * FK: transactions.user_id → kyc(id) ON DELETE CASCADE
+ */
+export async function initializeTransactionsTable(db?: sqlite3.Database): Promise<void> {
+	const conn = db ?? (await connectDB())
+	const sql = `
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      transaction_hash TEXT NOT NULL,
+      status TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES kyc(id) ON DELETE CASCADE
+    );
+  `
+	await run(conn, sql)
+	await run(conn, 'CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions (user_id);')
+	await run(
+		conn,
+		'CREATE UNIQUE INDEX IF NOT EXISTS idx_transactions_hash ON transactions (transaction_hash);',
+	)
+}
+
+/**
+ * Inserts a new transaction record.
+ */
+export async function insertTransaction(
+	db: sqlite3.Database,
+	args: { user_id: number; transaction_hash: string; status: string },
+): Promise<void> {
+	const sql = 'INSERT INTO transactions (user_id, transaction_hash, status) VALUES (?, ?, ?);'
+	await run(db, sql, [args.user_id, args.transaction_hash, args.status])
 }
