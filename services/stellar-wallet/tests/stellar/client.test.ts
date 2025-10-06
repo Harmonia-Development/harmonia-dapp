@@ -1,32 +1,34 @@
-import * as StellarSdk from '@stellar/stellar-sdk'
+import { beforeEach, describe, expect, it, mock } from 'bun:test'
 import envs from '../../src/config/envs'
-import { connect, isConnected } from '../../src/stellar/client'
 
-// Mock the Stellar SDK to avoid real network calls
-jest.mock('@stellar/stellar-sdk', () => {
-	const actual = jest.requireActual('@stellar/stellar-sdk')
-	return {
-		...actual,
-		Horizon: {
-			Server: jest.fn().mockImplementation(() => ({
-				// Mock root() to simulate a healthy Horizon server
-				root: jest.fn().mockResolvedValue({ horizon: 'testnet' }),
-			})),
-		},
-	}
-})
+// Create mocks
+const rootMock = mock(() => Promise.resolve({ horizon: 'testnet' }))
+const ServerMock = mock(() => ({
+	root: rootMock,
+}))
+
+// Mock the Stellar SDK module
+mock.module('@stellar/stellar-sdk', () => ({
+	Horizon: {
+		Server: ServerMock,
+	},
+}))
+
+// Import after mocking
+import { connect, isConnected } from '../../src/stellar/client'
 
 describe('Stellar Client', () => {
 	beforeEach(() => {
 		// Clear all mocks before each test to avoid interference
-		jest.clearAllMocks()
+		ServerMock.mockClear()
+		rootMock.mockClear()
 	})
 
 	it('connect() should return a HorizonServer instance', () => {
 		const server = connect()
 		expect(server).toBeDefined()
 		// Ensure the server was instantiated with the correct Horizon URL
-		expect(StellarSdk.Horizon.Server).toHaveBeenCalledWith(envs.HORIZON_URL)
+		expect(ServerMock).toHaveBeenCalledWith(envs.HORIZON_URL)
 	})
 
 	it('connect() should return the same instance on multiple calls', () => {
@@ -41,14 +43,12 @@ describe('Stellar Client', () => {
 		expect(result).toBe(true)
 
 		// Verify that the root() method was called once
-		const s = connect()
-		expect(s.root).toHaveBeenCalledTimes(1)
+		expect(rootMock).toHaveBeenCalledTimes(1)
 	})
 
 	it('isConnected() should return false when server throws an error', async () => {
-		const mockedServer = connect()
 		// Simulate Horizon server failure
-		jest.spyOn(mockedServer, 'root').mockRejectedValue(new Error('Failed'))
+		rootMock.mockRejectedValueOnce(new Error('Failed'))
 
 		const result = await isConnected()
 		expect(result).toBe(false)
