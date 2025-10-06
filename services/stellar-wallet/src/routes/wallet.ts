@@ -1,4 +1,5 @@
 import { Asset, Memo, Networks, Operation, StrKey, TransactionBuilder } from '@stellar/stellar-sdk'
+import type { ServerApi } from '@stellar/stellar-sdk/lib/horizon'
 import { type Request, type Response, Router } from 'express'
 import { z } from 'zod'
 import { jwtMiddleware } from '../auth/jwt'
@@ -6,6 +7,7 @@ import {
 	connectDB,
 	findAccountByUserId,
 	findKycById,
+	getTransactionsByUserId,
 	initializeAccountsTable,
 	initializeTransactionsTable,
 	insertAccount,
@@ -226,5 +228,90 @@ walletRouter.post('/send', jwtMiddleware, async (req: Request, res: Response) =>
 
 		logError(err, { route: '/wallet/send', user_id })
 		return res.status(500).json({ error: 'Transaction failed' })
+	}
+})
+
+/**
+ * GET /wallet/transactions/:user_id
+ * Protection: jwtMiddleware
+ * Flow: validate user_id -> fetch from DB -> enrich with Horizon details -> respond
+ */
+walletRouter.get('/transactions/:user_id', jwtMiddleware, async (req: Request, res: Response) => {
+	const authReq = req as AuthRequest
+
+	// Validate user_id parameter
+	const userIdParam = req.params.user_id
+	const uid = Number.parseInt(userIdParam, 10)
+
+	if (Number.isNaN(uid) || uid <= 0 || !Number.isInteger(uid)) {
+		return res.status(400).json({ error: 'Invalid user_id' })
+	}
+
+	// Verify user_id matches JWT
+	if (Number.parseInt(authReq.user?.user_id || '0') !== uid) {
+		return res.status(403).json({ error: 'Forbidden' })
+	}
+
+	try {
+		const db = await connectDB()
+		await initializeTransactionsTable(db)
+
+		// Fetch transactions from DB
+		const txRows = await getTransactionsByUserId(db, uid)
+
+		// If no transactions, return empty array
+		if (txRows.length === 0) {
+			return res.status(200).json([])
+		}
+
+		// Connect to Horizon
+		const server = connect()
+
+		// Enrich transactions with Horizon details in parallel
+		const enrichedTransactions = await Promise.all(
+			txRows.map(async (row) => {
+				try {
+					// Fetch transaction details for timestamp
+					const txDetail = await server.transactions().transaction(row.transaction_hash).call()
+					const timestamp = txDetail.created_at
+
+					// Fetch operations for amount and destination
+					const opsResponse = await server.operations().forTransaction(row.transaction_hash).call()
+
+					// Find first payment operation
+					const paymentOp = opsResponse.records.find(
+						(op: ServerApi.OperationRecord) => op.type === 'payment',
+					) as ServerApi.PaymentOperationRecord | undefined
+
+					let amount = '0'
+					let destination = ''
+
+					if (paymentOp) {
+						amount = paymentOp.amount || '0'
+						destination = paymentOp.to || ''
+					}
+
+					return {
+						transaction_hash: row.transaction_hash,
+						amount,
+						destination,
+						status: row.status,
+						timestamp,
+					}
+				} catch (horizonErr) {
+					// If Horizon fails for a specific transaction, log and skip enrichment
+					logError(horizonErr, {
+						route: '/wallet/transactions',
+						transaction_hash: row.transaction_hash,
+					})
+					throw horizonErr // Re-throw to be caught by outer try-catch
+				}
+			}),
+		)
+
+		return res.status(200).json(enrichedTransactions)
+	} catch (err) {
+		logError(err, { route: '/wallet/transactions', user_id: uid })
+		return res.status(500).json({ error: 'Failed to fetch transactions' })
 	}
 })
