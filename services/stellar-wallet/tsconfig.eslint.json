@@ -1,6 +1,6 @@
 {
 	"extends": "./tsconfig.json",
-	"include": ["src/**/*.ts", "tests/**/*.test.ts"],
+	"include": ["src/**/*.ts", "tests/**/*.test.ts", "tests/helpers/mock-auth.ts"],
 	"exclude": ["node_modules", "dist", "coverage", "jest.config.ts"],
 	"compilerOptions": {
 		"noEmit": true

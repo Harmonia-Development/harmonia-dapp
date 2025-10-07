@@ -17,6 +17,10 @@ const envSchema = z.object({
 		process.env.NODE_ENV === 'test'
 			? z.string().default('CTEST_MOCK_CONTRACT_FOR_TESTING')
 			: z.string().min(1, 'SOROBAN_CONTRACT_ID is required'),
+	JWT_SECRET:
+		process.env.NODE_ENV === 'test'
+			? z.string().default('test-jwt-secret-key-for-testing')
+			: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
 })
 
 // Validate and parse environment variables
