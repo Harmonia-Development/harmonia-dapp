@@ -48,8 +48,8 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 
 		// Generate hash of KYC data
 		const kycDataString = JSON.stringify({
-			name: validation.data!.name,
-			document: validation.data!.document,
+			name,
+			document,
 		})
 		const dataHash = createHash('sha256').update(kycDataString).digest('hex')
 
