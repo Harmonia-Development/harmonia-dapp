@@ -4,6 +4,7 @@ import envs from './config/envs'
 import { logError, logger, loggerMiddleware } from './middlewares/logger'
 import { authLimiter, kycLimiter, walletLimiter } from './middlewares/rate-limit'
 import { authLoginRouter } from './routes/auth-login'
+import { authRegisterRouter } from './routes/auth-register'
 import { kycRouter } from './routes/kyc'
 import { kycVerifyRouter } from './routes/kyc-verify'
 import { walletRouter } from './routes/wallet'
@@ -24,8 +25,9 @@ app.post('/auth', authLimiter, (_req: Request, res: Response) => {
 	res.status(200).json({})
 })
 
-// Mount auth login routes
+// Mount auth routes
 app.use('/auth', authLoginRouter)
+app.use('/auth', authRegisterRouter) // ← Fixed: use consistent naming
 
 // Protected routes - require JWT authentication
 app.use('/kyc', kycLimiter, kycRouter)
