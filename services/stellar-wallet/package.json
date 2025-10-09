@@ -17,6 +17,10 @@
 	"author": "",
 	"license": "ISC",
 	"description": "Stellar wallet service for managing accounts and transactions",
+	"engines": {
+		"node": ">=20.0.0",
+		"npm": ">=10.0.0"
+	},
 	"devDependencies": {
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.3",

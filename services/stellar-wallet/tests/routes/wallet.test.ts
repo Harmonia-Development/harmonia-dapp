@@ -111,10 +111,44 @@ const loadAccountMock = jest.fn().mockResolvedValue({ accountId: 'SOURCE', seque
 const fetchBaseFeeMock = jest.fn().mockResolvedValue(100)
 const submitTransactionMock = jest.fn().mockResolvedValue({ hash: 'TXHASH_SUCCESS' })
 
+// Mocks for transaction history endpoint
+const transactionCallMock = jest.fn().mockResolvedValue({
+	created_at: '2024-01-01T00:00:00Z',
+})
+
+const forTransactionCallMock = jest.fn().mockResolvedValue({
+	records: [
+		{
+			type: 'payment',
+			to: 'GDESTINATION123',
+			amount: '10.0000000',
+			asset_type: 'native',
+		},
+	],
+})
+
+const forTransactionMock = jest.fn().mockReturnValue({
+	call: forTransactionCallMock,
+})
+
+const operationsMock = jest.fn().mockReturnValue({
+	forTransaction: forTransactionMock,
+})
+
+const transactionMock = jest.fn().mockReturnValue({
+	call: transactionCallMock,
+})
+
+const transactionsMock = jest.fn().mockReturnValue({
+	transaction: transactionMock,
+})
+
 const connectMock = jest.fn().mockReturnValue({
 	loadAccount: loadAccountMock,
 	fetchBaseFee: fetchBaseFeeMock,
 	submitTransaction: submitTransactionMock,
+	operations: operationsMock,
+	transactions: transactionsMock,
 })
 
 jest.mock('../../src/stellar/client', () => ({
@@ -166,6 +200,18 @@ const insertTransactionMock: jest.Mock<Promise<void>, [unknown, InsertTransactio
 	.fn<Promise<void>, [unknown, InsertTransactionArgs]>()
 	.mockResolvedValue(undefined)
 
+const getTransactionsByUserIdMock: jest.Mock<
+	Promise<
+		Array<{
+			id: number
+			user_id: number
+			transaction_hash: string
+			status: string
+		}>
+	>,
+	[unknown, number]
+> = jest.fn().mockResolvedValue([])
+
 jest.mock('../../src/db/kyc', () => {
 	const actual = jest.requireActual('../../src/db/kyc')
 	return {
@@ -179,6 +225,17 @@ jest.mock('../../src/db/kyc', () => {
 		findAccountByUserId: findAccountByUserIdMock,
 		insertTransaction: (db: unknown, args: InsertTransactionArgs): Promise<void> =>
 			insertTransactionMock(db, args),
+		getTransactionsByUserId: (
+			db: unknown,
+			userId: number,
+		): Promise<
+			Array<{
+				id: number
+				user_id: number
+				transaction_hash: string
+				status: string
+			}>
+		> => getTransactionsByUserIdMock(db, userId),
 	}
 })
 
@@ -443,6 +500,226 @@ describe('POST /wallet/send', () => {
 			user_id: 1,
 			transaction_hash: 'unknown', // Since error doesn't have direct hash property
 			status: 'failed',
+		})
+	})
+})
+
+describe('GET /wallet/transactions/:user_id', () => {
+	beforeEach(() => {
+		jest.clearAllMocks()
+		JWT_BEHAVIOR = 'success'
+		AUTH_USER_ID = '1'
+
+		// Reset Horizon mocks
+		transactionCallMock.mockResolvedValue({
+			created_at: '2024-01-01T00:00:00Z',
+		})
+		forTransactionCallMock.mockResolvedValue({
+			records: [
+				{
+					type: 'payment',
+					to: 'GDESTINATION123',
+					amount: '10.0000000',
+					asset_type: 'native',
+				},
+			],
+		})
+	})
+
+	it('returns 200 with enriched transactions on success', async () => {
+		// Mock DB returning 2 transactions
+		getTransactionsByUserIdMock.mockResolvedValueOnce([
+			{
+				id: 1,
+				user_id: 1,
+				transaction_hash: 'HASH1',
+				status: 'success',
+			},
+			{
+				id: 2,
+				user_id: 1,
+				transaction_hash: 'HASH2',
+				status: 'success',
+			},
+		])
+
+		// Mock Horizon responses for both transactions
+		transactionCallMock
+			.mockResolvedValueOnce({ created_at: '2024-01-01T10:00:00Z' })
+			.mockResolvedValueOnce({ created_at: '2024-01-02T15:30:00Z' })
+
+		forTransactionCallMock
+			.mockResolvedValueOnce({
+				records: [
+					{
+						type: 'payment',
+						to: 'GDEST1',
+						amount: '50.0000000',
+						asset_type: 'native',
+					},
+				],
+			})
+			.mockResolvedValueOnce({
+				records: [
+					{
+						type: 'payment',
+						to: 'GDEST2',
+						amount: '25.5000000',
+						asset_type: 'native',
+					},
+				],
+			})
+
+		const res = await request(app).get('/wallet/transactions/1')
+
+		expect(res.status).toBe(200)
+		expect(res.body).toHaveLength(2)
+		expect(res.body[0]).toEqual({
+			transaction_hash: 'HASH1',
+			amount: '50.0000000',
+			destination: 'GDEST1',
+			status: 'success',
+			timestamp: '2024-01-01T10:00:00Z',
+		})
+		expect(res.body[1]).toEqual({
+			transaction_hash: 'HASH2',
+			amount: '25.5000000',
+			destination: 'GDEST2',
+			status: 'success',
+			timestamp: '2024-01-02T15:30:00Z',
+		})
+
+		// Verify calls
+		expect(getTransactionsByUserIdMock).toHaveBeenCalledWith(expect.anything(), 1)
+		expect(transactionMock).toHaveBeenCalledWith('HASH1')
+		expect(transactionMock).toHaveBeenCalledWith('HASH2')
+		expect(forTransactionMock).toHaveBeenCalledWith('HASH1')
+		expect(forTransactionMock).toHaveBeenCalledWith('HASH2')
+	})
+
+	it('returns 200 with empty array when no transactions exist', async () => {
+		getTransactionsByUserIdMock.mockResolvedValueOnce([])
+
+		const res = await request(app).get('/wallet/transactions/1')
+
+		expect(res.status).toBe(200)
+		expect(res.body).toEqual([])
+
+		// Horizon should not be called
+		expect(transactionMock).not.toHaveBeenCalled()
+		expect(forTransactionMock).not.toHaveBeenCalled()
+	})
+
+	it('returns 400 for invalid user_id', async () => {
+		const res = await request(app).get('/wallet/transactions/invalid')
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'Invalid user_id' })
+	})
+
+	it('returns 400 for negative user_id', async () => {
+		const res = await request(app).get('/wallet/transactions/-1')
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'Invalid user_id' })
+	})
+
+	it('returns 400 for zero user_id', async () => {
+		const res = await request(app).get('/wallet/transactions/0')
+
+		expect(res.status).toBe(400)
+		expect(res.body).toEqual({ error: 'Invalid user_id' })
+	})
+
+	it('returns 403 when user_id does not match JWT', async () => {
+		AUTH_USER_ID = '99'
+
+		const res = await request(app).get('/wallet/transactions/1')
+
+		expect(res.status).toBe(403)
+		expect(res.body).toEqual({ error: 'Forbidden' })
+
+		// Should not call DB
+		expect(getTransactionsByUserIdMock).not.toHaveBeenCalled()
+	})
+
+	it('returns 401 when JWT is invalid', async () => {
+		JWT_BEHAVIOR = 'fail'
+
+		const res = await request(app).get('/wallet/transactions/1')
+
+		expect(res.status).toBe(401)
+		expect(res.body).toEqual({ error: 'unauthorized' })
+	})
+
+	it('returns 500 when Horizon transaction call fails', async () => {
+		getTransactionsByUserIdMock.mockResolvedValueOnce([
+			{
+				id: 1,
+				user_id: 1,
+				transaction_hash: 'HASH_FAIL',
+				status: 'success',
+			},
+		])
+
+		transactionCallMock.mockRejectedValueOnce(new Error('Horizon transaction API error'))
+
+		const res = await request(app).get('/wallet/transactions/1')
+
+		expect(res.status).toBe(500)
+		expect(res.body).toEqual({ error: 'Failed to fetch transactions' })
+	})
+
+	it('returns 500 when Horizon operations call fails', async () => {
+		getTransactionsByUserIdMock.mockResolvedValueOnce([
+			{
+				id: 1,
+				user_id: 1,
+				transaction_hash: 'HASH_FAIL',
+				status: 'success',
+			},
+		])
+
+		transactionCallMock.mockResolvedValueOnce({ created_at: '2024-01-01T00:00:00Z' })
+		forTransactionCallMock.mockRejectedValueOnce(new Error('Horizon operations API error'))
+
+		const res = await request(app).get('/wallet/transactions/1')
+
+		expect(res.status).toBe(500)
+		expect(res.body).toEqual({ error: 'Failed to fetch transactions' })
+	})
+
+	it('handles transactions without payment operations gracefully', async () => {
+		getTransactionsByUserIdMock.mockResolvedValueOnce([
+			{
+				id: 1,
+				user_id: 1,
+				transaction_hash: 'HASH_NO_PAYMENT',
+				status: 'success',
+			},
+		])
+
+		transactionCallMock.mockResolvedValueOnce({ created_at: '2024-01-01T12:00:00Z' })
+		forTransactionCallMock.mockResolvedValueOnce({
+			records: [
+				{
+					type: 'create_account',
+					destination: 'GNEWACCOUNT',
+					starting_balance: '100',
+				},
+			],
+		})
+
+		const res = await request(app).get('/wallet/transactions/1')
+
+		expect(res.status).toBe(200)
+		expect(res.body).toHaveLength(1)
+		expect(res.body[0]).toEqual({
+			transaction_hash: 'HASH_NO_PAYMENT',
+			amount: '0',
+			destination: '',
+			status: 'success',
+			timestamp: '2024-01-01T12:00:00Z',
 		})
 	})
 })
