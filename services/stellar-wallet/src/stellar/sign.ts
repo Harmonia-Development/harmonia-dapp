@@ -69,7 +69,8 @@ export async function signTransaction(
 	logger.debug({
 		message: 'sign_transaction_success',
 		user_id: userId,
-		tx_hash: 'hash' in tx && typeof tx.hash === 'function' ? tx.hash().toString('hex') : undefined,
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		tx_hash: (tx as any).hash?.().toString('hex'),
 	})
 	return tx
 }

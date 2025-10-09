@@ -25,8 +25,8 @@ describe('logger middleware', () => {
 		app.use(loggerMiddleware)
 		app.get('/ok', (_req, res) => res.status(200).json({ ok: true }))
 		app.get('/user', (req, res) => {
-			// biome-ignore lint/suspicious/noExplicitAny: Test mock setup requires any
-			;(req as any).user = { id: 42, user_id: '42', role: 'test' }
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+			;(req as any).user = { id: 42 }
 			return res.status(200).json({ ok: true })
 		})
 		app.get('/error', () => {
@@ -47,14 +47,14 @@ describe('logger middleware', () => {
 		expect(winston.__mocks.info).toHaveBeenCalled()
 		const calls = (winston.__mocks.info as jest.Mock).mock.calls
 		const hasIncoming = calls.some(
-			// biome-ignore lint/suspicious/noExplicitAny: Test log inspection requires any
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			(args: any[]) =>
 				args[0]?.message === 'incoming_request' &&
 				args[0]?.url === '/ok' &&
 				args[0]?.method === 'GET',
 		)
 		const hasCompleted = calls.some(
-			// biome-ignore lint/suspicious/noExplicitAny: Test log inspection requires any
+			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 			(args: any[]) => args[0]?.message === 'request_completed' && args[0]?.url === '/ok',
 		)
 		expect(hasIncoming).toBe(true)
@@ -65,7 +65,7 @@ describe('logger middleware', () => {
 		const winston = require('winston')
 		await request(app).get('/user').expect(200)
 		const calls = (winston.__mocks.info as jest.Mock).mock.calls
-		// biome-ignore lint/suspicious/noExplicitAny: Test log inspection requires any
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		const hasUser = calls.some((args: any[]) => args[0]?.user_id === '42')
 		expect(hasUser).toBe(true)
 	})
@@ -75,7 +75,7 @@ describe('logger middleware', () => {
 		await request(app).get('/error').expect(500)
 		expect(winston.__mocks.error).toHaveBeenCalled()
 		const calls = (winston.__mocks.error as jest.Mock).mock.calls
-		// biome-ignore lint/suspicious/noExplicitAny: Test log inspection requires any
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		const hasBoom = calls.some((args: any[]) => String(args[0]?.message).includes('boom'))
 		expect(hasBoom).toBe(true)
 	})

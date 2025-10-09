@@ -47,12 +47,15 @@
 		]
 	},
 	"dependencies": {
-		"@creit.tech/stellar-wallets-kit": "^1.7.3",
+		"@creit.tech/stellar-wallets-kit": "^0.6.1",
 		"@epic-web/invariant": "^1.0.0",
 		"@next/swc-wasm-nodejs": "^15.4.4",
 		"@next/third-parties": "^15.3.1",
 		"@react-three/drei": "^10.0.7",
 		"@react-three/fiber": "^9.1.2",
+		"@simplewebauthn/server": "^13.2.2",
+		"drizzle-kit": "0.18.1",
+		"next": "15.5.4",
 		"three": "^0.176.0"
 	}
 }

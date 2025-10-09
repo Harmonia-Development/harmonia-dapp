@@ -58,6 +58,99 @@ export interface WebAuthnAuthenticationResponse {
 	type: 'public-key'
 }
 
+export interface RegistrationOptions {
+	challenge: string
+	rp: {
+		name: string
+		id: string
+	}
+	user: {
+		id: string
+		name: string
+		displayName: string
+	}
+	pubKeyCredParams: Array<{
+		type: 'public-key'
+		alg: number
+	}>
+	timeout: number
+	attestation: 'none' | 'indirect' | 'direct'
+	authenticatorSelection: {
+		authenticatorAttachment?: 'platform' | 'cross-platform'
+		requireResidentKey: boolean
+		residentKey: 'discouraged' | 'preferred' | 'required'
+		userVerification: 'required' | 'preferred' | 'discouraged'
+	}
+}
+
+/**
+ * Generates WebAuthn registration options for the client
+ * @param user_id - The user identifier from the kyc table
+ * @param userName - Optional user name for display
+ * @returns RegistrationOptions - Options to send to the client for credential creation
+ */
+export const generateRegistrationOptions = (
+	user_id: string,
+	userName?: string,
+): RegistrationOptions => {
+	// Generate a random challenge (in production, store this temporarily to verify later)
+	const challenge = generateRandomChallenge()
+
+	return {
+		challenge,
+		rp: {
+			name: 'Wallet Service',
+			// eslint-disable-next-line no-undef
+			id: typeof window !== 'undefined' ? window.location.hostname : 'localhost',
+		},
+		user: {
+			id: user_id,
+			name: userName || `user_${user_id}`,
+			displayName: userName || `User ${user_id}`,
+		},
+		pubKeyCredParams: [
+			{ type: 'public-key', alg: -7 }, // ES256 (Elliptic Curve)
+			{ type: 'public-key', alg: -257 }, // RS256 (RSA)
+		],
+		timeout: 60000, // 60 seconds
+		attestation: 'none',
+		authenticatorSelection: {
+			authenticatorAttachment: 'platform', // Prefer built-in authenticators (Touch ID, Face ID, Windows Hello)
+			requireResidentKey: false,
+			residentKey: 'preferred',
+			userVerification: 'required',
+		},
+	}
+}
+
+/**
+ * Generates a random challenge for WebAuthn
+ * @returns string - Base64url encoded random challenge
+ */
+const generateRandomChallenge = (): string => {
+	const buffer = new Uint8Array(32)
+	if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+		crypto.getRandomValues(buffer)
+	} else {
+		// Fallback for Node.js
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		// biome-ignore lint/style/useNodejsImportProtocol: <explanation>
+		const cryptoNode = require('crypto')
+		cryptoNode.randomFillSync(buffer)
+	}
+	return base64UrlEncode(buffer)
+}
+
+/**
+ * Base64url encodes a buffer
+ * @param buffer - Uint8Array to encode
+ * @returns string - Base64url encoded string
+ */
+const base64UrlEncode = (buffer: Uint8Array): string => {
+	const base64 = Buffer.from(buffer).toString('base64')
+	return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
 /**
  * Verifies a WebAuthn authentication response
  * @param user_id - The user identifier

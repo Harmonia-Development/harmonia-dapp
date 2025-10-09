@@ -48,8 +48,10 @@ kycVerifyRouter.post('/verify', async (req: Request, res: Response) => {
 
 		// Generate hash of KYC data
 		const kycDataString = JSON.stringify({
-			name,
-			document,
+			// biome-ignore lint/style/noNonNullAssertion: <explanation>
+			name: validation.data!.name,
+			// biome-ignore lint/style/noNonNullAssertion: <explanation>
+			document: validation.data!.document,
 		})
 		const dataHash = createHash('sha256').update(kycDataString).digest('hex')
 

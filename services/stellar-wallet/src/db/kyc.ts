@@ -44,6 +44,13 @@ export type TransactionRow = {
 	status: string
 }
 
+export type CredentialRow = {
+	id: number
+	user_id: string
+	credential_id: string
+	public_key: string
+}
+
 /**
  * Returns a single shared SQLite database instance (singleton).
  * Creates the file/directory if missing and applies PRAGMAs once.
@@ -110,7 +117,14 @@ export async function closeDB(): Promise<void> {
 /**
  * Helper to run SQL commands (INSERT, UPDATE, DELETE, CREATE...) with Promises.
  */
-export function run(db: sqlite3.Database, sql: string, params: unknown[] = []): Promise<void> {
+export function run(
+	db: sqlite3.Database,
+	sql: string,
+	user_id: string,
+	credentialIdBase64: string,
+	publicKeyBase64: string,
+	params: unknown[] = [],
+): Promise<void> {
 	const runAsync = promisify(db.run.bind(db)) as (sql: string, params?: unknown[]) => Promise<void>
 	return runAsync(sql, params)
 }
@@ -270,15 +284,24 @@ export async function insertTransaction(
 }
 
 /**
- * Retrieves all transactions for a given user, ordered by id DESC (newest first).
+ * Creates the `credentials` table if it doesn't exist (idempotent).
+ * FK: credentials.user_id → kyc(id) ON DELETE CASCADE
  */
-export async function getTransactionsByUserId(
-	db: sqlite3.Database,
-	userId: number,
-): Promise<TransactionRow[]> {
-	return all<TransactionRow>(
-		db,
-		'SELECT id, user_id, transaction_hash, status FROM transactions WHERE user_id = ? ORDER BY id DESC;',
-		[userId],
+export async function initializeCredentialsTable(db?: sqlite3.Database): Promise<void> {
+	const conn = db ?? (await connectDB())
+	const sql = `
+    CREATE TABLE IF NOT EXISTS credentials (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      credential_id TEXT NOT NULL,
+      public_key TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES kyc(id) ON DELETE CASCADE
+    );
+  `
+	await run(conn, sql)
+	await run(
+		conn,
+		'CREATE UNIQUE INDEX IF NOT EXISTS idx_credentials_credential_id ON credentials (credential_id);',
 	)
+	await run(conn, 'CREATE INDEX IF NOT EXISTS idx_credentials_user_id ON credentials (user_id);')
 }
